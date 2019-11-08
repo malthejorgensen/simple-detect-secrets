@@ -193,18 +193,16 @@ def format_baseline_for_output(baseline):
     :type baseline: dict
     :rtype: str
     """
+    lines = []
     for filename, secret_list in baseline['results'].items():
-        baseline['results'][filename] = sorted(
-            secret_list,
-            key=lambda x: (x['line_number'], x['secret_value']),
-        )
+        lines_secrets = '\n'.join('Line %d: %s' % (x['line_number'], x['secret_value']) for x in secret_list)
+        line = f'''
+Filename: {filename}
+{lines_secrets}
+'''
+        lines.append(line)
 
-    return json.dumps(
-        baseline,
-        indent=2,
-        sort_keys=True,
-        separators=(',', ': '),
-    )
+    return '\n'.join(lines)
 
 
 def _get_git_tracked_files(rootdir='.'):
