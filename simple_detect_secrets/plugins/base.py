@@ -4,9 +4,9 @@ from abc import abstractmethod
 from abc import abstractproperty
 
 from .common.constants import ALLOWLIST_REGEXES
-from detect_secrets.core.code_snippet import CodeSnippetHighlighter
-from detect_secrets.core.constants import VerifiedResult
-from detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.core.code_snippet import CodeSnippetHighlighter
+from simple_detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.core.potential_secret import PotentialSecret
 
 
 # NOTE: In this whitepaper (Section V-D), it suggests that there's an

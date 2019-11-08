@@ -6,15 +6,15 @@ import random
 import mock
 import pytest
 
-from detect_secrets.core import baseline
-from detect_secrets.core.baseline import format_baseline_for_output
-from detect_secrets.core.baseline import get_secrets_not_in_baseline
-from detect_secrets.core.baseline import merge_baseline
-from detect_secrets.core.baseline import merge_results
-from detect_secrets.core.baseline import trim_baseline_of_removed_secrets
-from detect_secrets.core.potential_secret import PotentialSecret
-from detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
-from detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.core import baseline
+from simple_detect_secrets.core.baseline import format_baseline_for_output
+from simple_detect_secrets.core.baseline import get_secrets_not_in_baseline
+from simple_detect_secrets.core.baseline import merge_baseline
+from simple_detect_secrets.core.baseline import merge_results
+from simple_detect_secrets.core.baseline import trim_baseline_of_removed_secrets
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
 from testing.factories import secrets_collection_factory
 from testing.mocks import mock_git_calls
 from testing.mocks import mock_open

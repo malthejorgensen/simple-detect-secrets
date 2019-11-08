@@ -6,9 +6,9 @@ from contextlib import contextmanager
 import mock
 import pytest
 
-from detect_secrets import pre_commit_hook
-from detect_secrets import VERSION
-from detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets import pre_commit_hook
+from simple_detect_secrets import VERSION
+from simple_detect_secrets.core.potential_secret import PotentialSecret
 from testing.factories import secrets_collection_factory
 from testing.mocks import mock_git_calls
 from testing.mocks import mock_log as mock_log_base

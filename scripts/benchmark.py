@@ -10,10 +10,10 @@ import sys
 
 from monotonic import monotonic
 
-from detect_secrets.core.color import AnsiColor
-from detect_secrets.core.color import colorize
-from detect_secrets.core.usage import PluginOptions
-from detect_secrets.util import get_root_directory
+from simple_detect_secrets.core.color import AnsiColor
+from simple_detect_secrets.core.color import colorize
+from simple_detect_secrets.core.usage import PluginOptions
+from simple_detect_secrets.util import get_root_directory
 
 
 def main():

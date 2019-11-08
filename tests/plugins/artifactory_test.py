@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from detect_secrets.plugins.artifactory import ArtifactoryDetector
+from simple_detect_secrets.plugins.artifactory import ArtifactoryDetector
 
 
 class TestArtifactoryDetector(object):

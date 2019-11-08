@@ -5,8 +5,8 @@ import codecs
 
 import pytest
 
-from detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
-from detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
 from testing.mocks import mock_file_object
 
 

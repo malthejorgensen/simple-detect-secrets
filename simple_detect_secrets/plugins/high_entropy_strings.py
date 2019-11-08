@@ -24,7 +24,7 @@ from .common.filters import is_potential_uuid
 from .common.filters import is_sequential_string
 from .common.ini_file_parser import IniFileParser
 from .common.yaml_file_parser import YamlFileParser
-from detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.core.potential_secret import PotentialSecret
 
 
 class HighEntropyStringsPlugin(BasePlugin):

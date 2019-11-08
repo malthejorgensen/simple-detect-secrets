@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import pytest
 
-from detect_secrets.plugins.common import filters
+from simple_detect_secrets.plugins.common import filters
 
 
 class TestIsSequentialString(object):

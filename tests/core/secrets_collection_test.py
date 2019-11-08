@@ -9,12 +9,12 @@ from time import strftime
 import mock
 import pytest
 
-from detect_secrets import VERSION
-from detect_secrets.core.potential_secret import PotentialSecret
-from detect_secrets.core.secrets_collection import SecretsCollection
-from detect_secrets.plugins.base import BasePlugin
-from detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
-from detect_secrets.plugins.private_key import PrivateKeyDetector
+from simple_detect_secrets import VERSION
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.core.secrets_collection import SecretsCollection
+from simple_detect_secrets.plugins.base import BasePlugin
+from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.plugins.private_key import PrivateKeyDetector
 from testing.factories import secrets_collection_factory
 from testing.mocks import mock_log as mock_log_base
 from testing.mocks import mock_open as mock_open_base

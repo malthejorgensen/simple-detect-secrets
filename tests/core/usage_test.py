@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 import pytest
 
-from detect_secrets.core.usage import ParserBuilder
-from detect_secrets.plugins.common.util import import_plugins
+from simple_detect_secrets.core.usage import ParserBuilder
+from simple_detect_secrets.plugins.common.util import import_plugins
 
 
 class TestPluginOptions(object):

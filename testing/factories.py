@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-from detect_secrets.core.potential_secret import PotentialSecret
-from detect_secrets.core.secrets_collection import SecretsCollection
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.core.secrets_collection import SecretsCollection
 
 
 def potential_secret_factory(

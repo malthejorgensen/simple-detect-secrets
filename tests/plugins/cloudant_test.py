@@ -5,9 +5,9 @@ import textwrap
 import pytest
 import responses
 
-from detect_secrets.core.constants import VerifiedResult
-from detect_secrets.plugins.cloudant import CloudantDetector
-from detect_secrets.plugins.cloudant import find_account
+from simple_detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.plugins.cloudant import CloudantDetector
+from simple_detect_secrets.plugins.cloudant import find_account
 
 CL_ACCOUNT = 'testy_-test'  # also called user
 # only detecting 64 hex CL generated password

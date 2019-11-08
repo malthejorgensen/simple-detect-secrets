@@ -10,7 +10,7 @@ import sys
 import tempfile
 from enum import Enum
 
-from detect_secrets.util import get_root_directory
+from simple_detect_secrets.util import get_root_directory
 
 
 class TestCase(Enum):

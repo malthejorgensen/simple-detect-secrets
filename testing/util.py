@@ -1,7 +1,7 @@
 import re
 
-from detect_secrets.plugins.base import RegexBasedDetector
-from detect_secrets.plugins.common.util import import_plugins
+from simple_detect_secrets.plugins.base import RegexBasedDetector
+from simple_detect_secrets.plugins.common.util import import_plugins
 
 
 # https://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
