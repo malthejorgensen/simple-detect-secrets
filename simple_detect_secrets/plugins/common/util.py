@@ -27,7 +27,7 @@ def import_plugins():
     """
     modules = []
     for root, _, files in os.walk(
-        os.path.join(get_root_directory(), 'detect_secrets/plugins'),
+        os.path.join(get_root_directory(), 'simple_detect_secrets/plugins'),
     ):
         for filename in files:
             if not filename.startswith('_'):
@@ -38,7 +38,7 @@ def import_plugins():
 
     plugins = {}
     for module_name in modules:
-        module = import_module('detect_secrets.plugins.{}'.format(module_name))
+        module = import_module('simple_detect_secrets.plugins.{}'.format(module_name))
         for name in filter(lambda x: not x.startswith('_'), dir(module)):
             plugin = getattr(module, name)
             try:
