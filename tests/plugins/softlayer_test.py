@@ -5,9 +5,9 @@ import textwrap
 import pytest
 import responses
 
-from detect_secrets.core.constants import VerifiedResult
-from detect_secrets.plugins.softlayer import find_username
-from detect_secrets.plugins.softlayer import SoftlayerDetector
+from simple_detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.plugins.softlayer import find_username
+from simple_detect_secrets.plugins.softlayer import SoftlayerDetector
 
 SL_USERNAME = 'test@testy.test'
 SL_TOKEN = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'

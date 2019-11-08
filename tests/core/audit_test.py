@@ -9,7 +9,7 @@ from copy import deepcopy
 import mock
 import pytest
 
-from detect_secrets.core import audit
+from simple_detect_secrets.core import audit
 from testing.factories import potential_secret_factory
 from testing.mocks import mock_open as mock_open_base
 from testing.mocks import mock_printer as mock_printer_base

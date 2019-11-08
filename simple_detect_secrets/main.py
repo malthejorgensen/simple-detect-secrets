@@ -6,14 +6,14 @@ from __future__ import unicode_literals
 import json
 import sys
 
-from detect_secrets.core import audit
-from detect_secrets.core import baseline
-from detect_secrets.core.common import write_baseline_to_file
-from detect_secrets.core.log import log
-from detect_secrets.core.secrets_collection import SecretsCollection
-from detect_secrets.core.usage import ParserBuilder
-from detect_secrets.plugins.common import initialize
-from detect_secrets.util import build_automaton
+from simple_detect_secrets.core import audit
+from simple_detect_secrets.core import baseline
+from simple_detect_secrets.core.common import write_baseline_to_file
+from simple_detect_secrets.core.log import log
+from simple_detect_secrets.core.secrets_collection import SecretsCollection
+from simple_detect_secrets.core.usage import ParserBuilder
+from simple_detect_secrets.plugins.common import initialize
+from simple_detect_secrets.util import build_automaton
 
 
 def parse_args(argv):

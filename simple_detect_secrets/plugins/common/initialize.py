@@ -1,8 +1,8 @@
 """Intelligent initialization of plugins."""
 from .util import get_mapping_from_secret_type_to_class_name
 from .util import import_plugins
-from detect_secrets.core.log import log
-from detect_secrets.core.usage import PluginOptions
+from simple_detect_secrets.core.log import log
+from simple_detect_secrets.core.usage import PluginOptions
 
 
 def from_parser_builder(

@@ -1,43 +1,32 @@
 from setuptools import find_packages
 from setuptools import setup
 
-from detect_secrets import VERSION
+from simple_detect_secrets import VERSION
 
 
 setup(
-    name='detect_secrets',
+    name='simple_detect_secrets',
     packages=find_packages(exclude=(['test*', 'tmp*'])),
     version=VERSION,
     description='Tool for detecting secrets in the codebase',
     long_description=(
-        'Check out detect-secrets on `GitHub <https://github.com/Yelp/detect-secrets>`_!'
+        'Check out simple-detect-secrets on `GitHub <https://github.com/malthejorgensen/simple-detect-secrets>`_!'
     ),
     license='Copyright Yelp, Inc. 2018',
-    author='Aaron Loo',
-    author_email='aaronloo@yelp.com',
-    url='https://github.com/Yelp/detect-secrets',
-    download_url='https://github.com/Yelp/detect-secrets/archive/{}.tar.gz'.format(VERSION),
+    author=u'Malthe Jørgensen',
+    author_email='malthe.jorgensen@gmail.com',
+    url='https://github.com/malthejorgensen/simple-detect-secrets',
+    download_url='https://github.com/malthejorgensen/simple-detect-secrets/archive/{}.tar.gz'.format(
+        VERSION
+    ),
     keywords=['secret-management', 'pre-commit', 'security', 'entropy-checks'],
-    install_requires=[
-        'pyyaml',
-        'requests',
-    ],
+    install_requires=['pyyaml', 'requests'],
     extras_require={
-        ':python_version=="2.7"': [
-            'configparser',
-            'enum34',
-            'future',
-            'functools32',
-        ],
-        'word_list': [
-            'pyahocorasick',
-        ],
+        ':python_version=="2.7"': ['configparser', 'enum34', 'future', 'functools32'],
+        'word_list': ['pyahocorasick'],
     },
     entry_points={
-        'console_scripts': [
-            'detect-secrets = detect_secrets.main:main',
-            'detect-secrets-hook = detect_secrets.pre_commit_hook:main',
-        ],
+        'console_scripts': ['simple-detect-secrets = simple_detect_secrets.main:main']
     },
     classifiers=[
         'Programming Language :: Python :: 2',

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pytest
 
-from detect_secrets.plugins.stripe import StripeDetector
+from simple_detect_secrets.plugins.stripe import StripeDetector
 from testing.mocks import mock_file_object
 
 

@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 import ahocorasick
 import pytest
 
-from detect_secrets.core.potential_secret import PotentialSecret
-from detect_secrets.plugins.keyword import KeywordDetector
-from detect_secrets.util import is_python_2
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.plugins.keyword import KeywordDetector
+from simple_detect_secrets.util import is_python_2
 from testing.mocks import mock_file_object
 
 

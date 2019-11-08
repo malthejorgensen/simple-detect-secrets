@@ -34,7 +34,7 @@ from .common.filetype import determine_file_type
 from .common.filetype import FileType
 from .common.filters import get_aho_corasick_helper
 from .common.filters import is_sequential_string
-from detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.core.potential_secret import PotentialSecret
 
 
 # Note: All values here should be lowercase

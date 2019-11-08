@@ -5,7 +5,7 @@ import re
 import requests
 
 from .base import RegexBasedDetector
-from detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.core.constants import VerifiedResult
 
 
 class SoftlayerDetector(RegexBasedDetector):

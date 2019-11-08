@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
-from detect_secrets.plugins.common.yaml_file_parser import YamlFileParser
+from simple_detect_secrets.plugins.common.yaml_file_parser import YamlFileParser
 from testing.mocks import mock_file_object
 
 

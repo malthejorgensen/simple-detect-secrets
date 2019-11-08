@@ -7,8 +7,8 @@ import os
 from abc import abstractproperty
 from importlib import import_module
 
-from detect_secrets.plugins.base import BasePlugin
-from detect_secrets.util import get_root_directory
+from simple_detect_secrets.plugins.base import BasePlugin
+from simple_detect_secrets.util import get_root_directory
 
 
 @lru_cache(maxsize=1)

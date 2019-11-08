@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import pytest
 import responses
 
-from detect_secrets.core.constants import VerifiedResult
-from detect_secrets.plugins.ibm_cloud_iam import IbmCloudIamDetector
+from simple_detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.plugins.ibm_cloud_iam import IbmCloudIamDetector
 
 
 CLOUD_IAM_KEY = 'abcd1234abcd1234abcd1234ABCD1234ABCD1234--__'

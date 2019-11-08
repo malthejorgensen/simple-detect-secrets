@@ -6,9 +6,9 @@ import textwrap
 import mock
 import pytest
 
-from detect_secrets.core.constants import VerifiedResult
-from detect_secrets.plugins.aws import AWSKeyDetector
-from detect_secrets.plugins.aws import get_secret_access_keys
+from simple_detect_secrets.core.constants import VerifiedResult
+from simple_detect_secrets.plugins.aws import AWSKeyDetector
+from simple_detect_secrets.plugins.aws import get_secret_access_keys
 from testing.mocks import mock_file_object
 
 

@@ -7,12 +7,12 @@ import re
 from time import gmtime
 from time import strftime
 
-from detect_secrets import VERSION
-from detect_secrets.core.constants import IGNORED_FILE_EXTENSIONS
-from detect_secrets.core.log import log
-from detect_secrets.core.potential_secret import PotentialSecret
-from detect_secrets.plugins.common import initialize
-from detect_secrets.util import build_automaton
+from simple_detect_secrets import VERSION
+from simple_detect_secrets.core.constants import IGNORED_FILE_EXTENSIONS
+from simple_detect_secrets.core.log import log
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+from simple_detect_secrets.plugins.common import initialize
+from simple_detect_secrets.util import build_automaton
 
 
 class SecretsCollection(object):
