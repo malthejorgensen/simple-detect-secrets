@@ -54,30 +54,10 @@ class PotentialSecret(object):
         # If two PotentialSecrets have the same values for these fields,
         # they are considered equal. Note that line numbers aren't included
         # in this, because line numbers are subject to change.
-        self.fields_to_compare = ['filename', 'secret_hash', 'type']
+        self.fields_to_compare = ['filename', 'secret_value', 'type']
 
     def set_secret(self, secret):
-        self.secret_hash = self.hash_secret(secret)
-
-        # NOTE: Originally, we never wanted to keep the secret value in memory,
-        #       after finding it in the codebase. However, to support verifiable
-        #       secrets (and avoid the pain of re-scanning again), we need to
-        #       keep the plaintext in memory as such.
-        #
-        #       This value should never appear in the baseline though, seeing that
-        #       we don't want to create a file that contains all plaintext secrets
-        #       in the repository.
         self.secret_value = secret
-
-    @staticmethod
-    def hash_secret(secret):
-        """This offers a way to coherently test this class,
-        without mocking self.secret_hash.
-
-        :type secret: string
-        :rtype: string
-        """
-        return hashlib.sha1(secret.encode('utf-8')).hexdigest()
 
     def json(self):
         """Custom JSON encoder"""
@@ -85,7 +65,7 @@ class PotentialSecret(object):
             'type': self.type,
             'filename': self.filename,
             'line_number': self.lineno,
-            'hashed_secret': self.secret_hash,
+            'secret_value': self.secret_value,
             'is_verified': self.is_verified,
         }
 
