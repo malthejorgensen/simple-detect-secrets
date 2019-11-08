@@ -188,66 +188,6 @@ def trim_baseline_of_removed_secrets(results, baseline, filelist):
     return updated
 
 
-def merge_baseline(old_baseline, new_baseline):
-    """Updates baseline to be compatible with the latest version of
-    detect-secrets.
-
-    Currently, this only exists to transfer allowlisted secrets across
-    to the new baseline, and will only work with baselines created
-    after v0.9.
-
-    Note: that the exclude regex is handled separately.
-
-    :type old_baseline: dict
-    :param old_baseline: baseline dict, loaded from previous baseline
-
-    :type new_baseline: dict
-    :param new_baseline: most recent scan
-
-    :rtype: dict
-    """
-    new_baseline['results'] = merge_results(
-        old_baseline['results'],
-        new_baseline['results'],
-    )
-
-    return new_baseline
-
-
-def merge_results(old_results, new_results):
-    """Update results in baseline with latest information.
-
-    :type old_results: dict
-    :param old_results: results of status quo
-
-    :type new_results: dict
-    :param new_results: results to replace status quo
-
-    :rtype: dict
-    """
-    for filename, old_secrets in old_results.items():
-        if filename not in new_results:
-            continue
-
-        old_secrets_mapping = {}
-        for old_secret in old_secrets:
-            old_secrets_mapping[old_secret['hashed_secret']] = old_secret
-
-        for new_secret in new_results[filename]:
-            if new_secret['hashed_secret'] not in old_secrets_mapping:
-                # We don't join the two secret sets, because if the newer
-                # result set did not discover an old secret, it probably
-                # moved.
-                continue
-
-            old_secret = old_secrets_mapping[new_secret['hashed_secret']]
-            # Only propagate 'is_secret' if it's not already there
-            if 'is_secret' in old_secret and 'is_secret' not in new_secret:
-                new_secret['is_secret'] = old_secret['is_secret']
-
-    return new_results
-
-
 def format_baseline_for_output(baseline):
     """
     :type baseline: dict
