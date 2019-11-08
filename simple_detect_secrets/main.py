@@ -6,7 +6,6 @@ from __future__ import unicode_literals
 import json
 import sys
 
-from simple_detect_secrets.core import audit
 from simple_detect_secrets.core import baseline
 from simple_detect_secrets.core.common import write_baseline_to_file
 from simple_detect_secrets.core.log import log
@@ -71,30 +70,6 @@ def main(argv=None):
                         baseline_dict,
                     ),
                 )
-
-    elif args.action == 'audit':
-        if not args.diff and not args.display_results:
-            audit.audit_baseline(args.filename[0])
-            return 0
-
-        if args.display_results:
-            audit.print_audit_results(args.filename[0])
-            return 0
-
-        if len(args.filename) != 2:
-            print(
-                'Must specify two files to compare!',
-                file=sys.stderr,
-            )
-            return 1
-
-        try:
-            audit.compare_baselines(args.filename[0], args.filename[1])
-        except audit.RedundantComparisonError:
-            print(
-                'No difference, because it\'s the same file!',
-                file=sys.stderr,
-            )
 
     return 0
 
