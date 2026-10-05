@@ -109,7 +109,7 @@ class TestVerify:
                 return result
 
         with mock.patch(
-            'detect_secrets.plugins.base.CodeSnippetHighlighter',
+            'simple_detect_secrets.plugins.base.CodeSnippetHighlighter',
             autospec=True,
         ) as mock_snippet:
             plugin = MockPlugin()

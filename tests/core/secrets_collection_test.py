@@ -1,6 +1,5 @@
 import hashlib
 import json
-from contextlib import contextmanager
 from time import gmtime, strftime
 from unittest import mock
 
@@ -19,12 +18,12 @@ from testing.mocks import mock_open as mock_open_base
 
 @pytest.fixture
 def mock_log():
-    with mock_log_base('detect_secrets.core.secrets_collection.log') as m:
+    with mock_log_base('simple_detect_secrets.core.secrets_collection.log') as m:
         yield m
 
 
 def mock_open(data):
-    return mock_open_base(data, 'detect_secrets.core.secrets_collection.codecs.open')
+    return mock_open_base(data, 'simple_detect_secrets.core.secrets_collection.codecs.open')
 
 
 @pytest.fixture
@@ -32,7 +31,7 @@ def mock_gmtime():
     """One coherent time value for the duration of the test."""
     current_time = gmtime()
     with mock.patch(
-        'detect_secrets.core.secrets_collection.gmtime',
+        'simple_detect_secrets.core.secrets_collection.gmtime',
         return_value=current_time,
     ):
         yield current_time
@@ -45,7 +44,7 @@ class TestScanFile:
         logic = secrets_collection_factory()
 
         with mock.patch(
-            'detect_secrets.core.secrets_collection.os.path',
+            'simple_detect_secrets.core.secrets_collection.os.path',
             autospec=True,
         ) as mock_path:
             mock_path.islink.return_value = True
@@ -64,7 +63,7 @@ class TestScanFile:
         logic = secrets_collection_factory()
 
         assert not logic.scan_file('non_existent_file')
-        assert mock_log.warning_messages == 'Unable to open file: non_existent_file'
+        assert mock_log.warning_messages == 'Unable to open file: non_existent_file\n'
 
     def test_success_single_plugin(self):
         logic = secrets_collection_factory(
@@ -194,63 +193,23 @@ class TestScanDiff:
 
 
 class TestGetSecret:
-    """Testing retrieval of PotentialSecret from SecretsCollection"""
+    """Retrieve secrets by plaintext value and optional detector type."""
 
     @pytest.mark.parametrize(
-        'filename,secret_hash,expected_value',
-        [
-            ('filename', 'secret_hash', True),
-            ('filename', 'not_a_secret_hash', False),
-            ('diff_filename', 'secret_hash', False),
-        ],
+        'filename,secret,expected',
+        [('filename', 'secret', True), ('filename', 'other', False), ('other', 'secret', False)],
     )
-    def test_optional_type(self, filename, secret_hash, expected_value):
-        with self._mock_secret_hash():
-            logic = secrets_collection_factory(
-                [
-                    {
-                        'filename': 'filename',
-                        'lineno': 1,
-                    },
-                ]
-            )
+    def test_optional_type(self, filename, secret, expected):
+        logic = secrets_collection_factory([{'filename': 'filename', 'lineno': 1}])
+        result = logic.get_secret(filename, secret)
+        assert bool(result) is expected
+        if result:
+            assert result.lineno == 1
 
-        result = logic.get_secret(filename, secret_hash)
-        if expected_value:
-            assert result
-            assert result.lineno == 1  # make sure lineno is the same
-        else:
-            assert not result
-
-    @pytest.mark.parametrize(
-        'type_,is_none',
-        [
-            ('type', False),
-            ('wrong_type', True),
-        ],
-    )
-    def test_explicit_type_for_optimization(self, type_, is_none):
-        with self._mock_secret_hash():
-            logic = secrets_collection_factory(
-                secrets=[
-                    {
-                        'filename': 'filename',
-                        'type_': 'type',
-                    },
-                ],
-            )
-
-        assert (logic.get_secret('filename', 'secret_hash', type_) is None) == is_none
-
-    @contextmanager
-    def _mock_secret_hash(self, secret_hash='secret_hash'):
-        """Mocking, for the sole purpose of easier discovery for tests."""
-        with mock.patch.object(
-            PotentialSecret,
-            'hash_secret',
-            return_value=secret_hash,
-        ):
-            yield
+    @pytest.mark.parametrize('type_,expected', [('type', True), ('wrong_type', False)])
+    def test_explicit_type(self, type_, expected):
+        logic = secrets_collection_factory([{'filename': 'filename', 'type_': 'type'}])
+        assert (logic.get_secret('filename', 'secret', type_) is not None) is expected
 
 
 class TestBaselineInputOutput:
@@ -259,7 +218,7 @@ class TestBaselineInputOutput:
     related to that ability.
     """
 
-    def setup(self):
+    def setup_method(self):
         self.logic = secrets_collection_factory(
             secrets=[
                 {
@@ -339,7 +298,7 @@ class TestBaselineInputOutput:
         """
         with mock_open_base(
             data=word_list,
-            namespace='detect_secrets.util.open',
+            namespace='simple_detect_secrets.util.open',
         ):
             secrets = SecretsCollection.load_baseline_from_string(
                 json.dumps(original),
@@ -406,7 +365,7 @@ class TestBaselineInputOutput:
 
     def _get_baseline_dict(self, gmtime):
         # They are all the same secret, so they should all have the same secret hash.
-        secret_hash = PotentialSecret.hash_secret('secret')
+        secret_hash = 'secret'
 
         return {
             'generated_at': strftime('%Y-%m-%dT%H:%M:%SZ', gmtime),
@@ -426,13 +385,13 @@ class TestBaselineInputOutput:
                         'type': 'B',
                         'is_verified': False,
                         'line_number': 2,
-                        'hashed_secret': secret_hash,
+                        'secret_value': secret_hash,
                     },
                     {
                         'type': 'A',
                         'is_verified': False,
                         'line_number': 3,
-                        'hashed_secret': secret_hash,
+                        'secret_value': secret_hash,
                     },
                 ],
                 'fileB': [
@@ -440,7 +399,7 @@ class TestBaselineInputOutput:
                         'type': 'C',
                         'is_verified': False,
                         'line_number': 1,
-                        'hashed_secret': secret_hash,
+                        'secret_value': secret_hash,
                     },
                 ],
             },

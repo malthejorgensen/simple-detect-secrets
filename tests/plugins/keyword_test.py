@@ -1,7 +1,6 @@
 import ahocorasick
 import pytest
 
-from simple_detect_secrets.core.potential_secret import PotentialSecret
 from simple_detect_secrets.plugins.keyword import KeywordDetector
 from simple_detect_secrets.util import is_python_2
 from testing.mocks import mock_file_object
@@ -185,9 +184,7 @@ class TestKeywordDetector:
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename' == potential_secret.filename
-            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
-                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
-            )
+            assert potential_secret.secret_value == ('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
 
     @pytest.mark.parametrize(
         'file_content',
@@ -243,9 +240,7 @@ class TestKeywordDetector:
         assert len(output) == 1
         for potential_secret in output:
             assert mock_filename == potential_secret.filename
-            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
-                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
-            )
+            assert potential_secret.secret_value == ('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
 
     @pytest.mark.parametrize(
         'file_content',
@@ -263,9 +258,7 @@ class TestKeywordDetector:
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename.go' == potential_secret.filename
-            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
-                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
-            )
+            assert potential_secret.secret_value == ('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
 
     @pytest.mark.parametrize(
         'file_content',
@@ -281,9 +274,7 @@ class TestKeywordDetector:
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename.m' == potential_secret.filename
-            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
-                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
-            )
+            assert potential_secret.secret_value == ('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
 
     @pytest.mark.parametrize(
         'file_content',

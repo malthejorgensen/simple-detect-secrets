@@ -20,7 +20,7 @@ class AWSKeyDetector(RegexBasedDetector):
 
     secret_type = 'AWS Access Key'
 
-    denylist = (re.compile(r'AKIA[0-9A-Z]{16}'),)
+    denylist = (re.compile(r'(?:AKIA|ASIA)[0-9A-Z]{16}'),)
 
     @classproperty
     def disable_flag_text(cls):

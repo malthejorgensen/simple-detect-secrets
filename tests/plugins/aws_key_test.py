@@ -11,7 +11,7 @@ EXAMPLE_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
 class TestAWSKeyDetector:
-    def setup(self):
+    def setup_method(self):
         self.example_key = 'AKIAZZZZZZZZZZZZZZZZ'
 
     @pytest.mark.parametrize(
@@ -47,7 +47,7 @@ class TestAWSKeyDetector:
 
     def test_verify_valid_secret(self):
         with mock.patch(
-            'detect_secrets.plugins.aws.verify_aws_secret_access_key',
+            'simple_detect_secrets.plugins.aws.verify_aws_secret_access_key',
             return_value=True,
         ):
             assert (
@@ -60,7 +60,7 @@ class TestAWSKeyDetector:
 
     def test_verify_invalid_secret(self):
         with mock.patch(
-            'detect_secrets.plugins.aws.verify_aws_secret_access_key',
+            'simple_detect_secrets.plugins.aws.verify_aws_secret_access_key',
             return_value=False,
         ):
             assert (
@@ -81,7 +81,7 @@ class TestAWSKeyDetector:
             return bool(output)
 
         with mock.patch(
-            'detect_secrets.plugins.aws.verify_aws_secret_access_key',
+            'simple_detect_secrets.plugins.aws.verify_aws_secret_access_key',
             counter,
         ):
             assert (

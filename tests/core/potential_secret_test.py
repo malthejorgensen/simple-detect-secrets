@@ -32,9 +32,8 @@ class TestPotentialSecret:
 
     def test_secret_storage(self):
         secret = potential_secret_factory(secret='secret')
-        assert secret.secret_hash != 'secret'
+        assert secret.secret_value == 'secret'
 
     def test_json(self):
         secret = potential_secret_factory(secret='blah')
-        for value in secret.json().values():
-            assert value != 'blah'
+        assert secret.json()['secret_value'] == 'blah'

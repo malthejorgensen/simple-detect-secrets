@@ -37,7 +37,8 @@ def add_no_verify_flag(parser):
         '-n',
         '--no-verify',
         action='store_true',
-        help='Disables additional verification of secrets via network call.',
+        default=True,
+        help='Retained for compatibility; scans always run without network verification.',
     )
 
 

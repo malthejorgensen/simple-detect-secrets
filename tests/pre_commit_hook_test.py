@@ -5,7 +5,6 @@ from unittest import mock
 import pytest
 
 from simple_detect_secrets import VERSION, pre_commit_hook
-from simple_detect_secrets.core.potential_secret import PotentialSecret
 from testing.factories import secrets_collection_factory
 from testing.mocks import SubprocessMock, mock_git_calls
 from testing.mocks import mock_log as mock_log_base
@@ -94,7 +93,7 @@ class TestPreCommitHook:
         More detailed baseline tests are in their own separate test suite.
         """
         with mock.patch(
-            'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+            'simple_detect_secrets.pre_commit_hook._get_baseline_string_from_file',
             return_value=_create_baseline(
                 has_result=has_result,
                 use_private_key_scan=use_private_key_scan,
@@ -108,7 +107,7 @@ class TestPreCommitHook:
     def test_quit_early_if_bad_baseline(self, mock_get_baseline):
         mock_get_baseline.side_effect = IOError
         with mock.patch(
-            'detect_secrets.pre_commit_hook.SecretsCollection',
+            'simple_detect_secrets.pre_commit_hook.SecretsCollection',
             autospec=True,
         ) as mock_secrets_collection:
             assert_commit_blocked(
@@ -125,7 +124,7 @@ class TestPreCommitHook:
 
     def test_quit_if_baseline_is_changed_but_not_staged(self, mock_log):
         with mock_git_calls(
-            'detect_secrets.pre_commit_hook.subprocess.check_output',
+            'simple_detect_secrets.pre_commit_hook.subprocess.check_output',
             (
                 SubprocessMock(
                     expected_input='git diff --name-only',
@@ -163,11 +162,11 @@ class TestPreCommitHook:
 
             with (
                 mock.patch(
-                    'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+                    'simple_detect_secrets.pre_commit_hook._get_baseline_string_from_file',
                     return_value=json.dumps(modified_baseline),
                 ),
                 mock.patch(
-                    'detect_secrets.pre_commit_hook.write_baseline_to_file',
+                    'simple_detect_secrets.pre_commit_hook.write_baseline_to_file',
                 ) as m,
             ):
                 assert_commit_blocked_with_diff_exit_code(
@@ -221,11 +220,11 @@ class TestPreCommitHook:
 
         with (
             mock.patch(
-                'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+                'simple_detect_secrets.pre_commit_hook._get_baseline_string_from_file',
                 return_value=json.dumps(modified_baseline),
             ),
             mock.patch(
-                'detect_secrets.pre_commit_hook.write_baseline_to_file',
+                'simple_detect_secrets.pre_commit_hook.write_baseline_to_file',
             ) as m,
         ):
             assert_commit_blocked_with_diff_exit_code(
@@ -241,14 +240,14 @@ class TestPreCommitHook:
 
 @pytest.fixture
 def mock_log():
-    with mock_log_base('detect_secrets.pre_commit_hook.log') as m:
+    with mock_log_base('simple_detect_secrets.pre_commit_hook.log') as m:
         yield m
 
 
 @pytest.fixture
 def mock_get_baseline():
     with mock.patch(
-        'detect_secrets.pre_commit_hook.get_baseline',
+        'simple_detect_secrets.pre_commit_hook.get_baseline',
     ) as m:
         yield m
 
@@ -260,7 +259,7 @@ def _mock_versions(baseline_version, current_version):
 
     with (
         mock.patch(
-            'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+            'simple_detect_secrets.pre_commit_hook._get_baseline_string_from_file',
             return_value=json.dumps(baseline),
         ),
         mock.patch.object(
@@ -331,7 +330,7 @@ def _create_baseline_template(has_result, use_private_key_scan):
                     'is_secret': True,
                     'is_verified': False,
                     'line_number': 3,
-                    'hashed_secret': PotentialSecret.hash_secret(base64_secret),
+                    'secret_value': (base64_secret),
                 },
             ],
         },

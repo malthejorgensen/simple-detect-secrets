@@ -1,4 +1,3 @@
-import json
 from unittest import mock
 
 import pytest
@@ -19,7 +18,7 @@ from testing.mocks import SubprocessMock, mock_git_calls, mock_open
 
 
 class TestInitializeBaseline:
-    def setup(self):
+    def setup_method(self):
         self.plugins = (
             Base64HighEntropyString(4.5),
             HexHighEntropyString(3),
@@ -67,7 +66,7 @@ class TestInitializeBaseline:
     )
     def test_error_when_getting_git_tracked_files(self, path):
         with mock_git_calls(
-            'detect_secrets.core.baseline.subprocess.check_output',
+            'simple_detect_secrets.core.baseline.subprocess.check_output',
             (
                 SubprocessMock(
                     expected_input='git -C ./test_data/files ls-files',
@@ -95,7 +94,7 @@ class TestInitializeBaseline:
 
     def test_with_multiple_non_existent_files(self):
         with mock.patch(
-            'detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
+            'simple_detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
             return_value=None,
         ):
             results = self.get_results(
@@ -138,7 +137,7 @@ class TestInitializeBaseline:
 
     def test_no_files_in_git_repo(self):
         with mock_git_calls(
-            'detect_secrets.core.baseline.subprocess.check_output',
+            'simple_detect_secrets.core.baseline.subprocess.check_output',
             (
                 SubprocessMock(
                     expected_input='git ls-files will_be_mocked',
@@ -154,12 +153,12 @@ class TestInitializeBaseline:
     def test_single_non_tracked_git_file_should_work(self):
         with (
             mock.patch(
-                'detect_secrets.core.baseline.os.path.isfile',
+                'simple_detect_secrets.core.baseline.os.path.isfile',
                 return_value=True,
             ),
             mock_open(
                 'Super hidden value "BEEF0123456789a"',
-                'detect_secrets.core.secrets_collection.codecs.open',
+                'simple_detect_secrets.core.secrets_collection.codecs.open',
             ),
         ):
             results = self.get_results(path=['will_be_mocked'])
@@ -175,7 +174,7 @@ class TestInitializeBaseline:
 
     def test_scan_all_files_with_bad_symlinks(self):
         with mock.patch(
-            'detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
+            'simple_detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
             return_value=None,
         ):
             results = self.get_results(
@@ -275,9 +274,7 @@ class TestGetSecretsNotInBaseline:
 
         assert len(results.data['filename']) == 1
         secretA = PotentialSecret('type', 'filename', 'secret1', 1)
-        assert results.data['filename'][secretA].secret_hash == PotentialSecret.hash_secret(
-            'secret1'
-        )
+        assert results.data['filename'][secretA].secret_value == ('secret1')
         assert baseline.data == backup_baseline
 
     def test_rolled_creds(self):
@@ -303,9 +300,7 @@ class TestGetSecretsNotInBaseline:
         assert len(results.data['filename']) == 1
 
         secretA = PotentialSecret('type', 'filename', 'secret_new', 1)
-        assert results.data['filename'][secretA].secret_hash == PotentialSecret.hash_secret(
-            'secret_new'
-        )
+        assert results.data['filename'][secretA].secret_value == ('secret_new')
         assert baseline.data == backup_baseline
 
 
@@ -419,21 +414,21 @@ class TestUpdateBaselineWithRemovedSecrets:
 
 
 class TestFormatBaselineForOutput:
-    def test_sorts_by_line_number_then_hash(self):
+    def test_displays_filenames_line_numbers_and_plaintext(self):
         output_string = format_baseline_for_output(
             {
                 'results': {
                     'filename': [
                         {
-                            'hashed_secret': 'a',
+                            'secret_value': 'a',
                             'line_number': 3,
                         },
                         {
-                            'hashed_secret': 'z',
+                            'secret_value': 'z',
                             'line_number': 2,
                         },
                         {
-                            'hashed_secret': 'f',
+                            'secret_value': 'f',
                             'line_number': 3,
                         },
                     ],
@@ -441,8 +436,4 @@ class TestFormatBaselineForOutput:
             }
         )
 
-        ordered_hashes = [
-            x['hashed_secret'] for x in json.loads(output_string)['results']['filename']
-        ]
-
-        assert ordered_hashes == ['z', 'a', 'f']
+        assert output_string == '\nFilename: filename\nLine 3: a\nLine 2: z\nLine 3: f\n'

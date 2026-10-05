@@ -61,8 +61,8 @@ index 02ce201..92fcca5 100644
      },
 +    version='0.0.1',
  )
-diff --git a/setup.py b/setup.py
-index 12ce201..02fcca5 200644
+diff --git a/.secrets.baseline b/.secrets.baseline
+index 12ce201..02fcca5 100644
 --- a/.secrets.baseline
 +++ b/.secrets.baseline
 @@ -10,4 +10,5 @@ (

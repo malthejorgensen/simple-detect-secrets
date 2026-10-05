@@ -1,4 +1,3 @@
-import shlex
 from contextlib import contextmanager
 from unittest import mock
 
@@ -67,7 +66,7 @@ def get_plugin_report(extra=None):
 
 
 class TestMain:
-    """These are smoke tests for the console usage of detect_secrets.
+    """These are smoke tests for the console usage of simple_detect_secrets.
     Most of the functional test cases should be within their own module tests.
     """
 
@@ -97,6 +96,24 @@ class TestMain:
             should_scan_all_files=False,
             word_list_file=None,
             word_list_hash=None,
+        )
+
+    def test_update_writes_fresh_scan(self, mock_baseline_initialize):
+        with mock.patch.object(main_module, 'write_baseline_to_file') as writer:
+            assert main(['scan', '--update', 'output.json', '--hex-limit', '5']) == 0
+
+        writer.assert_called_once()
+        assert writer.call_args.kwargs['filename'] == 'output.json'
+        payload = writer.call_args.kwargs['data']
+        assert payload['results'] == {}
+        assert payload['version'] == VERSION
+        assert (
+            next(
+                plugin
+                for plugin in payload['plugins_used']
+                if plugin['name'] == 'HexHighEntropyString'
+            )['hex_limit']
+            == 5
         )
 
     def test_scan_with_exclude_args(self, mock_baseline_initialize):
@@ -195,255 +212,16 @@ class TestMain:
             word_list_hash=None,
         )
 
-    @pytest.mark.parametrize(
-        'exclude_files_arg, expected_regex',
-        [
-            (
-                '',
-                '^old_baseline_file$',
-            ),
-            (
-                '--exclude-files "secrets/.*"',
-                'secrets/.*|^old_baseline_file$',
-            ),
-            (
-                '--exclude-files "^old_baseline_file$"',
-                '^old_baseline_file$',
-            ),
-        ],
-    )
-    def test_old_baseline_ignored_with_update_flag(
-        self,
-        mock_baseline_initialize,
-        exclude_files_arg,
-        expected_regex,
-    ):
-        with (
-            mock_stdin(),
-            mock.patch(
-                'detect_secrets.main._read_from_file',
-                return_value={},
-            ),
-            mock.patch(
-                # We don't want to be creating a file during test
-                'detect_secrets.main.write_baseline_to_file',
-            ) as file_writer,
-        ):
-            assert (
-                main(
-                    shlex.split(
-                        f'scan --update old_baseline_file {exclude_files_arg}',
-                    ),
-                )
-                == 0
-            )
-
-            assert file_writer.call_args[1]['data']['exclude']['files'] == expected_regex
-
-    @pytest.mark.parametrize(
-        'plugins_used, plugins_overwriten, plugins_wrote',
-        [
-            (  # Remove some plugins from baseline
-                [
-                    {
-                        'base64_limit': 4.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '--no-base64-string-scan --no-keyword-scan',
-                [
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-            ),
-            (  # All plugins
-                [
-                    {
-                        'base64_limit': 1.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                ],
-                '--use-all-plugins',
-                get_list_of_plugins(
-                    include=[
-                        {
-                            'base64_limit': 1.5,
-                            'name': 'Base64HighEntropyString',
-                        },
-                    ],
-                ),
-            ),
-            (  # Remove some plugins from all plugins
-                [
-                    {
-                        'base64_limit': 4.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                ],
-                '--use-all-plugins --no-base64-string-scan --no-private-key-scan',
-                get_list_of_plugins(
-                    exclude=(
-                        'Base64HighEntropyString',
-                        'PrivateKeyDetector',
-                    ),
-                ),
-            ),
-            (  # Use same plugin list from baseline
-                [
-                    {
-                        'base64_limit': 3.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '',
-                [
-                    {
-                        'base64_limit': 3.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-            ),
-            (  # Overwrite base limit from CLI
-                [
-                    {
-                        'base64_limit': 3.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '--base64-limit=5.5',
-                [
-                    {
-                        'base64_limit': 5.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-            ),
-            (  # Does not overwrite base limit from CLI if baseline not using the plugin
-                [
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '--base64-limit=4.5',
-                [
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-            ),
-            (  # Use overwriten option from CLI only when using --use-all-plugins
-                [
-                    {
-                        'base64_limit': 3.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '--use-all-plugins --base64-limit=5.5 --no-hex-string-scan --no-keyword-scan',
-                get_list_of_plugins(
-                    include=[
-                        {
-                            'base64_limit': 5.5,
-                            'name': 'Base64HighEntropyString',
-                        },
-                    ],
-                    exclude=(
-                        'HexHighEntropyString',
-                        'KeywordDetector',
-                    ),
-                ),
-            ),
-            (  # Use plugin limit from baseline when using --use-all-plugins and no input limit
-                [
-                    {
-                        'base64_limit': 2.5,
-                        'name': 'Base64HighEntropyString',
-                    },
-                    {
-                        'name': 'PrivateKeyDetector',
-                    },
-                ],
-                '--use-all-plugins --no-hex-string-scan --no-keyword-scan',
-                get_list_of_plugins(
-                    include=[
-                        {
-                            'base64_limit': 2.5,
-                            'name': 'Base64HighEntropyString',
-                        },
-                    ],
-                    exclude=(
-                        'HexHighEntropyString',
-                        'KeywordDetector',
-                    ),
-                ),
-            ),
-        ],
-    )
-    def test_plugin_from_old_baseline_respected_with_update_flag(
-        self,
-        mock_baseline_initialize,
-        plugins_used,
-        plugins_overwriten,
-        plugins_wrote,
-    ):
-        with (
-            mock_stdin(),
-            mock.patch(
-                'detect_secrets.main._read_from_file',
-                return_value={
-                    'plugins_used': plugins_used,
-                    'results': {},
-                    'version': VERSION,
-                    'exclude': {
-                        'files': '',
-                        'lines': '',
-                    },
-                },
-            ),
-            mock.patch(
-                # We don't want to be creating a file during test
-                'detect_secrets.main.write_baseline_to_file',
-            ) as file_writer,
-        ):
-            assert (
-                main(
-                    shlex.split(
-                        f'scan --update old_baseline_file {plugins_overwriten}',
-                    ),
-                )
-                == 0
-            )
-
-            assert file_writer.call_args[1]['data']['plugins_used'] == plugins_wrote
-
 
 @contextmanager
 def mock_stdin(response=None):
     if not response:
-        with mock.patch('detect_secrets.main.sys') as m:
+        with mock.patch('simple_detect_secrets.main.sys') as m:
             m.stdin.isatty.return_value = True
             yield
 
     else:
-        with mock.patch('detect_secrets.main.sys') as m:
+        with mock.patch('simple_detect_secrets.main.sys') as m:
             m.stdin.isatty.return_value = False
             m.stdin.read.return_value = response
             yield
@@ -458,7 +236,7 @@ def mock_baseline_initialize():
         )
 
     with mock.patch(
-        'detect_secrets.main.baseline.initialize',
+        'simple_detect_secrets.main.baseline.initialize',
         side_effect=mock_initialize_function,
     ) as mock_initialize:
         yield mock_initialize

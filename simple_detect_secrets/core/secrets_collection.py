@@ -130,11 +130,11 @@ class SecretsCollection:
                 secret = PotentialSecret(
                     item['type'],
                     filename,
-                    secret='will be replaced',
+                    secret=item['secret_value'],
                     lineno=item['line_number'],
                     is_secret=item.get('is_secret'),
                 )
-                secret.secret_hash = item['hashed_secret']
+                secret.is_verified = item.get('is_verified', False)
                 result.data[filename][secret] = secret
 
         result.version = data.get('version', '0.0.0')
@@ -239,7 +239,7 @@ class SecretsCollection:
         :param filename: the file to search in.
 
         :type secret: str
-        :param secret: secret hash of secret to search for.
+        :param secret: plaintext secret value to search for.
 
         :type type_: str
         :param type_: type of secret, if known.
@@ -250,10 +250,8 @@ class SecretsCollection:
             return None
 
         if type_:
-            # Optimized lookup, because we know the type of secret
-            # (and therefore, its hash)
-            tmp_secret = PotentialSecret(type_, filename, secret='will be overriden')
-            tmp_secret.secret_hash = secret
+            # Optimized lookup, because we know the type of secret.
+            tmp_secret = PotentialSecret(type_, filename, secret=secret)
 
             if tmp_secret in self.data[filename]:
                 return self.data[filename][tmp_secret]
@@ -263,7 +261,7 @@ class SecretsCollection:
         # NOTE: We can only optimize this, if we knew the type of secret.
         # Otherwise, we need to iterate through the set and find out.
         for obj in self.data[filename]:
-            if obj.secret_hash == secret:
+            if obj.secret_value == secret:
                 return obj
 
         return None

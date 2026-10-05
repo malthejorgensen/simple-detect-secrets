@@ -26,7 +26,7 @@ def test_build_automaton():
     """
     with mock_open(
         data=word_list,
-        namespace='detect_secrets.util.open',
+        namespace='simple_detect_secrets.util.open',
     ):
         automaton, word_list_hash = util.build_automaton(word_list='will_be_mocked.txt')
         assert word_list_hash == hashlib.sha1(b'foam').hexdigest()
@@ -52,7 +52,7 @@ def test_get_git_sha():
 
 def test_get_relative_path_if_in_cwd():
     with mock.patch(
-        'detect_secrets.util.os.path.isfile',
+        'simple_detect_secrets.util.os.path.isfile',
         return_value=False,
     ):
         assert (

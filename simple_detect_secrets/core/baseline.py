@@ -155,7 +155,7 @@ def trim_baseline_of_removed_secrets(results, baseline, filelist):
         for baseline_secret in baseline.data[filename].copy():
             new_secret_found = results.get_secret(
                 filename,
-                baseline_secret.secret_hash,
+                baseline_secret.secret_value,
                 baseline_secret.type,
             )
 
@@ -163,7 +163,7 @@ def trim_baseline_of_removed_secrets(results, baseline, filelist):
                 # No longer in results, so can remove from baseline
                 old_secret_to_delete = baseline.get_secret(
                     filename,
-                    baseline_secret.secret_hash,
+                    baseline_secret.secret_value,
                     baseline_secret.type,
                 )
                 del baseline.data[filename][old_secret_to_delete]
@@ -173,7 +173,7 @@ def trim_baseline_of_removed_secrets(results, baseline, filelist):
                 # Secret moved around, should update baseline with new location
                 old_secret_to_update = baseline.get_secret(
                     filename,
-                    baseline_secret.secret_hash,
+                    baseline_secret.secret_value,
                     baseline_secret.type,
                 )
                 old_secret_to_update.lineno = new_secret_found.lineno
