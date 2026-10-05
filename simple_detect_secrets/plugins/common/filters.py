@@ -7,7 +7,7 @@ heuristical determinations (e.g. word filter, entropy comparator).
 import re
 import string
 
-from simple_detect_secrets.util import is_python_2
+from ...util import is_python_2
 
 
 def is_found_with_aho_corasick(secret, automaton):

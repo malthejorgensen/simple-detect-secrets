@@ -4,12 +4,12 @@ import os
 import re
 from time import gmtime, strftime
 
-from simple_detect_secrets import VERSION
-from simple_detect_secrets.core.constants import IGNORED_FILE_EXTENSIONS
-from simple_detect_secrets.core.log import log
-from simple_detect_secrets.core.potential_secret import PotentialSecret
-from simple_detect_secrets.plugins.common import initialize
-from simple_detect_secrets.util import build_automaton
+from .. import VERSION
+from ..plugins.common import initialize
+from ..util import build_automaton
+from .constants import IGNORED_FILE_EXTENSIONS
+from .log import log
+from .potential_secret import PotentialSecret
 
 
 class SecretsCollection:

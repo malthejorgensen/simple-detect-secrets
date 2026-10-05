@@ -27,8 +27,7 @@ THE SOFTWARE.
 
 import re
 
-from simple_detect_secrets.core.potential_secret import PotentialSecret
-
+from ..core.potential_secret import PotentialSecret
 from .base import BasePlugin, classproperty
 from .common.filetype import FileType, determine_file_type
 from .common.filters import get_aho_corasick_helper, is_sequential_string

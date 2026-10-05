@@ -1,7 +1,6 @@
 import requests
 
-from simple_detect_secrets.core.constants import VerifiedResult
-
+from ..core.constants import VerifiedResult
 from .base import RegexBasedDetector
 
 

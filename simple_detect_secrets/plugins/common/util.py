@@ -7,8 +7,8 @@ import os
 from abc import abstractproperty
 from importlib import import_module
 
-from simple_detect_secrets.plugins.base import BasePlugin
-from simple_detect_secrets.util import get_root_directory
+from ...util import get_root_directory
+from ..base import BasePlugin
 
 
 @lru_cache(maxsize=1)
@@ -35,7 +35,7 @@ def import_plugins():
 
     plugins = {}
     for module_name in modules:
-        module = import_module(f'simple_detect_secrets.plugins.{module_name}')
+        module = import_module(f'..{module_name}', package=__package__)
         for name in filter(lambda x: not x.startswith('_'), dir(module)):
             plugin = getattr(module, name)
             try:

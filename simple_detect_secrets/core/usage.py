@@ -1,8 +1,8 @@
 import argparse
 from collections import namedtuple
 
-from simple_detect_secrets import VERSION
-from simple_detect_secrets.plugins.common.util import import_plugins
+from .. import VERSION
+from ..plugins.common.util import import_plugins
 
 
 def add_exclude_lines_argument(parser):

@@ -2,9 +2,9 @@ import os
 import re
 import subprocess
 
-from simple_detect_secrets import util
-from simple_detect_secrets.core.log import get_logger
-from simple_detect_secrets.core.secrets_collection import SecretsCollection
+from .. import util
+from .log import get_logger
+from .secrets_collection import SecretsCollection
 
 log = get_logger(format_string='%(message)s')
 

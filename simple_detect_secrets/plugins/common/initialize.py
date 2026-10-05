@@ -1,8 +1,7 @@
 """Intelligent initialization of plugins."""
 
-from simple_detect_secrets.core.log import log
-from simple_detect_secrets.core.usage import PluginOptions
-
+from ...core.log import log
+from ...core.usage import PluginOptions
 from .util import get_mapping_from_secret_type_to_class_name, import_plugins
 
 

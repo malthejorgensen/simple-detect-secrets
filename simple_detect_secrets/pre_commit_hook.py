@@ -2,17 +2,17 @@ import subprocess
 import sys
 import textwrap
 
-from simple_detect_secrets import VERSION
-from simple_detect_secrets.core.baseline import (
+from . import VERSION
+from .core.baseline import (
     get_secrets_not_in_baseline,
     trim_baseline_of_removed_secrets,
 )
-from simple_detect_secrets.core.common import write_baseline_to_file
-from simple_detect_secrets.core.log import get_logger
-from simple_detect_secrets.core.secrets_collection import SecretsCollection
-from simple_detect_secrets.core.usage import ParserBuilder
-from simple_detect_secrets.plugins.common import initialize
-from simple_detect_secrets.util import build_automaton
+from .core.common import write_baseline_to_file
+from .core.log import get_logger
+from .core.secrets_collection import SecretsCollection
+from .core.usage import ParserBuilder
+from .plugins.common import initialize
+from .util import build_automaton
 
 log = get_logger(format_string='%(message)s')
 

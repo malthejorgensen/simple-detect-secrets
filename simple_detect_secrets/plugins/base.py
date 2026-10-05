@@ -1,10 +1,9 @@
 import re
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-from simple_detect_secrets.core.code_snippet import CodeSnippetHighlighter
-from simple_detect_secrets.core.constants import VerifiedResult
-from simple_detect_secrets.core.potential_secret import PotentialSecret
-
+from ..core.code_snippet import CodeSnippetHighlighter
+from ..core.constants import VerifiedResult
+from ..core.potential_secret import PotentialSecret
 from .common.constants import ALLOWLIST_REGEXES
 
 # NOTE: In this whitepaper (Section V-D), it suggests that there's an
