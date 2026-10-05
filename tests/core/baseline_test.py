@@ -407,7 +407,9 @@ class TestUpdateBaselineWithRemovedSecrets:
 
 
 class TestFormatBaselineForOutput:
-    def test_displays_filenames_line_numbers_and_plaintext(self):
+    def test_displays_full_source_lines_once_in_line_order(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / 'filename').write_text('ordinary line\n  password = "z"  \nvalues = "a:f"')
         output_string = format_baseline_for_output(
             {
                 'results': {
@@ -429,9 +431,13 @@ class TestFormatBaselineForOutput:
             }
         )
 
-        assert output_string == 'filename:3:a\nfilename:2:z\nfilename:3:f'
+        assert output_string == 'filename:2:  password = "z"  \nfilename:3:values = "a:f"'
 
-    def test_multiple_files_and_colons_in_secrets(self):
+    def test_multiple_files_and_colons_in_secrets(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / 'nested').mkdir()
+        (tmp_path / 'nested/credentials').write_bytes(b'ordinary line\r\npassword = "abc:def"\r\n')
+        (tmp_path / 'file with spaces').write_text('\n' * 4 + 'password = "xyz"\n')
         output = format_baseline_for_output(
             {
                 'results': {
@@ -440,7 +446,10 @@ class TestFormatBaselineForOutput:
                 },
             }
         )
-        assert output == 'nested/credentials:2:abc:def\nfile with spaces:5:xyz'
+        assert (
+            output
+            == 'nested/credentials:2:password = "abc:def"\nfile with spaces:5:password = "xyz"'
+        )
 
     def test_no_findings(self):
         assert format_baseline_for_output({'results': {}}) == ''

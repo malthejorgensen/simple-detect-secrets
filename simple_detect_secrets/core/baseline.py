@@ -207,9 +207,15 @@ def format_baseline_for_output(baseline):
     """
     lines = []
     for filename, secret_list in baseline['results'].items():
-        lines.extend(
-            f'{filename}:{secret["line_number"]}:{secret["secret_value"]}' for secret in secret_list
-        )
+        matching_lines = {secret['line_number'] for secret in secret_list}
+        try:
+            with open(filename, encoding='utf-8') as source:
+                for lineno, line in enumerate(source, start=1):
+                    if lineno in matching_lines:
+                        source_line = line.rstrip('\r\n')
+                        lines.append(f'{filename}:{lineno}:{source_line}')
+        except (OSError, UnicodeDecodeError):
+            log.warning('Unable to read source lines: %s', filename)
 
     return '\n'.join(lines)
 

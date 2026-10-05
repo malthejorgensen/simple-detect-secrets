@@ -91,8 +91,16 @@ def test_no_arguments_scans_current_directory(tmp_path, monkeypatch, capsys):
     write_secret(tmp_path / 'credentials')
     assert main() == 0
     captured = capsys.readouterr()
-    assert captured.out == f'credentials:1:{KEY}\n'
+    assert captured.out == f'credentials:1:aws_access_key_id = "{KEY}"\n'
     assert 'No git repository detected' in captured.err
+
+
+def test_full_source_line_is_printed_once_for_multiple_secrets(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    source_line = f'  keys = ["{KEY}", "ASIAZZZZZZZZZZZZZZZZ"]  '
+    (tmp_path / 'credentials').write_text(f'# credentials\n{source_line}\n')
+    assert main(['credentials']) == 0
+    assert capsys.readouterr().out == f'credentials:2:{source_line}\n'
 
 
 @pytest.mark.parametrize('git_repository', [False, True])
@@ -105,7 +113,7 @@ def test_repeatable_excludes_filter_scan_results(tmp_path, monkeypatch, capsys, 
         subprocess.run(['git', 'add', '.'], check=True)
     assert main(['--exclude', '*.log', '--exclude', 'vendor/*']) == 0
     output = capsys.readouterr().out
-    assert output == f'keep.py:1:{KEY}\n'
+    assert output == f'keep.py:1:aws_access_key_id = "{KEY}"\n'
     assert 'debug.log' not in output
     assert 'private.py' not in output
 
@@ -125,7 +133,7 @@ def test_exclusions_can_be_interleaved_with_paths(tmp_path, monkeypatch, capsys)
     write_secret(tmp_path / 'debug.log')
     assert main(['keep.py', '--exclude', '*.log', 'debug.log', '--exclude', 'vendor/*']) == 0
     output = capsys.readouterr().out
-    assert output == f'keep.py:1:{KEY}\n'
+    assert output == f'keep.py:1:aws_access_key_id = "{KEY}"\n'
     assert 'debug.log' not in output
 
 
