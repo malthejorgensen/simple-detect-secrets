@@ -103,6 +103,47 @@ def test_full_source_line_is_printed_once_for_multiple_secrets(tmp_path, monkeyp
     assert capsys.readouterr().out == f'credentials:2:{source_line}\n'
 
 
+@pytest.mark.parametrize('mode', ['files', 'string', 'update'])
+def test_profile_reports_only_enabled_detectors_to_stderr(tmp_path, monkeypatch, capsys, mode):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / 'credentials')
+    args = ['--profile', '--no-keyword-scan']
+    if mode == 'string':
+        args.extend(['--string', KEY])
+    elif mode == 'update':
+        args.extend(['--update', 'results.json', 'credentials'])
+    else:
+        args.append('credentials')
+    assert main(args) == 0
+    captured = capsys.readouterr()
+    assert 'Detector profile (elapsed seconds):' in captured.err
+    assert 'AWSKeyDetector' in captured.err
+    assert 'KeywordDetector' not in captured.err
+    assert 'Total' in captured.err
+    assert 'Detector profile' not in captured.out
+    if mode == 'files':
+        assert captured.out == f'credentials:1:aws_access_key_id = "{KEY}"\n'
+    elif mode == 'update':
+        assert captured.out == ''
+        assert 'Detector profile' not in (tmp_path / 'results.json').read_text()
+
+
+def test_profile_is_opt_in(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / 'credentials')
+    assert main(['credentials']) == 0
+    assert 'Detector profile' not in capsys.readouterr().err
+
+
+def test_profile_reports_zero_for_empty_scan(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    assert main(['--profile']) == 0
+    captured = capsys.readouterr()
+    assert captured.out == ''
+    assert 'AWSKeyDetector' in captured.err
+    assert '0.000000 s' in captured.err
+
+
 @pytest.mark.parametrize('git_repository', [False, True])
 def test_repeatable_excludes_filter_scan_results(tmp_path, monkeypatch, capsys, git_repository):
     monkeypatch.chdir(tmp_path)

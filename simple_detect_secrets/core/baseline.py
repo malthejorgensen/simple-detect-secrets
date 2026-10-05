@@ -17,6 +17,7 @@ def initialize(
     word_list_file=None,
     word_list_hash=None,
     should_scan_all_files=False,
+    profiler=None,
 ):
     """Scans the entire codebase for secrets, and returns a
     SecretsCollection object.
@@ -45,6 +46,7 @@ def initialize(
         exclude_lines=exclude_lines_regex,
         word_list_file=word_list_file,
         word_list_hash=word_list_hash,
+        profiler=profiler,
     )
 
     if isinstance(path, (str, os.PathLike)):

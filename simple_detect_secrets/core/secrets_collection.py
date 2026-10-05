@@ -20,6 +20,7 @@ class SecretsCollection:
         exclude_lines=None,
         word_list_file=None,
         word_list_hash=None,
+        profiler=None,
     ):
         """
         :type plugins: tuple of detect_secrets.plugins.base.BasePlugin
@@ -44,6 +45,7 @@ class SecretsCollection:
         self.word_list_file = word_list_file
         self.word_list_hash = word_list_hash
         self.version = VERSION
+        self.profiler = profiler
 
     @classmethod
     def load_baseline_from_string(cls, string):
@@ -321,7 +323,11 @@ class SecretsCollection:
             log.info('Checking file: %s', filename)
 
             for results, plugin in self._results_accumulator(filename):
-                results.update(plugin.analyze(f, filename))
+                if self.profiler is None:
+                    findings = plugin.analyze(f, filename)
+                else:
+                    findings = self.profiler.call(plugin, plugin.analyze, f, filename)
+                results.update(findings)
                 f.seek(0)
 
         except UnicodeDecodeError:

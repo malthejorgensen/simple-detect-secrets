@@ -41,6 +41,13 @@ uv run pytest tests
 Build the source distribution and wheel with `uv build`. Install the optional
 word-list support with `uv sync --extra word_list`.
 
+### Profiling
+Use `uvx simple-detect-secrets --profile` to report elapsed seconds spent in
+each enabled detector, summed across files and listed slowest first. The report
+goes to stderr. Timings include each detector's file reading and parsing, but
+exclude file discovery, detector initialization, and result formatting.
+Profiling also works with `--string` and `--update`.
+
 Caveats
 -------
 

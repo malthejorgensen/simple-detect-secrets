@@ -33,6 +33,11 @@ def create_parser(*, pre_commit=False):
         parser.add_argument('--baseline', default='', help='Baseline containing ignored secrets.')
     else:
         parser.add_argument(
+            '--profile',
+            action='store_true',
+            help='Report elapsed time spent in each detector to stderr.',
+        )
+        parser.add_argument(
             'path', nargs='*', default=['.'], help='Files or directories (default: .).'
         )
         parser.add_argument(

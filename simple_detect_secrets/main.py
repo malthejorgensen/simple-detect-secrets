@@ -6,6 +6,7 @@ import sys
 from .core import baseline
 from .core.common import write_baseline_to_file
 from .core.log import log
+from .core.profiling import PluginProfiler
 from .core.secrets_collection import SecretsCollection
 from .core.usage import parse_args
 from .plugins.common import initialize
@@ -31,13 +32,14 @@ def main(argv=None):
         automaton=automaton,
         should_verify_secrets=not args.no_verify,
     )
+    profiler = PluginProfiler(plugins) if args.profile else None
     if args.string:
         line = args.string
 
         if isinstance(args.string, bool):
             line = sys.stdin.read().splitlines()[0]
 
-        _scan_string(line, plugins)
+        _scan_string(line, plugins, profiler)
 
     else:
         baseline_dict = _perform_scan(
@@ -45,6 +47,7 @@ def main(argv=None):
             plugins,
             automaton,
             word_list_hash,
+            profiler,
         )
 
         if args.import_filename:
@@ -58,6 +61,10 @@ def main(argv=None):
             else:
                 print(baseline.format_baseline_for_output(baseline_dict))
 
+    if profiler is not None:
+        sys.stdout.flush()
+        profiler.report()
+
     return 0
 
 
@@ -69,7 +76,7 @@ def _get_plugins_from_baseline(old_baseline):
     return plugins
 
 
-def _scan_string(line, plugins):
+def _scan_string(line, plugins, profiler=None):
     longest_plugin_name_length = max(
         (len(x.__class__.__name__) for x in plugins),
     )
@@ -77,7 +84,11 @@ def _scan_string(line, plugins):
     output = [
         ('{:%d}: {}' % longest_plugin_name_length).format(
             plugin.__class__.__name__,
-            plugin.adhoc_scan(line),
+            (
+                plugin.adhoc_scan(line)
+                if profiler is None
+                else profiler.call(plugin, plugin.adhoc_scan, line)
+            ),
         )
         for plugin in plugins
     ]
@@ -85,7 +96,7 @@ def _scan_string(line, plugins):
     print('\n'.join(sorted(output)))
 
 
-def _perform_scan(args, plugins, automaton, word_list_hash):
+def _perform_scan(args, plugins, automaton, word_list_hash, profiler=None):
     """
     :param args: output of `argparse.ArgumentParser.parse_args`
     :param plugins: tuple of initialized plugins
@@ -98,6 +109,7 @@ def _perform_scan(args, plugins, automaton, word_list_hash):
 
     :rtype: dict
     """
+    profiling_options = {'profiler': profiler} if profiler is not None else {}
     new_baseline = baseline.initialize(
         plugins=plugins,
         exclude_patterns=args.exclude,
@@ -106,6 +118,7 @@ def _perform_scan(args, plugins, automaton, word_list_hash):
         word_list_hash=word_list_hash,
         path=args.path,
         should_scan_all_files=args.all_files,
+        **profiling_options,
     ).format_for_baseline_output()
 
     return new_baseline
