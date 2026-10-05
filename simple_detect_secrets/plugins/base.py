@@ -319,5 +319,4 @@ class RegexBasedDetector(BasePlugin):
 
     def secret_generator(self, string, *args, **kwargs):
         for regex in self.denylist:
-            for match in regex.findall(string):
-                yield match
+            yield from regex.findall(string)

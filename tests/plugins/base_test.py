@@ -69,14 +69,14 @@ class TestVerify:
             file = mock_file_object('does not matter')
             result = plugin.analyze(file, 'does not matter')
 
-        assert list(result.keys())[0].is_verified
+        assert next(iter(result.keys())).is_verified
 
     def test_analyze_unverified_stays_the_same(self):
         with self.create_test_plugin(VerifiedResult.UNVERIFIED) as plugin:
             file = mock_file_object('does not matter')
             result = plugin.analyze(file, 'does not matter')
 
-        assert not list(result.keys())[0].is_verified
+        assert not next(iter(result.keys())).is_verified
 
     def test_analyze_should_abide_by_no_verify_flag(self):
         with self.create_test_plugin(VerifiedResult.VERIFIED_FALSE) as plugin:

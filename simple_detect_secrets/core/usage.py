@@ -382,7 +382,7 @@ class PluginOptions:
         value = float(string)
         if value < 0 or value > 8:
             raise argparse.ArgumentTypeError(
-                '%s must be between 0.0 and 8.0' % string,
+                f'{string} must be between 0.0 and 8.0',
             )
 
         return value

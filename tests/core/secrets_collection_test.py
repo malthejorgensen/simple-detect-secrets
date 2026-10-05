@@ -1,4 +1,3 @@
-
 import hashlib
 import json
 from contextlib import contextmanager
@@ -65,7 +64,7 @@ class TestScanFile:
         logic = secrets_collection_factory()
 
         assert not logic.scan_file('non_existent_file')
-        mock_log.warning_messages == 'Unable to open file: non_existent_file'
+        assert mock_log.warning_messages == 'Unable to open file: non_existent_file'
 
     def test_success_single_plugin(self):
         logic = secrets_collection_factory(
@@ -98,7 +97,7 @@ class TestScanFile:
         assert len(logic.data['filename']) == 3
 
         line_numbers = [entry.lineno for entry in logic.data['filename']]
-        assert set(line_numbers) == set([1, 2, 3])
+        assert set(line_numbers) == {1, 2, 3}
 
     def test_reporting_of_password_plugin_secrets_if_reported_already(self):
         logic = secrets_collection_factory(
@@ -120,7 +119,7 @@ class TestScanFile:
         assert len(logic.data['filename']) == 3
 
         line_numbers = [entry.lineno for entry in logic.data['filename']]
-        assert set(line_numbers) == set([2, 3])
+        assert set(line_numbers) == {2, 3}
 
     def test_unicode_decode_error(self, mock_log):
         logic = secrets_collection_factory(
@@ -149,8 +148,8 @@ class TestScanDiff:
             '.secrets.baseline': 1,
         }
 
-        for filename in filename_to_number_of_secrets_detected_in_it:
-            assert len(secrets[filename]) == filename_to_number_of_secrets_detected_in_it[filename]
+        for filename, count in filename_to_number_of_secrets_detected_in_it.items():
+            assert len(secrets[filename]) == count
 
     def test_ignores_baseline_file(self):
         secrets = self.load_from_diff(

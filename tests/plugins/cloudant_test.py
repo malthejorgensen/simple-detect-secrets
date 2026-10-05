@@ -28,10 +28,6 @@ class TestCloudantDetector:
                 True,
             ),
             (
-                f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com/_api/v2/',
-                True,
-            ),
-            (
                 f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com',
                 True,
             ),

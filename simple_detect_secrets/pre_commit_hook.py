@@ -36,9 +36,8 @@ def main(argv=None):
         return 1
 
     automaton = None
-    word_list_hash = None
     if args.word_list_file:
-        automaton, word_list_hash = build_automaton(args.word_list_file)
+        automaton, _word_list_hash = build_automaton(args.word_list_file)
 
     plugins = initialize.from_parser_builder(
         args.plugins,

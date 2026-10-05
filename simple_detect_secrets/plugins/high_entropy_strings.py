@@ -39,7 +39,7 @@ class HighEntropyStringsPlugin(BasePlugin):
 
         self.charset = charset
         self.entropy_limit = limit
-        self.regex = re.compile(r'([\'"])([%s]+)(\1)' % charset)
+        self.regex = re.compile(rf'([\'"])([{charset}]+)(\1)')
 
         false_positive_heuristics = [
             get_aho_corasick_helper(automaton),
@@ -87,7 +87,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         for x in self.charset:
             p_x = float(data.count(x)) / len(data)
             if p_x > 0:
-                entropy += -p_x * math.log(p_x, 2)
+                entropy += -p_x * math.log2(p_x)
 
         return entropy
 
@@ -280,7 +280,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         value are the same object. Therefore, we can just mutate
         the potential secret once.
         """
-        for potential_secret in secrets.keys():
+        for potential_secret in secrets:
             secret_in_yaml_format = yaml.dump(
                 self.encode_to_binary(potential_secret.secret_value),
             ).replace(
@@ -363,7 +363,7 @@ class HexHighEntropyString(HighEntropyStringsPlugin):
 
             # This multiplier was determined through trial and error, with the
             # intent of keeping it simple, yet achieving our goals.
-            entropy -= 1.2 / math.log(len(data), 2)
+            entropy -= 1.2 / math.log2(len(data))
         except ValueError:
             pass
 

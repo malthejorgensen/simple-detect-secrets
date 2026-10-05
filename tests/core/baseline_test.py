@@ -28,10 +28,12 @@ class TestInitializeBaseline:
 
     def get_results(
         self,
-        path=['./test_data/files'],
+        path=None,
         exclude_files_regex=None,
         scan_all_files=False,
     ):
+        if path is None:
+            path = ['./test_data/files']
         return baseline.initialize(
             path,
             self.plugins,
@@ -440,11 +442,6 @@ class TestFormatBaselineForOutput:
             }
         )
 
-        ordered_hashes = list(
-            map(
-                lambda x: x['hashed_secret'],
-                json.loads(output_string)['results']['filename'],
-            ),
-        )
+        ordered_hashes = [x['hashed_secret'] for x in json.loads(output_string)['results']['filename']]
 
         assert ordered_hashes == ['z', 'a', 'f']

@@ -1,4 +1,3 @@
-
 import pytest
 import responses
 
@@ -73,7 +72,7 @@ class TestIBMCloudIamDetector:
             status=200,
         )
 
-        IbmCloudIamDetector().verify(CLOUD_IAM_KEY) == VerifiedResult.VERIFIED_TRUE
+        assert IbmCloudIamDetector().verify(CLOUD_IAM_KEY) == VerifiedResult.VERIFIED_TRUE
 
     @responses.activate
     def test_verify_invalid_secret_bytes(self):
@@ -93,4 +92,4 @@ class TestIBMCloudIamDetector:
             status=200,
         )
 
-        IbmCloudIamDetector().verify(CLOUD_IAM_KEY_BYTES) == VerifiedResult.VERIFIED_TRUE
+        assert IbmCloudIamDetector().verify(CLOUD_IAM_KEY_BYTES) == VerifiedResult.VERIFIED_TRUE

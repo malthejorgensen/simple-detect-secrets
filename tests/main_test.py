@@ -56,7 +56,7 @@ def get_plugin_report(extra=None):
                 [
                     '{name}: {result}'.format(
                         name=name + ' ' * (longest_name_length - len(name)),
-                        result='False' if name not in extra else extra[name],
+                        result=extra.get(name, 'False'),
                     )
                     for name in import_plugins()
                 ]

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import pytest
 
 from testing.factories import potential_secret_factory

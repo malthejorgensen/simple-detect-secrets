@@ -75,10 +75,7 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
 
     # Step #1: Canonical Request
     signed_headers = ';'.join(
-        map(
-            lambda x: x.lower(),
-            headers.keys(),
-        ),
+        (x.lower() for x in headers),
     )
     canonical_request = textwrap.dedent("""
         POST
@@ -158,10 +155,7 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
         data=body,
     )
 
-    if response.status_code == 403:
-        return False
-
-    return True
+    return response.status_code != 403
 
 
 def _sign(key, message, hex=False):  # pragma: no cover

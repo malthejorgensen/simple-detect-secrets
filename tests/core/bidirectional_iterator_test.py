@@ -1,4 +1,3 @@
-
 import pytest
 
 from simple_detect_secrets.core import bidirectional_iterator
@@ -36,7 +35,7 @@ class TestBidirectionalIterator:
             if commands[command_count]:
                 iterator.step_back_on_next_iteration()
             results.append(index)
-            command_count += 1
+            command_count += 1  # noqa: SIM113
         assert results == [0, 1, 0, 1, 2, 1, 0, 1, 2, 3, 4, 3, 2, 3, 4, 5]
 
     def test_normal_iterator_if_not_told_to_step_back(self):
@@ -44,7 +43,7 @@ class TestBidirectionalIterator:
         iterator = bidirectional_iterator.BidirectionalIterator(input_list)
         results = []
         for index in iterator:
-            results.append(index)
+            results.append(index)  # noqa: PERF402
         assert results == input_list
 
     def test_knows_when_stepping_back_possible(self):
@@ -56,5 +55,5 @@ class TestBidirectionalIterator:
             if commands[command_count]:
                 iterator.step_back_on_next_iteration()
             results.append(iterator.can_step_back())
-            command_count += 1
+            command_count += 1  # noqa: SIM113
         assert results == [False, True, False, True, True, True, False, True, True, True]

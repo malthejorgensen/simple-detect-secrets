@@ -68,7 +68,7 @@ class IniFileParser:
             # when not explicitly provided.
             raise configparser.Error
 
-        for section_name, _ in self.parser.items():
+        for section_name in self.parser:
             for key, values in self.parser.items(section_name):
                 for value, offset in self._get_value_and_line_offset(
                     key,

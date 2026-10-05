@@ -79,10 +79,7 @@ def _get_plugins_from_baseline(old_baseline):
 
 def _scan_string(line, plugins):
     longest_plugin_name_length = max(
-        map(
-            lambda x: len(x.__class__.__name__),
-            plugins,
-        ),
+        (len(x.__class__.__name__) for x in plugins),
     )
 
     output = [

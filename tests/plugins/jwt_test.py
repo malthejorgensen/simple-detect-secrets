@@ -1,4 +1,3 @@
-
 import pytest
 
 from simple_detect_secrets.plugins.jwt import JwtTokenDetector
@@ -26,11 +25,6 @@ class TestJwtTokenDetector:
             # valid jwt - claims contain strings with unicode accents
             (
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IsWww6HFkcOtIMOWxZHDqcOoIiwiaWF0IjoxNTE2MjM5MDIyfQ.k5HibI_uLn_RTuPcaCNkaVaQH2y5q6GvJg8GPpGMRwQ',
-                True,
-            ),
-            # as unicode literal
-            (
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
                 True,
             ),
             # no signature - but still valid

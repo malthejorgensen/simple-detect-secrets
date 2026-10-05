@@ -77,3 +77,10 @@ line-ending = "lf"
 # Keep existing multiline calls and collections with trailing commas expanded.
 skip-magic-trailing-comma = false
 docstring-code-format = false
+
+[tool.ruff.lint]
+ignore = [
+  "RUF012", # allow mutable class variables -- just a holdover from old code
+  "UP031", # allow %s formatting
+  "DTZ003", # allow `datetime.utcnow()`
+]

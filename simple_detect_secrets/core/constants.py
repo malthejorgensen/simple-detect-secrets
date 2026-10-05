@@ -6,8 +6,7 @@ from enum import Enum
 #       and look for "ASCII text", but that might be more expensive.
 #
 #       Definitely something to look into, if this list gets unruly long.
-IGNORED_FILE_EXTENSIONS = set(
-    (
+IGNORED_FILE_EXTENSIONS = {
         '.7z',
         '.bmp',
         '.bz2',
@@ -35,8 +34,7 @@ IGNORED_FILE_EXTENSIONS = set(
         '.xls',
         '.xlsx',
         '.zip',
-    ),
-)
+    }
 
 
 class VerifiedResult(Enum):

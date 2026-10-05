@@ -138,7 +138,7 @@ class SecretsCollection:
                 secret.secret_hash = item['hashed_secret']
                 result.data[filename][secret] = secret
 
-        result.version = data['version'] if 'version' in data else '0.0.0'
+        result.version = data.get('version', '0.0.0')
 
         return result
 
@@ -277,12 +277,7 @@ class SecretsCollection:
         for key in results:
             results[key] = sorted(results[key], key=lambda x: x['line_number'])
 
-        plugins_used = list(
-            map(
-                lambda x: x.__dict__,
-                self.plugins,
-            ),
-        )
+        plugins_used = [x.__dict__ for x in self.plugins]
         plugins_used = sorted(plugins_used, key=lambda x: x['name'])
 
         return {
