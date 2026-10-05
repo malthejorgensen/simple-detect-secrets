@@ -98,7 +98,7 @@ def _report_file_count(message, count):
     if not count:
         message = 'No files detected'
     noun = 'file' if count == 1 else 'files'
-    print(f'{message} ({count} {noun})', file=sys.stderr, flush=True)
+    print(f'{message} ({count} {noun})\n', file=sys.stderr, flush=True)
 
 
 def get_secrets_not_in_baseline(results, baseline):

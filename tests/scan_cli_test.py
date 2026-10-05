@@ -174,7 +174,7 @@ def test_scan_mode_and_count_share_one_line(tmp_path, monkeypatch, capsys, git_r
         mode = 'Scanning only Git-tracked files' if git_repository else 'Scanning all files'
         noun = 'file' if count == 1 else 'files'
         expected = f'{mode} ({count} {noun})'
-    assert capsys.readouterr().err == prefix + expected + '\n'
+    assert capsys.readouterr().err == prefix + expected + '\n\n'
 
 
 def test_scan_prefix_is_flushed_before_enumeration(tmp_path, monkeypatch):
@@ -195,4 +195,4 @@ def test_scan_prefix_is_flushed_before_enumeration(tmp_path, monkeypatch):
 
     monkeypatch.setattr(baseline, '_get_files_recursively', enumerate_files)
     baseline.initialize(['.'], ())
-    assert stream.last_flushed == 'No git repository detected: No files detected (0 files)\n'
+    assert stream.last_flushed == 'No git repository detected: No files detected (0 files)\n\n'
