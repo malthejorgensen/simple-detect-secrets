@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env -S uv run --script
 
 import json
 import sys
