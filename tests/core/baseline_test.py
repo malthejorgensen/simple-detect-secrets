@@ -69,7 +69,7 @@ class TestInitializeBaseline:
             'simple_detect_secrets.core.baseline.subprocess.check_output',
             (
                 SubprocessMock(
-                    expected_input='git -C ./test_data/files ls-files',
+                    expected_input='git -C ./test_data/files ls-files -z',
                     should_throw_exception=True,
                     mocked_output='',
                 ),
@@ -94,8 +94,8 @@ class TestInitializeBaseline:
 
     def test_with_multiple_non_existent_files(self):
         with mock.patch(
-            'simple_detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
-            return_value=None,
+            'simple_detect_secrets.core.baseline.os.path.isfile',
+            return_value=False,
         ):
             results = self.get_results(
                 path=[
@@ -172,16 +172,9 @@ class TestInitializeBaseline:
         )
         assert len(results.keys()) == 2
 
-    def test_scan_all_files_with_bad_symlinks(self):
-        with mock.patch(
-            'simple_detect_secrets.core.baseline.util.get_relative_path_if_in_cwd',
-            return_value=None,
-        ):
-            results = self.get_results(
-                # Will be non-existant due to mock.patch
-                path=['test_data/files'],
-                scan_all_files=True,
-            )
+    def test_scan_all_files_with_bad_symlinks(self, tmp_path):
+        (tmp_path / 'broken.py').symlink_to(tmp_path / 'missing.py')
+        results = self.get_results(path=[tmp_path], scan_all_files=True)
         assert len(results.keys()) == 0
 
 

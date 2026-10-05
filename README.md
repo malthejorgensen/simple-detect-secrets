@@ -1,10 +1,22 @@
 simple-detect-secrets
 =====================
 
-`simple-detect-secrets` tries to find secrets (passwords, auth tokens) in a code base.
+`simple-detect-secrets` tries to find secrets (passwords, auth tokens) in a codebase.
 
 
-Simply run `uvx simple-detect-secrets`.
+
+
+In git repositories, `simple-detect-secrets` only scans checked-in files.
+Otherwise it scans all files.
+
+Running
+-------
+
+Simply run
+
+    uvx simple-detect-secrets
+
+in a directory to search for possible secrets.
 
 
 Developing

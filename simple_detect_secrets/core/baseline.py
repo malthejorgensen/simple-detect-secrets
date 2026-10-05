@@ -1,8 +1,8 @@
 import os
 import re
 import subprocess
+import sys
 
-from .. import util
 from .log import get_logger
 from .secrets_collection import SecretsCollection
 
@@ -47,24 +47,32 @@ def initialize(
         word_list_hash=word_list_hash,
     )
 
+    if isinstance(path, (str, os.PathLike)):
+        path = [path]
+
     files_to_scan = []
     for element in path:
         if os.path.isdir(element):
             if should_scan_all_files:
+                print('Scanning all files (--all-files).', file=sys.stderr)
                 files_to_scan.extend(
                     _get_files_recursively(element),
                 )
+            elif _is_git_repository(element):
+                print(
+                    'Detected git repository: Scanning only Git-tracked files.',
+                    file=sys.stderr,
+                )
+                files_to_scan.extend(_get_git_tracked_files(element))
             else:
+                print('No git repository detected: Scanning all files.', file=sys.stderr)
                 files_to_scan.extend(
-                    _get_git_tracked_files(element),
+                    _get_files_recursively(element),
                 )
         elif os.path.isfile(element):
             files_to_scan.append(element)
         else:
             log.error('detect-secrets: %s: No such file or directory', element)
-
-    if not files_to_scan:
-        return output
 
     if exclude_files_regex:
         exclude_files_regex = re.compile(exclude_files_regex, re.IGNORECASE)
@@ -73,7 +81,9 @@ def initialize(
             files_to_scan,
         )
 
-    for file in sorted(files_to_scan):
+    files_to_scan = sorted(set(files_to_scan))
+    print(f'Scanning {len(files_to_scan)} file(s).', file=sys.stderr)
+    for file in files_to_scan:
         output.scan_file(file)
 
     return output
@@ -201,6 +211,19 @@ Filename: {filename}
     return '\n'.join(lines)
 
 
+def _is_git_repository(rootdir):
+    try:
+        result = subprocess.run(
+            ['git', '-C', os.fspath(rootdir), 'rev-parse', '--is-inside-work-tree'],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return False
+    return result.returncode == 0 and result.stdout.strip() == 'true'
+
+
 def _get_git_tracked_files(rootdir='.'):
     """Parsing .gitignore rules is hard.
 
@@ -224,13 +247,15 @@ def _get_git_tracked_files(rootdir='.'):
                     '-C',
                     rootdir,
                     'ls-files',
+                    '-z',
                 ],
                 stderr=fnull,
             )
-        for filename in git_files.decode('utf-8').split():
-            relative_path = util.get_relative_path_if_in_cwd(rootdir, filename)
-            if relative_path:
-                output.append(relative_path)
+        for filename in os.fsdecode(git_files).split('\0'):
+            if filename:
+                relative_path = os.path.relpath(os.path.join(rootdir, filename))
+                if os.path.isfile(relative_path):
+                    output.append(relative_path)
     except subprocess.CalledProcessError:
         pass
     return output
@@ -241,9 +266,12 @@ def _get_files_recursively(rootdir):
     This function allows us to do so.
     """
     output = []
-    for root, _, files in os.walk(rootdir):
+    for root, directories, files in os.walk(rootdir):
+        # Git's internal metadata is not source content.
+        if '.git' in directories:
+            directories.remove('.git')
         for filename in files:
-            relative_path = util.get_relative_path_if_in_cwd(root, filename)
-            if relative_path:
+            relative_path = os.path.relpath(os.path.join(root, filename))
+            if os.path.isfile(relative_path):
                 output.append(relative_path)
     return output
