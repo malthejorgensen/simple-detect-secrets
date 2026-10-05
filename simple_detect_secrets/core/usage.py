@@ -36,7 +36,11 @@ def create_parser(*, pre_commit=False):
             'path', nargs='*', default=['.'], help='Files or directories (default: .).'
         )
         parser.add_argument(
-            '--exclude-files', help='Ignore paths matching this regular expression.'
+            '--exclude',
+            action='append',
+            default=[],
+            metavar='GLOB',
+            help='Exclude matching files or directories; may be repeated. Uses glob patterns. Patterns starting with `/` will match relative to the scan/repository root',
         )
         parser.add_argument(
             '--update', dest='import_filename', metavar='FILE', help='Write scan results to FILE.'
@@ -72,7 +76,7 @@ def create_parser(*, pre_commit=False):
 
 
 def parse_args(argv=None, *, pre_commit=False):
-    args = create_parser(pre_commit=pre_commit).parse_args(argv)
+    args = create_parser(pre_commit=pre_commit).parse_intermixed_args(argv)
     args.plugins = {}
     args.is_using_default_value = {}
     for name, plugin in import_plugins().items():

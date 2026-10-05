@@ -1,13 +1,13 @@
 import codecs
 import json
 import os
-import re
 from time import gmtime, strftime
 
 from .. import VERSION
 from ..plugins.common import initialize
 from ..util import build_automaton
 from .constants import IGNORED_FILE_EXTENSIONS
+from .excludes import is_excluded
 from .log import log
 from .potential_secret import PotentialSecret
 
@@ -25,8 +25,8 @@ class SecretsCollection:
         :type plugins: tuple of detect_secrets.plugins.base.BasePlugin
         :param plugins: rules to determine whether a string is a secret
 
-        :type exclude_files: str|None
-        :param exclude_files: optional regex for ignored paths.
+        :type exclude_files: list(str)|str|None
+        :param exclude_files: ignored path globs, or a regex from a legacy baseline.
 
         :type exclude_lines: str|None
         :param exclude_lines: optional regex for ignored lines.
@@ -183,13 +183,10 @@ class SecretsCollection:
             log.error(alert)
             raise
 
-        if self.exclude_files:
-            regex = re.compile(self.exclude_files, re.IGNORECASE)
-
         for patch_file in patch_set:
             filename = patch_file.path
             # If the file matches the exclude_files, we skip it
-            if self.exclude_files and regex.search(filename):
+            if is_excluded(filename, self.exclude_files):
                 continue
 
             if filename == baseline_filename:

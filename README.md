@@ -3,9 +3,6 @@ simple-detect-secrets
 
 `simple-detect-secrets` tries to find secrets (passwords, auth tokens) in a codebase.
 
-
-
-
 In git repositories, `simple-detect-secrets` only scans checked-in files.
 Otherwise it scans all files.
 
@@ -18,6 +15,11 @@ Simply run
 
 in a directory to search for possible secrets.
 
+Exclude files or directories with repeatable, quoted glob patterns:
+
+```bash
+uvx simple-detect-secrets --exclude '*.log' --exclude 'vendor/*' --exclude '.venv'
+```
 
 Developing
 ----------

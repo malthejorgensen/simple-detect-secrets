@@ -138,6 +138,11 @@ class TestScanFile:
 
 
 class TestScanDiff:
+    def test_glob_exclusions(self):
+        secrets = self.load_from_diff(exclude_files_regex=['tests/*']).data
+        assert 'tests/core/secrets_collection_test.py' not in secrets
+        assert len(secrets) == 2
+
     def test_success(self):
         secrets = self.load_from_diff().format_for_baseline_output()['results']
 

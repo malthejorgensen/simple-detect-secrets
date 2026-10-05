@@ -103,7 +103,7 @@ def _perform_scan(args, plugins, automaton, word_list_hash):
     """
     new_baseline = baseline.initialize(
         plugins=plugins,
-        exclude_files_regex=args.exclude_files,
+        exclude_patterns=args.exclude,
         exclude_lines_regex=args.exclude_lines,
         word_list_file=args.word_list_file,
         word_list_hash=word_list_hash,

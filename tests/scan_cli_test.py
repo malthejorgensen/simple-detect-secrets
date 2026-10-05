@@ -1,6 +1,9 @@
 import subprocess
 
+import pytest
+
 from simple_detect_secrets.core import baseline
+from simple_detect_secrets.core.secrets_collection import SecretsCollection
 from simple_detect_secrets.main import main
 from simple_detect_secrets.plugins.aws import AWSKeyDetector
 
@@ -86,3 +89,64 @@ def test_no_arguments_scans_current_directory(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert KEY in captured.out
     assert 'No git repository detected' in captured.err
+
+
+@pytest.mark.parametrize('git_repository', [False, True])
+def test_repeatable_excludes_filter_scan_results(tmp_path, monkeypatch, capsys, git_repository):
+    monkeypatch.chdir(tmp_path)
+    for filename in ('keep.py', 'debug.log', 'nested/debug.log', 'vendor/private.py'):
+        write_secret(tmp_path / filename)
+    if git_repository:
+        subprocess.run(['git', 'init', '-q'], check=True)
+        subprocess.run(['git', 'add', '.'], check=True)
+    assert main(['--exclude', '*.log', '--exclude', 'vendor/*']) == 0
+    output = capsys.readouterr().out
+    assert 'Filename: keep.py' in output
+    assert 'debug.log' not in output
+    assert 'private.py' not in output
+
+
+def test_excludes_apply_to_explicit_files(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / 'credentials')
+    assert main([str(tmp_path / 'credentials'), '--exclude', 'credentials']) == 0
+    captured = capsys.readouterr()
+    assert KEY not in captured.out
+    assert 'Scanning 0 file(s).' in captured.err
+
+
+def test_exclusions_can_be_interleaved_with_paths(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / 'keep.py')
+    write_secret(tmp_path / 'debug.log')
+    assert main(['keep.py', '--exclude', '*.log', 'debug.log', '--exclude', 'vendor/*']) == 0
+    output = capsys.readouterr().out
+    assert 'Filename: keep.py' in output
+    assert 'debug.log' not in output
+
+
+def test_excluded_directories_are_not_walked(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / '.venv' / 'credentials')
+    write_secret(tmp_path / 'keep.py')
+    visited = []
+    original_walk = baseline.os.walk
+
+    def record_walk(*args, **kwargs):
+        for item in original_walk(*args, **kwargs):
+            visited.append(item[0])
+            yield item
+
+    monkeypatch.setattr(baseline.os, 'walk', record_walk)
+    result = baseline.initialize(['.'], (AWSKeyDetector(),), exclude_patterns=['.venv'])
+    assert set(result.data) == {'keep.py'}
+    assert not any('.venv' in path for path in visited)
+
+
+def test_glob_exclusions_survive_baseline_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    write_secret(tmp_path / 'credentials')
+    result = baseline.initialize(['.'], (AWSKeyDetector(),), exclude_patterns=['*.log', 'vendor/*'])
+    loaded = SecretsCollection.load_baseline_from_dict(result.format_for_baseline_output())
+    assert loaded.exclude_files == ['*.log', 'vendor/*']
+    assert loaded.get_secret('credentials', KEY, 'AWS Access Key') is not None

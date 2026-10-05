@@ -1,8 +1,8 @@
 import os
-import re
 import subprocess
 import sys
 
+from .excludes import is_excluded
 from .log import get_logger
 from .secrets_collection import SecretsCollection
 
@@ -12,7 +12,7 @@ log = get_logger(format_string='%(message)s')
 def initialize(
     path,
     plugins,
-    exclude_files_regex=None,
+    exclude_patterns=None,
     exclude_lines_regex=None,
     word_list_file=None,
     word_list_hash=None,
@@ -26,7 +26,7 @@ def initialize(
     :type plugins: tuple of detect_secrets.plugins.base.BasePlugin
     :param plugins: rules to initialize the SecretsCollection with.
 
-    :type exclude_files_regex: str|None
+    :type exclude_patterns: list(str)|None
     :type exclude_lines_regex: str|None
 
     :type word_list_file: str|None
@@ -41,7 +41,7 @@ def initialize(
     """
     output = SecretsCollection(
         plugins,
-        exclude_files=exclude_files_regex,
+        exclude_files=exclude_patterns or [],
         exclude_lines=exclude_lines_regex,
         word_list_file=word_list_file,
         word_list_hash=word_list_hash,
@@ -56,7 +56,7 @@ def initialize(
             if should_scan_all_files:
                 print('Scanning all files (--all-files).', file=sys.stderr)
                 files_to_scan.extend(
-                    _get_files_recursively(element),
+                    _get_files_recursively(element, exclude_patterns),
                 )
             elif _is_git_repository(element):
                 print(
@@ -67,19 +67,14 @@ def initialize(
             else:
                 print('No git repository detected: Scanning all files.', file=sys.stderr)
                 files_to_scan.extend(
-                    _get_files_recursively(element),
+                    _get_files_recursively(element, exclude_patterns),
                 )
         elif os.path.isfile(element):
             files_to_scan.append(element)
         else:
             log.error('detect-secrets: %s: No such file or directory', element)
 
-    if exclude_files_regex:
-        exclude_files_regex = re.compile(exclude_files_regex, re.IGNORECASE)
-        files_to_scan = filter(
-            lambda file: not exclude_files_regex.search(file),
-            files_to_scan,
-        )
+    files_to_scan = [file for file in files_to_scan if not is_excluded(file, exclude_patterns)]
 
     files_to_scan = sorted(set(files_to_scan))
     print(f'Scanning {len(files_to_scan)} file(s).', file=sys.stderr)
@@ -101,13 +96,9 @@ def get_secrets_not_in_baseline(results, baseline):
     :rtype: SecretsCollection
     :returns: SecretsCollection of new results (filtering out baseline)
     """
-    exclude_files_regex = None
-    if baseline.exclude_files:
-        exclude_files_regex = re.compile(baseline.exclude_files, re.IGNORECASE)
-
     new_secrets = SecretsCollection()
     for filename in results.data:
-        if exclude_files_regex and exclude_files_regex.search(filename):
+        if is_excluded(filename, baseline.exclude_files):
             continue
 
         if filename not in baseline.data:
@@ -261,15 +252,19 @@ def _get_git_tracked_files(rootdir='.'):
     return output
 
 
-def _get_files_recursively(rootdir):
+def _get_files_recursively(rootdir, exclude_patterns=None):
     """Sometimes, we want to use this tool with non-git repositories.
     This function allows us to do so.
     """
     output = []
     for root, directories, files in os.walk(rootdir):
         # Git's internal metadata is not source content.
-        if '.git' in directories:
-            directories.remove('.git')
+        directories[:] = [
+            directory
+            for directory in directories
+            if directory != '.git'
+            and not is_excluded(os.path.join(root, directory), exclude_patterns)
+        ]
         for filename in files:
             relative_path = os.path.relpath(os.path.join(root, filename))
             if os.path.isfile(relative_path):

@@ -76,7 +76,7 @@ class TestMain:
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
-            exclude_files_regex=None,
+            exclude_patterns=[],
             exclude_lines_regex=None,
             path=['.'],
             should_scan_all_files=False,
@@ -90,7 +90,7 @@ class TestMain:
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
-            exclude_files_regex=None,
+            exclude_patterns=[],
             exclude_lines_regex=None,
             path=['test_data'],
             should_scan_all_files=False,
@@ -121,7 +121,7 @@ class TestMain:
             assert (
                 main(
                     [
-                        '--exclude-files',
+                        '--exclude',
                         'some_pattern_here',
                         '--exclude-lines',
                         'other_patt',
@@ -132,7 +132,7 @@ class TestMain:
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
-            exclude_files_regex='some_pattern_here',
+            exclude_patterns=['some_pattern_here'],
             exclude_lines_regex='other_patt',
             path=['.'],
             should_scan_all_files=False,
@@ -203,7 +203,7 @@ class TestMain:
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
-            exclude_files_regex=None,
+            exclude_patterns=[],
             exclude_lines_regex=None,
             path=['.'],
             should_scan_all_files=True,
@@ -228,10 +228,10 @@ def mock_stdin(response=None):
 
 @pytest.fixture
 def mock_baseline_initialize():
-    def mock_initialize_function(plugins, exclude_files_regex, *args, **kwargs):
+    def mock_initialize_function(plugins, exclude_patterns, *args, **kwargs):
         return secrets_collection_factory(
             plugins=plugins,
-            exclude_files_regex=exclude_files_regex,
+            exclude_files_regex=exclude_patterns,
         )
 
     with mock.patch(

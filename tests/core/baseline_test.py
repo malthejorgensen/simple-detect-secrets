@@ -35,7 +35,7 @@ class TestInitializeBaseline:
         return baseline.initialize(
             path,
             self.plugins,
-            exclude_files_regex=exclude_files_regex,
+            exclude_patterns=exclude_files_regex,
             should_scan_all_files=scan_all_files,
         ).json()
 
@@ -122,14 +122,14 @@ class TestInitializeBaseline:
         assert 'test_data/files/file_with_no_secrets.py' not in results
         assert 'non-existent-file.B' not in results
 
-    def test_exclude_regex(self):
-        results = self.get_results(exclude_files_regex='tmp*')
+    def test_exclude_glob(self):
+        results = self.get_results(exclude_files_regex=['tmp*'])
 
         assert len(results.keys()) == 1
         assert 'test_data/files/file_with_secrets.py' in results
 
-    def test_exclude_regex_at_root_level(self):
-        results = self.get_results(exclude_files_regex='file_with_secrets.py')
+    def test_exclude_glob_at_root_level(self):
+        results = self.get_results(exclude_files_regex=['file_with_secrets.py'])
 
         # All files_with_secrets.py should be ignored, both at the root
         # level, and the nested file in tmp.
