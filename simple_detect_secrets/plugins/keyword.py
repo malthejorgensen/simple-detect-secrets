@@ -25,18 +25,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-from __future__ import absolute_import
 
 import re
 
-from .base import BasePlugin
-from .base import classproperty
-from .common.filetype import determine_file_type
-from .common.filetype import FileType
-from .common.filters import get_aho_corasick_helper
-from .common.filters import is_sequential_string
 from simple_detect_secrets.core.potential_secret import PotentialSecret
 
+from .base import BasePlugin, classproperty
+from .common.filetype import FileType, determine_file_type
+from .common.filters import get_aho_corasick_helper, is_sequential_string
 
 # Note: All values here should be lowercase
 DENYLIST = (
@@ -154,75 +150,33 @@ SQUARE_BRACKETS = r'(\[\])'
 
 FOLLOWED_BY_COLON_EQUAL_SIGNS_REGEX = re.compile(
     # e.g. my_password := "bar" or my_password := bar
-    r'({denylist})({closing})?{whitespace}:=?{whitespace}({quote}?)({secret})(\3)'.format(
-        denylist=DENYLIST_REGEX,
-        closing=CLOSING,
-        quote=QUOTE,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({CLOSING})?{OPTIONAL_WHITESPACE}:=?{OPTIONAL_WHITESPACE}({QUOTE}?)({SECRET})(\3)',
 )
 FOLLOWED_BY_COLON_REGEX = re.compile(
     # e.g. api_key: foo
-    r'({denylist})({closing})?:{whitespace}({quote}?)({secret})(\3)'.format(
-        denylist=DENYLIST_REGEX,
-        closing=CLOSING,
-        quote=QUOTE,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({CLOSING})?:{OPTIONAL_WHITESPACE}({QUOTE}?)({SECRET})(\3)',
 )
 FOLLOWED_BY_COLON_QUOTES_REQUIRED_REGEX = re.compile(
     # e.g. api_key: "foo"
-    r'({denylist})({closing})?:({whitespace})({quote})({secret})(\4)'.format(
-        denylist=DENYLIST_REGEX,
-        closing=CLOSING,
-        quote=QUOTE,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({CLOSING})?:({OPTIONAL_WHITESPACE})({QUOTE})({SECRET})(\4)',
 )
 FOLLOWED_BY_EQUAL_SIGNS_OPTIONAL_BRACKETS_OPTIONAL_AT_SIGN_QUOTES_REQUIRED_REGEX = re.compile(
     # e.g. my_password = "bar"
     # e.g. my_password = @"bar"
     # e.g. my_password[] = "bar";
-    r'({denylist})({square_brackets})?{optional_whitespace}={optional_whitespace}(@)?(")({secret})(\5)'.format(  # noqa: E501
-        denylist=DENYLIST_REGEX,
-        square_brackets=SQUARE_BRACKETS,
-        optional_whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({SQUARE_BRACKETS})?{OPTIONAL_WHITESPACE}={OPTIONAL_WHITESPACE}(@)?(")({SECRET})(\5)',
 )
 FOLLOWED_BY_EQUAL_SIGNS_REGEX = re.compile(
     # e.g. my_password = bar
-    r'({denylist})({closing})?{whitespace}={whitespace}({quote}?)({secret})(\3)'.format(
-        denylist=DENYLIST_REGEX,
-        closing=CLOSING,
-        quote=QUOTE,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({CLOSING})?{OPTIONAL_WHITESPACE}={OPTIONAL_WHITESPACE}({QUOTE}?)({SECRET})(\3)',
 )
 FOLLOWED_BY_EQUAL_SIGNS_QUOTES_REQUIRED_REGEX = re.compile(
     # e.g. my_password = "bar"
-    r'({denylist})({closing})?{whitespace}={whitespace}({quote})({secret})(\3)'.format(
-        denylist=DENYLIST_REGEX,
-        closing=CLOSING,
-        quote=QUOTE,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX})({CLOSING})?{OPTIONAL_WHITESPACE}={OPTIONAL_WHITESPACE}({QUOTE})({SECRET})(\3)',
 )
 FOLLOWED_BY_QUOTES_AND_SEMICOLON_REGEX = re.compile(
     # e.g. private_key "something";
-    r'({denylist}){nonWhitespace}{whitespace}({quote})({secret})(\2);'.format(
-        denylist=DENYLIST_REGEX,
-        nonWhitespace=OPTIONAL_NON_WHITESPACE,
-        quote=QUOTE,
-        closing=CLOSING,
-        whitespace=OPTIONAL_WHITESPACE,
-        secret=SECRET,
-    ),
+    rf'({DENYLIST_REGEX}){OPTIONAL_NON_WHITESPACE}{OPTIONAL_WHITESPACE}({QUOTE})({SECRET})(\2);',
 )
 DENYLIST_REGEX_TO_GROUP = {
     FOLLOWED_BY_COLON_REGEX: 4,
@@ -272,7 +226,7 @@ class KeywordDetector(BasePlugin):
         output = {
             'keyword_exclude': self.keyword_exclude,
         }
-        output.update(super(KeywordDetector, self).__dict__)
+        output.update(super().__dict__)
 
         return output
 
@@ -282,7 +236,7 @@ class KeywordDetector(BasePlugin):
             is_sequential_string,
         ]
 
-        super(KeywordDetector, self).__init__(
+        super().__init__(
             exclude_lines_regex=exclude_lines_regex,
             false_positive_heuristics=false_positive_heuristics,
             **kwargs,

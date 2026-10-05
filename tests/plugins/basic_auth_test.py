@@ -1,11 +1,10 @@
-from __future__ import absolute_import
 
 import pytest
 
 from simple_detect_secrets.plugins.basic_auth import BasicAuthDetector
 
 
-class TestBasicAuthDetector(object):
+class TestBasicAuthDetector:
     @pytest.mark.parametrize(
         'payload, should_flag',
         [

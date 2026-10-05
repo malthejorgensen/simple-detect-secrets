@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 from simple_detect_secrets.core.potential_secret import PotentialSecret
 from simple_detect_secrets.core.secrets_collection import SecretsCollection

@@ -1,11 +1,9 @@
-from __future__ import absolute_import
 
 import codecs
 import json
 import os
 import re
-from time import gmtime
-from time import strftime
+from time import gmtime, strftime
 
 from simple_detect_secrets import VERSION
 from simple_detect_secrets.core.constants import IGNORED_FILE_EXTENSIONS
@@ -15,7 +13,7 @@ from simple_detect_secrets.plugins.common import initialize
 from simple_detect_secrets.util import build_automaton
 
 
-class SecretsCollection(object):
+class SecretsCollection:
     def __init__(
         self,
         plugins=(),
@@ -60,7 +58,7 @@ class SecretsCollection(object):
         """
         try:
             return cls.load_baseline_from_dict(json.loads(string))
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             log.error('Incorrectly formatted baseline!')
             raise
 
@@ -83,7 +81,7 @@ class SecretsCollection(object):
                 'results',
             )
         ):
-            raise IOError
+            raise OSError
 
         # In v0.12.0 `exclude_regex` got replaced by `exclude`
         if not any(
@@ -93,7 +91,7 @@ class SecretsCollection(object):
                 'exclude_regex',
             )
         ):
-            raise IOError
+            raise OSError
 
         if 'exclude_regex' in data:
             result.exclude_files = data['exclude_regex']
@@ -231,7 +229,7 @@ class SecretsCollection(object):
                 self._extract_secrets_from_file(f, filename_key)
 
             return True
-        except IOError:
+        except OSError:
             log.warning('Unable to open file: %s', filename)
             return False
 

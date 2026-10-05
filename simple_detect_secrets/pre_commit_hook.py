@@ -1,20 +1,19 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import subprocess
 import sys
 import textwrap
 
 from simple_detect_secrets import VERSION
-from simple_detect_secrets.core.baseline import get_secrets_not_in_baseline
-from simple_detect_secrets.core.baseline import trim_baseline_of_removed_secrets
+from simple_detect_secrets.core.baseline import (
+    get_secrets_not_in_baseline,
+    trim_baseline_of_removed_secrets,
+)
 from simple_detect_secrets.core.common import write_baseline_to_file
 from simple_detect_secrets.core.log import get_logger
 from simple_detect_secrets.core.secrets_collection import SecretsCollection
 from simple_detect_secrets.core.usage import ParserBuilder
 from simple_detect_secrets.plugins.common import initialize
 from simple_detect_secrets.util import build_automaton
-
 
 log = get_logger(format_string='%(message)s')
 
@@ -32,7 +31,7 @@ def main(argv=None):
         # If baseline is provided, we first want to make sure
         # it's valid, before doing any further computation.
         baseline_collection = get_baseline(args.baseline[0])
-    except (IOError, ValueError):
+    except (OSError, ValueError):
         # Error logs handled within logic.
         return 1
 
@@ -92,7 +91,7 @@ def main(argv=None):
         log.error(
             'The baseline file was updated.\n'
             'Probably to keep line numbers of secrets up-to-date.\n'
-            'Please `git add {}`, thank you.\n\n'.format(args.baseline[0]),
+            f'Please `git add {args.baseline[0]}`, thank you.\n\n',
         )
         return 3
 
@@ -122,11 +121,11 @@ def _get_baseline_string_from_file(filename):  # pragma: no cover
         with open(filename) as f:
             return f.read()
 
-    except IOError:
+    except OSError:
         log.error(
-            'Unable to open baseline file: {}\n'
+            f'Unable to open baseline file: {filename}\n'
             'Please create it via\n'
-            '   `detect-secrets scan > {}`\n'.format(filename, filename),
+            f'   `detect-secrets scan > {filename}`\n',
         )
         raise
 
@@ -152,10 +151,7 @@ def raise_exception_if_baseline_file_is_unstaged(filename):
 
     if filename.encode() in files_changed_but_not_staged:
         log.error(
-            ('Your baseline file ({}) is unstaged.\n`git add {}` to fix this.').format(
-                filename,
-                filename,
-            )
+            f'Your baseline file ({filename}) is unstaged.\n`git add {filename}` to fix this.'
         )
 
         raise ValueError

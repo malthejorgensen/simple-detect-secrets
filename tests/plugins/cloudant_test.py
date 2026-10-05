@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 import textwrap
 
@@ -6,8 +5,7 @@ import pytest
 import responses
 
 from simple_detect_secrets.core.constants import VerifiedResult
-from simple_detect_secrets.plugins.cloudant import CloudantDetector
-from simple_detect_secrets.plugins.cloudant import find_account
+from simple_detect_secrets.plugins.cloudant import CloudantDetector, find_account
 
 CL_ACCOUNT = 'testy_-test'  # also called user
 # only detecting 64 hex CL generated password
@@ -17,57 +15,39 @@ CL_PW = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'
 CL_API_KEY = 'abcdefghijabcdefghijabcd'
 
 
-class TestCloudantDetector(object):
+class TestCloudantDetector:
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
             (
-                'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com"'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_pw=CL_PW,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com"',
                 True,
             ),
             (
-                'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com/_api/v2/'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_pw=CL_PW,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com/_api/v2/',
                 True,
             ),
             (
-                'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com/_api/v2/'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_pw=CL_PW,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com/_api/v2/',
                 True,
             ),
             (
-                'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_pw=CL_PW,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com',
                 True,
             ),
             (
-                'https://{cl_account}:{cl_api_key}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_api_key=CL_API_KEY,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_API_KEY}@{CL_ACCOUNT}.cloudant.com',
                 True,
             ),
             (
-                'https://{cl_account}:{cl_pw}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_pw=CL_PW,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_PW}.cloudant.com',
                 False,
             ),
-            ("cloudant_password='{cl_pw}'".format(cl_pw=CL_PW), True),
-            ("cloudant_pw='{cl_pw}'".format(cl_pw=CL_PW), True),
-            ('cloudant_pw="{cl_pw}"'.format(cl_pw=CL_PW), True),
-            ('clou_pw = "{cl_pw}"'.format(cl_pw=CL_PW), True),
-            ('cloudant_key = "{cl_api_key}"'.format(cl_api_key=CL_API_KEY), True),
+            (f"cloudant_password='{CL_PW}'", True),
+            (f"cloudant_pw='{CL_PW}'", True),
+            (f'cloudant_pw="{CL_PW}"', True),
+            (f'clou_pw = "{CL_PW}"', True),
+            (f'cloudant_key = "{CL_API_KEY}"', True),
             ('cloudant_password = "a-fake-tooshort-key"', False),
             ('cl_api_key = "a-fake-api-key"', False),
         ],
@@ -80,10 +60,7 @@ class TestCloudantDetector(object):
 
     @responses.activate
     def test_verify_invalid_secret(self):
-        cl_api_url = 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-            cl_account=CL_ACCOUNT,
-            cl_pw=CL_PW,
-        )
+        cl_api_url = f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com'
         responses.add(
             responses.GET,
             cl_api_url,
@@ -94,17 +71,14 @@ class TestCloudantDetector(object):
         assert (
             CloudantDetector().verify(
                 CL_PW,
-                'cloudant_host={}'.format(CL_ACCOUNT),
+                f'cloudant_host={CL_ACCOUNT}',
             )
             == VerifiedResult.VERIFIED_FALSE
         )
 
     @responses.activate
     def test_verify_valid_secret(self):
-        cl_api_url = 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-            cl_account=CL_ACCOUNT,
-            cl_pw=CL_PW,
-        )
+        cl_api_url = f'https://{CL_ACCOUNT}:{CL_PW}@{CL_ACCOUNT}.cloudant.com'
         responses.add(
             responses.GET,
             cl_api_url,
@@ -114,7 +88,7 @@ class TestCloudantDetector(object):
         assert (
             CloudantDetector().verify(
                 CL_PW,
-                'cloudant_host={}'.format(CL_ACCOUNT),
+                f'cloudant_host={CL_ACCOUNT}',
             )
             == VerifiedResult.VERIFIED_TRUE
         )
@@ -124,7 +98,7 @@ class TestCloudantDetector(object):
         assert (
             CloudantDetector().verify(
                 CL_PW,
-                'cloudant_host={}'.format(CL_ACCOUNT),
+                f'cloudant_host={CL_ACCOUNT}',
             )
             == VerifiedResult.UNVERIFIED
         )
@@ -133,7 +107,7 @@ class TestCloudantDetector(object):
         assert (
             CloudantDetector().verify(
                 CL_PW,
-                'no_un={}'.format(CL_ACCOUNT),
+                f'no_un={CL_ACCOUNT}',
             )
             == VerifiedResult.UNVERIFIED
         )
@@ -180,16 +154,11 @@ class TestCloudantDetector(object):
             ),
             # In URL
             (
-                'https://{cl_account}:{cl_api_key}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT,
-                    cl_api_key=CL_API_KEY,
-                ),
+                f'https://{CL_ACCOUNT}:{CL_API_KEY}@{CL_ACCOUNT}.cloudant.com',
                 [CL_ACCOUNT],
             ),
             (
-                'https://{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT,
-                ),
+                f'https://{CL_ACCOUNT}.cloudant.com',
                 [CL_ACCOUNT],
             ),
         ),

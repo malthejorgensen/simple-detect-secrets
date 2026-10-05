@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 import argparse
 from collections import namedtuple
@@ -43,7 +42,7 @@ def add_no_verify_flag(parser):
     )
 
 
-class ParserBuilder(object):
+class ParserBuilder:
     def __init__(self):
         self.parser = argparse.ArgumentParser()
 
@@ -126,7 +125,7 @@ class ParserBuilder(object):
         return self
 
 
-class ScanOptions(object):
+class ScanOptions:
     def __init__(self, subparser):
         self.parser = subparser.add_parser(
             'scan',
@@ -225,7 +224,7 @@ class PluginDescriptor(
         if not related_args:
             related_args = []
 
-        return super(PluginDescriptor, cls).__new__(cls, related_args=related_args, **kwargs)
+        return super().__new__(cls, related_args=related_args, **kwargs)
 
     @classmethod
     def from_plugin_class(cls, plugin, name):
@@ -246,7 +245,7 @@ class PluginDescriptor(
 
         return cls(
             classname=name,
-            disable_flag_text='--{}'.format(plugin.disable_flag_text),
+            disable_flag_text=f'--{plugin.disable_flag_text}',
             disable_help_text=cls.get_disabled_help_text(plugin),
             related_args=related_args,
         )
@@ -261,10 +260,10 @@ class PluginDescriptor(
             raise NotImplementedError('Plugins must declare a docstring.')
 
         line = line[0].lower() + line[1:]
-        return 'Disables {}'.format(line)
+        return f'Disables {line}'
 
 
-class PluginOptions(object):
+class PluginOptions:
     all_plugins = [
         PluginDescriptor.from_plugin_class(plugin, name)
         for name, plugin in import_plugins().items()

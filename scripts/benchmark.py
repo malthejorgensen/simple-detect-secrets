@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-from __future__ import print_function
 
 import argparse
 import json
@@ -10,8 +9,7 @@ import sys
 
 from monotonic import monotonic
 
-from simple_detect_secrets.core.color import AnsiColor
-from simple_detect_secrets.core.color import colorize
+from simple_detect_secrets.core.color import AnsiColor, colorize
 from simple_detect_secrets.core.usage import PluginOptions
 from simple_detect_secrets.util import get_root_directory
 
@@ -26,7 +24,7 @@ def main():
         file=sys.stderr,
     )
     print(
-        'for: {}'.format(args.filenames),
+        f'for: {args.filenames}',
         file=sys.stderr,
     )
 
@@ -130,10 +128,7 @@ def assert_positive(type):
         value = type(string)
         if value <= 0:
             raise argparse.ArgumentTypeError(
-                '{} must be a positive {}.'.format(
-                    string,
-                    type.__name__,
-                ),
+                f'{string} must be a positive {type.__name__}.',
             )
 
         return value
@@ -144,7 +139,7 @@ def assert_positive(type):
 def assert_valid_file(string):
     if not os.path.isfile(string):
         raise argparse.ArgumentTypeError(
-            '{} must be a valid file.'.format(string),
+            f'{string} must be a valid file.',
         )
 
     with open(string) as f:
@@ -168,7 +163,7 @@ def time_execution(filenames, timeout, num_iterations=1, flags=None):
         start_time = monotonic()
         try:
             subprocess.check_output(
-                'detect-secrets scan'.split() + filenames + flags,
+                ['detect-secrets', 'scan'] + filenames + flags,
                 timeout=timeout,
             )
             scores.append(monotonic() - start_time)
@@ -261,7 +256,7 @@ def print_line(name, time, baseline, timeout):
     if not time:
         time_string = 'Timeout exceeded!'
     else:
-        time_string = '{}s'.format(str(time))
+        time_string = f'{time!s}s'
 
     if baseline is not None:
         if time and baseline:
@@ -278,28 +273,24 @@ def print_line(name, time, baseline, timeout):
 
         if difference > 0:
             difference_string = colorize(
-                '▲  {}'.format(difference),
+                f'▲  {difference}',
                 AnsiColor.LIGHT_GREEN,
             )
-            difference_string = '{:>22s}'.format(difference_string)
+            difference_string = f'{difference_string:>22s}'
         elif difference < 0:
             difference_string = colorize(
-                '▼ {}'.format(difference),
+                f'▼ {difference}',
                 AnsiColor.RED,
             )
-            difference_string = '{:>22s}'.format(difference_string)
+            difference_string = f'{difference_string:>22s}'
         else:
             difference_string = '{:>10s}'.format('-')
 
         print(
-            '{:<25s}{:^20s}{}'.format(
-                name,
-                time_string,
-                difference_string,
-            ),
+            f'{name:<25s}{time_string:^20s}{difference_string}',
         )
     else:
-        print('{:<25s}{:>20s}'.format(name, time_string))
+        print(f'{name:<25s}{time_string:>20s}')
 
 
 if __name__ == '__main__':

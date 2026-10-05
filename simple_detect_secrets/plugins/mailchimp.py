@@ -2,15 +2,15 @@
 This plugin searches for Mailchimp keys
 """
 
-from __future__ import absolute_import
 
 import re
 from base64 import b64encode
 
 import requests
 
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector
 
 
 class MailchimpDetector(RegexBasedDetector):
@@ -24,13 +24,11 @@ class MailchimpDetector(RegexBasedDetector):
         _, datacenter_number = token.split('-us')
 
         response = requests.get(
-            'https://us{}.api.mailchimp.com/3.0/'.format(
-                datacenter_number,
-            ),
+            f'https://us{datacenter_number}.api.mailchimp.com/3.0/',
             headers={
                 'Authorization': b'Basic '
                 + b64encode(
-                    'any_user:{}'.format(token).encode('utf-8'),
+                    f'any_user:{token}'.encode(),
                 ),
             },
         )

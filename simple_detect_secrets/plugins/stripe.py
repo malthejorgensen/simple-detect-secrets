@@ -1,12 +1,12 @@
-from __future__ import absolute_import
 
 import re
 from base64 import b64encode
 
 import requests
 
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector
 
 
 class StripeDetector(RegexBasedDetector):
@@ -25,7 +25,7 @@ class StripeDetector(RegexBasedDetector):
             headers={
                 'Authorization': b'Basic '
                 + b64encode(
-                    '{}:'.format(token).encode('utf-8'),
+                    f'{token}:'.encode(),
                 ),
             },
         )

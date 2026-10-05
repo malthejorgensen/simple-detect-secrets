@@ -1,14 +1,16 @@
-from __future__ import absolute_import
 
-import mock
+from unittest import mock
+
 import pytest
 
 from simple_detect_secrets.plugins.common import initialize
-from simple_detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
-from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import (
+    Base64HighEntropyString,
+    HexHighEntropyString,
+)
 
 
-class TestFromPluginClassname(object):
+class TestFromPluginClassname:
     def test_success(self):
         plugin = initialize.from_plugin_classname(
             'HexHighEntropyString',
@@ -41,7 +43,7 @@ class TestFromPluginClassname(object):
             )
 
 
-class TestFromSecretType(object):
+class TestFromSecretType:
     def setup(self):
         self.settings = [
             {

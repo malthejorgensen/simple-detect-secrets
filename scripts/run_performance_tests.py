@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import print_function
 
 import argparse
 import json
@@ -94,10 +93,7 @@ def assert_positive(type):
         value = type(string)
         if value <= 0:
             raise argparse.ArgumentTypeError(
-                '{} must be a positive {}.'.format(
-                    string,
-                    type.__name__,
-                ),
+                f'{string} must be a positive {type.__name__}.',
             )
 
         return value
@@ -108,7 +104,7 @@ def assert_positive(type):
 def assert_valid_file(string):
     if not os.path.isfile(string):
         raise argparse.ArgumentTypeError(
-            '{} must be a valid file.'.format(string),
+            f'{string} must be a valid file.',
         )
 
     with open(string) as f:

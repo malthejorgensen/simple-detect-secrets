@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 try:
     from backports import configparser
@@ -8,23 +7,23 @@ import base64
 import math
 import re
 import string
-from abc import ABCMeta
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
 
 import yaml
 
-from .base import BasePlugin
-from .base import classproperty
-from .common.filetype import determine_file_type
-from .common.filetype import FileType
-from .common.filters import get_aho_corasick_helper
-from .common.filters import is_false_positive_with_line_context
-from .common.filters import is_potential_uuid
-from .common.filters import is_sequential_string
+from simple_detect_secrets.core.potential_secret import PotentialSecret
+
+from .base import BasePlugin, classproperty
+from .common.filetype import FileType, determine_file_type
+from .common.filters import (
+    get_aho_corasick_helper,
+    is_false_positive_with_line_context,
+    is_potential_uuid,
+    is_sequential_string,
+)
 from .common.ini_file_parser import IniFileParser
 from .common.yaml_file_parser import YamlFileParser
-from simple_detect_secrets.core.potential_secret import PotentialSecret
 
 
 class HighEntropyStringsPlugin(BasePlugin):
@@ -48,7 +47,7 @@ class HighEntropyStringsPlugin(BasePlugin):
             is_potential_uuid,
         ]
 
-        super(HighEntropyStringsPlugin, self).__init__(
+        super().__init__(
             exclude_lines_regex=exclude_lines_regex,
             false_positive_heuristics=false_positive_heuristics,
         )
@@ -57,7 +56,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         file_type_analyzers = (
             (self._analyze_ini_file(), configparser.Error),
             (self._analyze_yaml_file, yaml.YAMLError),
-            (super(HighEntropyStringsPlugin, self).analyze, Exception),
+            (super().analyze, Exception),
             (self._analyze_ini_file(add_header=True), configparser.Error),
         )
 
@@ -104,7 +103,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         }
 
     def analyze_line(self, string, line_num, filename):
-        output = super(HighEntropyStringsPlugin, self).analyze_line(
+        output = super().analyze_line(
             string,
             line_num,
             filename,
@@ -155,9 +154,7 @@ class HighEntropyStringsPlugin(BasePlugin):
             # NOTE: Trailing space allows for nicer formatting
             output = 'False' if not results else 'True '
             if self.regex.search(string):
-                output += ' ({})'.format(
-                    round(self.calculate_shannon_entropy(string), 3),
-                )
+                output += f' ({round(self.calculate_shannon_entropy(string), 3)})'
 
             return output
 
@@ -169,7 +166,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         """
         old_regex = self.regex
 
-        regex_alternative = r'^([{}]+)$'.format(re.escape(self.charset))
+        regex_alternative = rf'^([{re.escape(self.charset)}]+)$'
         self.regex = re.compile(regex_alternative)
 
         try:
@@ -196,7 +193,7 @@ class HighEntropyStringsPlugin(BasePlugin):
                         lineno,
                         filename,
                     )
-                    line = '{key}={value}'.format(key=key, value=value)
+                    line = f'{key}={value}'
                     potential_secrets = self._filter_false_positives_with_line_ctx(
                         potential_secrets,
                         line,
@@ -301,13 +298,11 @@ class HighEntropyStringsPlugin(BasePlugin):
     def decode_binary(self, bytes_object):  # pragma: no cover
         """Converts the bytes to a string which can be checked for
         high entropy."""
-        pass
 
     @abstractmethod
     def encode_to_binary(self, string):  # pragma: no cover
         """Converts a string (usually a high-entropy secret) to
         binary. Usually the inverse of decode_binary."""
-        pass
 
 
 class HexHighEntropyString(HighEntropyStringsPlugin):
@@ -316,7 +311,7 @@ class HexHighEntropyString(HighEntropyStringsPlugin):
     secret_type = 'Hex High Entropy String'
 
     def __init__(self, hex_limit, exclude_lines_regex=None, automaton=None, **kwargs):
-        super(HexHighEntropyString, self).__init__(
+        super().__init__(
             charset=string.hexdigits,
             limit=hex_limit,
             exclude_lines_regex=exclude_lines_regex,
@@ -359,7 +354,7 @@ class HexHighEntropyString(HighEntropyStringsPlugin):
         chance of being a true positive, which means "01234567890123456789"
         should be closer to the maximum entropy than the shorter version.
         """
-        entropy = super(HexHighEntropyString, self).calculate_shannon_entropy(data)
+        entropy = super().calculate_shannon_entropy(data)
         if len(data) == 1:
             return entropy
 
@@ -394,7 +389,7 @@ class Base64HighEntropyString(HighEntropyStringsPlugin):
             + '\\-_'  # Url-safe base64
             + '='  # Padding
         )
-        super(Base64HighEntropyString, self).__init__(
+        super().__init__(
             charset=charset,
             limit=base64_limit,
             exclude_lines_regex=exclude_lines_regex,

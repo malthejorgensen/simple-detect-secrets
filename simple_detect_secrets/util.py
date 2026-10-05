@@ -29,7 +29,7 @@ def build_automaton(word_list):
     word_list_hash = hashlib.sha1()
 
     with open(word_list) as f:
-        for line in f.readlines():
+        for line in f:
             # .lower() to make everything case-insensitive
             line = line.lower().strip()
             if len(line) > 3:

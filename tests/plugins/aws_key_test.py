@@ -1,21 +1,17 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import textwrap
+from unittest import mock
 
-import mock
 import pytest
 
 from simple_detect_secrets.core.constants import VerifiedResult
-from simple_detect_secrets.plugins.aws import AWSKeyDetector
-from simple_detect_secrets.plugins.aws import get_secret_access_keys
+from simple_detect_secrets.plugins.aws import AWSKeyDetector, get_secret_access_keys
 from testing.mocks import mock_file_object
-
 
 EXAMPLE_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
-class TestAWSKeyDetector(object):
+class TestAWSKeyDetector:
     def setup(self):
         self.example_key = 'AKIAZZZZZZZZZZZZZZZZ'
 
@@ -58,7 +54,7 @@ class TestAWSKeyDetector(object):
             assert (
                 AWSKeyDetector().verify(
                     self.example_key,
-                    '={}'.format(EXAMPLE_SECRET),
+                    f'={EXAMPLE_SECRET}',
                 )
                 == VerifiedResult.VERIFIED_TRUE
             )
@@ -71,7 +67,7 @@ class TestAWSKeyDetector(object):
             assert (
                 AWSKeyDetector().verify(
                     self.example_key,
-                    '={}'.format(EXAMPLE_SECRET),
+                    f'={EXAMPLE_SECRET}',
                 )
                 == VerifiedResult.VERIFIED_FALSE
             )

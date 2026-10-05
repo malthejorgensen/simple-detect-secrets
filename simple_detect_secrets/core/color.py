@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 
 from enum import Enum
 
@@ -13,8 +12,4 @@ class AnsiColor(Enum):
 
 
 def colorize(text, color):
-    return '\x1b{}{}\x1b{}'.format(
-        color.value,
-        text,
-        AnsiColor.RESET.value,
-    )
+    return f'\x1b{color.value}{text}\x1b{AnsiColor.RESET.value}'

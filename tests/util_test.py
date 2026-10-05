@@ -1,7 +1,7 @@
 import hashlib
 import subprocess
+from unittest import mock
 
-import mock
 import pytest
 
 from simple_detect_secrets import util
@@ -29,7 +29,7 @@ def test_build_automaton():
         namespace='detect_secrets.util.open',
     ):
         automaton, word_list_hash = util.build_automaton(word_list='will_be_mocked.txt')
-        assert word_list_hash == hashlib.sha1('foam'.encode('utf-8')).hexdigest()
+        assert word_list_hash == hashlib.sha1(b'foam').hexdigest()
         assert filters.is_found_with_aho_corasick(
             secret='foam_roller',
             automaton=automaton,

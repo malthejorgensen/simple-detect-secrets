@@ -35,7 +35,7 @@ def import_plugins():
 
     plugins = {}
     for module_name in modules:
-        module = import_module('simple_detect_secrets.plugins.{}'.format(module_name))
+        module = import_module(f'simple_detect_secrets.plugins.{module_name}')
         for name in filter(lambda x: not x.startswith('_'), dir(module)):
             plugin = getattr(module, name)
             try:

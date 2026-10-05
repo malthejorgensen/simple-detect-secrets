@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 import textwrap
 
@@ -6,68 +5,67 @@ import pytest
 import responses
 
 from simple_detect_secrets.core.constants import VerifiedResult
-from simple_detect_secrets.plugins.softlayer import find_username
-from simple_detect_secrets.plugins.softlayer import SoftlayerDetector
+from simple_detect_secrets.plugins.softlayer import SoftlayerDetector, find_username
 
 SL_USERNAME = 'test@testy.test'
 SL_TOKEN = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'
 
 
-class TestSoftlayerDetector(object):
+class TestSoftlayerDetector:
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
-            ('--softlayer-api-key "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('--softlayer-api-key="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('--softlayer-api-key {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('--softlayer-api-key={sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('http://api.softlayer.com/soap/v3/{sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('http://api.softlayer.com/soap/v3.1/{sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key: {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer-key : {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('SOFTLAYER-API-KEY : "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_api_key" : "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayer-api-key: "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_api_key": "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('SOFTLAYER_API_KEY:"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayer-key:{sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_key:"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_api_key":"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayerapikey= {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key= "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('SOFTLAYERAPIKEY={sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key: {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('SLAPIKEY : {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('sl_apikey : "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"sl_api_key" : "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl-key: "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"sl_api_key": "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key:"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key:{sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('sl-api-key:"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"sl_api_key":"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_key= {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key= "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl-api-key={sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('slapi_key="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('slapikey:= {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key := {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key := "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_key" := "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key: "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_api_key":= "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl-api-key:="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key:={sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('slapikey:"{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('"softlayer_api_key":="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl-api-key:= {sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_key:= "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_api_key={sl_token}'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_api_key:="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayer_password = "{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('sl_pass="{sl_token}"'.format(sl_token=SL_TOKEN), True),
-            ('softlayer-pwd = {sl_token}'.format(sl_token=SL_TOKEN), True),
+            (f'--softlayer-api-key "{SL_TOKEN}"', True),
+            (f'--softlayer-api-key="{SL_TOKEN}"', True),
+            (f'--softlayer-api-key {SL_TOKEN}', True),
+            (f'--softlayer-api-key={SL_TOKEN}', True),
+            (f'http://api.softlayer.com/soap/v3/{SL_TOKEN}', True),
+            (f'http://api.softlayer.com/soap/v3.1/{SL_TOKEN}', True),
+            (f'softlayer_api_key: {SL_TOKEN}', True),
+            (f'softlayer-key : {SL_TOKEN}', True),
+            (f'SOFTLAYER-API-KEY : "{SL_TOKEN}"', True),
+            (f'"softlayer_api_key" : "{SL_TOKEN}"', True),
+            (f'softlayer-api-key: "{SL_TOKEN}"', True),
+            (f'"softlayer_api_key": "{SL_TOKEN}"', True),
+            (f'SOFTLAYER_API_KEY:"{SL_TOKEN}"', True),
+            (f'softlayer-key:{SL_TOKEN}', True),
+            (f'softlayer_key:"{SL_TOKEN}"', True),
+            (f'"softlayer_api_key":"{SL_TOKEN}"', True),
+            (f'softlayerapikey= {SL_TOKEN}', True),
+            (f'softlayer_api_key= "{SL_TOKEN}"', True),
+            (f'SOFTLAYERAPIKEY={SL_TOKEN}', True),
+            (f'softlayer_api_key="{SL_TOKEN}"', True),
+            (f'sl_api_key: {SL_TOKEN}', True),
+            (f'SLAPIKEY : {SL_TOKEN}', True),
+            (f'sl_apikey : "{SL_TOKEN}"', True),
+            (f'"sl_api_key" : "{SL_TOKEN}"', True),
+            (f'sl-key: "{SL_TOKEN}"', True),
+            (f'"sl_api_key": "{SL_TOKEN}"', True),
+            (f'sl_api_key:"{SL_TOKEN}"', True),
+            (f'sl_api_key:{SL_TOKEN}', True),
+            (f'sl-api-key:"{SL_TOKEN}"', True),
+            (f'"sl_api_key":"{SL_TOKEN}"', True),
+            (f'sl_key= {SL_TOKEN}', True),
+            (f'sl_api_key= "{SL_TOKEN}"', True),
+            (f'sl-api-key={SL_TOKEN}', True),
+            (f'slapi_key="{SL_TOKEN}"', True),
+            (f'slapikey:= {SL_TOKEN}', True),
+            (f'softlayer_api_key := {SL_TOKEN}', True),
+            (f'sl_api_key := "{SL_TOKEN}"', True),
+            (f'"softlayer_key" := "{SL_TOKEN}"', True),
+            (f'sl_api_key: "{SL_TOKEN}"', True),
+            (f'"softlayer_api_key":= "{SL_TOKEN}"', True),
+            (f'sl-api-key:="{SL_TOKEN}"', True),
+            (f'softlayer_api_key:={SL_TOKEN}', True),
+            (f'slapikey:"{SL_TOKEN}"', True),
+            (f'"softlayer_api_key":="{SL_TOKEN}"', True),
+            (f'sl-api-key:= {SL_TOKEN}', True),
+            (f'softlayer_key:= "{SL_TOKEN}"', True),
+            (f'sl_api_key={SL_TOKEN}', True),
+            (f'softlayer_api_key:="{SL_TOKEN}"', True),
+            (f'softlayer_password = "{SL_TOKEN}"', True),
+            (f'sl_pass="{SL_TOKEN}"', True),
+            (f'softlayer-pwd = {SL_TOKEN}', True),
             ('softlayer_api_key="%s" % SL_API_KEY_ENV', False),
             ('sl_api_key: "%s" % <softlayer_api_key>', False),
             ('SOFTLAYER_APIKEY: "insert_key_here"', False),
@@ -94,7 +92,7 @@ class TestSoftlayerDetector(object):
         assert (
             SoftlayerDetector().verify(
                 SL_TOKEN,
-                'softlayer_username={}'.format(SL_USERNAME),
+                f'softlayer_username={SL_USERNAME}',
             )
             == VerifiedResult.VERIFIED_FALSE
         )
@@ -110,7 +108,7 @@ class TestSoftlayerDetector(object):
         assert (
             SoftlayerDetector().verify(
                 SL_TOKEN,
-                'softlayer_username={}'.format(SL_USERNAME),
+                f'softlayer_username={SL_USERNAME}',
             )
             == VerifiedResult.VERIFIED_TRUE
         )
@@ -120,7 +118,7 @@ class TestSoftlayerDetector(object):
         assert (
             SoftlayerDetector().verify(
                 SL_TOKEN,
-                'softlayer_username={}'.format(SL_USERNAME),
+                f'softlayer_username={SL_USERNAME}',
             )
             == VerifiedResult.UNVERIFIED
         )
@@ -129,7 +127,7 @@ class TestSoftlayerDetector(object):
         assert (
             SoftlayerDetector().verify(
                 SL_TOKEN,
-                'no_un={}'.format(SL_USERNAME),
+                f'no_un={SL_USERNAME}',
             )
             == VerifiedResult.UNVERIFIED
         )

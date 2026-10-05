@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 import pytest
 
@@ -6,7 +5,7 @@ from simple_detect_secrets.core.usage import ParserBuilder
 from simple_detect_secrets.plugins.common.util import import_plugins
 
 
-class TestPluginOptions(object):
+class TestPluginOptions:
     @staticmethod
     def parse_args(argument_string=''):
         # PluginOptions are added in pre-commit hook

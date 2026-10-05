@@ -1,11 +1,11 @@
-from __future__ import absolute_import
 
 import re
 
 import requests
 
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector
 
 
 class CloudantDetector(RegexBasedDetector):
@@ -37,27 +37,11 @@ class CloudantDetector(RegexBasedDetector):
             secret_regex=cl_api_key,
         ),
         re.compile(
-            r'{http}{cl_account}{colon}{cl_pw}{at}{cl_account}{dot}{cloudant_api_url}'.format(
-                http=http,
-                colon=colon,
-                cl_account=cl_account,
-                cl_pw=cl_pw,
-                at=at,
-                dot=dot,
-                cloudant_api_url=cloudant_api_url,
-            ),
+            rf'{http}{cl_account}{colon}{cl_pw}{at}{cl_account}{dot}{cloudant_api_url}',
             flags=re.IGNORECASE,
         ),
         re.compile(
-            r'{http}{cl_account}{colon}{cl_api_key}{at}{cl_account}{dot}{cloudant_api_url}'.format(
-                http=http,
-                colon=colon,
-                cl_account=cl_account,
-                cl_api_key=cl_api_key,
-                at=at,
-                dot=dot,
-                cloudant_api_url=cloudant_api_url,
-            ),
+            rf'{http}{cl_account}{colon}{cl_api_key}{at}{cl_account}{dot}{cloudant_api_url}',
             flags=re.IGNORECASE,
         ),
     ]
@@ -89,14 +73,7 @@ def find_account(content):
             secret_regex=account,
         ),
         re.compile(
-            r'{http}{opt_basic_auth}{cl_account}{dot}{cloudant_api_url}'.format(
-                http=CloudantDetector.http,
-                opt_basic_auth=opt_basic_auth,
-                cl_account=account,
-                cl_api_key=CloudantDetector.cl_api_key,
-                dot=CloudantDetector.dot,
-                cloudant_api_url=CloudantDetector.cloudant_api_url,
-            ),
+            rf'{CloudantDetector.http}{opt_basic_auth}{account}{CloudantDetector.dot}{CloudantDetector.cloudant_api_url}',
             flags=re.IGNORECASE,
         ),
     )
@@ -108,10 +85,7 @@ def find_account(content):
 
 def verify_cloudant_key(hostname, token):
     headers = {'Content-type': 'application/json'}
-    request_url = 'https://{hostname}:{token}@{hostname}.cloudant.com'.format(
-        hostname=hostname,
-        token=token,
-    )
+    request_url = f'https://{hostname}:{token}@{hostname}.cloudant.com'
 
     try:
         response = requests.get(

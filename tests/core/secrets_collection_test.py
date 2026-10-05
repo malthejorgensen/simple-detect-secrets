@@ -1,12 +1,10 @@
-from __future__ import absolute_import
 
 import hashlib
 import json
 from contextlib import contextmanager
-from time import gmtime
-from time import strftime
+from time import gmtime, strftime
+from unittest import mock
 
-import mock
 import pytest
 
 from simple_detect_secrets import VERSION
@@ -41,7 +39,7 @@ def mock_gmtime():
         yield current_time
 
 
-class TestScanFile(object):
+class TestScanFile:
     """Testing file scanning, and interactions with different plugins."""
 
     def test_file_is_symbolic_link(self):
@@ -141,7 +139,7 @@ class TestScanFile(object):
         assert len(logic.data) == 0
 
 
-class TestScanDiff(object):
+class TestScanDiff:
     def test_success(self):
         secrets = self.load_from_diff().format_for_baseline_output()['results']
 
@@ -196,7 +194,7 @@ class TestScanDiff(object):
         return collection
 
 
-class TestGetSecret(object):
+class TestGetSecret:
     """Testing retrieval of PotentialSecret from SecretsCollection"""
 
     @pytest.mark.parametrize(
@@ -256,7 +254,7 @@ class TestGetSecret(object):
             yield
 
 
-class TestBaselineInputOutput(object):
+class TestBaselineInputOutput:
     """A critical part of the SecretsCollection is the ability to write a baseline, then
     read from that same baseline to recreate state. This test suite checks the functions
     related to that ability.
@@ -353,7 +351,7 @@ class TestBaselineInputOutput(object):
         # Original hash is thrown out and replaced with new word list hash
         assert (
             secrets['word_list']['hash']
-            == hashlib.sha1('roller'.encode('utf-8')).hexdigest()
+            == hashlib.sha1(b'roller').hexdigest()
             != original['word_list']['hash']
         )
 

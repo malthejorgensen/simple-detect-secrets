@@ -1,13 +1,11 @@
 import re
-from abc import ABCMeta
-from abc import abstractmethod
-from abc import abstractproperty
+from abc import ABCMeta, abstractmethod, abstractproperty
 
-from .common.constants import ALLOWLIST_REGEXES
 from simple_detect_secrets.core.code_snippet import CodeSnippetHighlighter
 from simple_detect_secrets.core.constants import VerifiedResult
 from simple_detect_secrets.core.potential_secret import PotentialSecret
 
+from .common.constants import ALLOWLIST_REGEXES
 
 # NOTE: In this whitepaper (Section V-D), it suggests that there's an
 #       80% chance of finding a multi-factor secret (e.g. username +
@@ -24,7 +22,7 @@ class classproperty(property):
         return classmethod(self.fget).__get__(None, owner)()
 
 
-class BasePlugin(object):
+class BasePlugin:
     """
     This is an abstract class to define Plugins API.
 
@@ -84,8 +82,7 @@ class BasePlugin(object):
     @classproperty
     def disable_flag_text(cls):
         name = cls.__name__
-        if name.endswith('Detector'):
-            name = name[: -len('Detector')]
+        name = name.removesuffix('Detector')
 
         # turn camel case into hyphenated strings
         name_hyphen = ''
@@ -94,7 +91,7 @@ class BasePlugin(object):
                 name_hyphen += '-'
             name_hyphen += letter.lower()
 
-        return 'no-{}-scan'.format(name_hyphen)
+        return f'no-{name_hyphen}-scan'
 
     @classproperty
     def default_options(cls):
@@ -300,20 +297,9 @@ class RegexBasedDetector(BasePlugin):
         opt_space = r'(?: *)'
         assignment = r'(?:=|:|:=|=>| +|::)'
         return re.compile(
-            r'{begin}{opt_open_square_bracket}{opt_quote}{prefix_regex}{opt_dash_undrscr}'
-            '{secret_keyword_regex}{opt_quote}{opt_close_square_bracket}{opt_space}'
-            '{assignment}{opt_space}{opt_quote}{secret_regex}{opt_quote}'.format(
-                begin=begin,
-                opt_open_square_bracket=opt_open_square_bracket,
-                opt_quote=opt_quote,
-                prefix_regex=prefix_regex,
-                opt_dash_undrscr=opt_dash_undrscr,
-                secret_keyword_regex=secret_keyword_regex,
-                opt_close_square_bracket=opt_close_square_bracket,
-                opt_space=opt_space,
-                assignment=assignment,
-                secret_regex=secret_regex,
-            ),
+            rf'{begin}{opt_open_square_bracket}{opt_quote}{prefix_regex}{opt_dash_undrscr}'
+            f'{secret_keyword_regex}{opt_quote}{opt_close_square_bracket}{opt_space}'
+            f'{assignment}{opt_space}{opt_quote}{secret_regex}{opt_quote}',
             flags=re.IGNORECASE,
         )
 

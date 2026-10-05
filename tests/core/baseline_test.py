@@ -1,24 +1,25 @@
-from __future__ import absolute_import
 
 import json
+from unittest import mock
 
-import mock
 import pytest
 
 from simple_detect_secrets.core import baseline
-from simple_detect_secrets.core.baseline import format_baseline_for_output
-from simple_detect_secrets.core.baseline import get_secrets_not_in_baseline
-from simple_detect_secrets.core.baseline import trim_baseline_of_removed_secrets
+from simple_detect_secrets.core.baseline import (
+    format_baseline_for_output,
+    get_secrets_not_in_baseline,
+    trim_baseline_of_removed_secrets,
+)
 from simple_detect_secrets.core.potential_secret import PotentialSecret
-from simple_detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
-from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import (
+    Base64HighEntropyString,
+    HexHighEntropyString,
+)
 from testing.factories import secrets_collection_factory
-from testing.mocks import mock_git_calls
-from testing.mocks import mock_open
-from testing.mocks import SubprocessMock
+from testing.mocks import SubprocessMock, mock_git_calls, mock_open
 
 
-class TestInitializeBaseline(object):
+class TestInitializeBaseline:
     def setup(self):
         self.plugins = (
             Base64HighEntropyString(4.5),
@@ -184,7 +185,7 @@ class TestInitializeBaseline(object):
         assert len(results.keys()) == 0
 
 
-class TestGetSecretsNotInBaseline(object):
+class TestGetSecretsNotInBaseline:
     def test_nothing_new(self):
         # We want a secret, but just a default secret (no overriding parameters)
         new_findings = secrets_collection_factory([{}])
@@ -307,7 +308,7 @@ class TestGetSecretsNotInBaseline(object):
         assert baseline.data == backup_baseline
 
 
-class TestUpdateBaselineWithRemovedSecrets(object):
+class TestUpdateBaselineWithRemovedSecrets:
     def test_deleted_secret(self):
         new_findings = secrets_collection_factory(
             [
@@ -416,7 +417,7 @@ class TestUpdateBaselineWithRemovedSecrets(object):
         )
 
 
-class TestFormatBaselineForOutput(object):
+class TestFormatBaselineForOutput:
     def test_sorts_by_line_number_then_hash(self):
         output_string = format_baseline_for_output(
             {

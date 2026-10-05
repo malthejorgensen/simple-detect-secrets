@@ -1,7 +1,4 @@
 #!/usr/bin/python
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import json
 import sys
@@ -158,12 +155,12 @@ def _add_baseline_to_exclude_files(args):
     """
     Modifies args.exclude_files in-place.
     """
-    baseline_name_regex = r'^{}$'.format(args.import_filename[0])
+    baseline_name_regex = rf'^{args.import_filename[0]}$'
 
     if not args.exclude_files:
         args.exclude_files = baseline_name_regex
     elif baseline_name_regex not in args.exclude_files:
-        args.exclude_files += r'|{}'.format(baseline_name_regex)
+        args.exclude_files += rf'|{baseline_name_regex}'
 
 
 if __name__ == '__main__':

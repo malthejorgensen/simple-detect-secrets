@@ -1,9 +1,9 @@
-from __future__ import absolute_import
 
 import requests
 
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector
 
 
 class IbmCloudIamDetector(RegexBasedDetector):

@@ -1,6 +1,4 @@
-from __future__ import absolute_import
 
-import json
 import os
 import re
 import subprocess
@@ -8,7 +6,6 @@ import subprocess
 from simple_detect_secrets import util
 from simple_detect_secrets.core.log import get_logger
 from simple_detect_secrets.core.secrets_collection import SecretsCollection
-
 
 log = get_logger(format_string='%(message)s')
 

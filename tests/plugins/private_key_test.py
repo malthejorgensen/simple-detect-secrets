@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import pytest
 
@@ -7,7 +5,7 @@ from simple_detect_secrets.plugins.private_key import PrivateKeyDetector
 from testing.mocks import mock_file_object
 
 
-class TestPrivateKeyDetector(object):
+class TestPrivateKeyDetector:
     @pytest.mark.parametrize(
         'file_content',
         [

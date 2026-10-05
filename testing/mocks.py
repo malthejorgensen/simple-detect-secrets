@@ -1,12 +1,10 @@
 """This is a collection of utility functions for easier, DRY testing."""
 
 import io
-from collections import defaultdict
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from contextlib import contextmanager
 from subprocess import CalledProcessError
-
-import mock
+from unittest import mock
 
 
 @contextmanager
@@ -34,9 +32,7 @@ def mock_git_calls(subprocess_namespace, cases):
             case = cases[current_case['index']]
         except IndexError:  # pragma: no cover
             raise AssertionError(
-                '\nExpected: ""\nActual: "{}"'.format(
-                    command,
-                ),
+                f'\nExpected: ""\nActual: "{command}"',
             )
         current_case['index'] += 1
 
@@ -46,10 +42,7 @@ def mock_git_calls(subprocess_namespace, cases):
                 case.expected_input = 'git ' + case.expected_input
 
             raise AssertionError(
-                '\nExpected: "{}"\nActual: "{}"'.format(
-                    case.expected_input,
-                    command,
-                ),
+                f'\nExpected: "{case.expected_input}"\nActual: "{command}"',
             )
 
         if case.should_throw_exception:
@@ -88,7 +81,7 @@ class SubprocessMock(
     """
 
     def __new__(cls, expected_input, mocked_output, should_throw_exception=False):
-        return super(SubprocessMock, cls).__new__(
+        return super().__new__(
             cls,
             expected_input,
             mocked_output,
@@ -136,7 +129,7 @@ def mock_printer(obj):
     :type obj: module
     """
 
-    class PrinterShim(object):
+    class PrinterShim:
         def __init__(self):
             self.clear()
 
@@ -157,7 +150,7 @@ def mock_printer(obj):
 
 @contextmanager
 def mock_log(namespace):
-    class MockLogWrapper(object):
+    class MockLogWrapper:
         """This is used to check what is being logged."""
 
         def __init__(self):

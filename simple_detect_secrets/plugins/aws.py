@@ -2,7 +2,6 @@
 This plugin searches for AWS key IDs
 """
 
-from __future__ import absolute_import
 
 import hashlib
 import hmac
@@ -13,9 +12,9 @@ from datetime import datetime
 
 import requests
 
-from .base import classproperty
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector, classproperty
 
 
 class AWSKeyDetector(RegexBasedDetector):
@@ -91,12 +90,12 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
         {hashed_payload}
     """)[1:-1].format(
         headers='\n'.join(
-            ['{}:{}'.format(header.lower(), value) for header, value in headers.items()]
+            [f'{header.lower()}:{value}' for header, value in headers.items()]
         ),
         signed_headers=signed_headers,
         # Poor man's method, but works for this use case.
         hashed_payload=hashlib.sha256(
-            '&'.join(['{}={}'.format(header, value) for header, value in body.items()]).encode(
+            '&'.join([f'{header}={value}' for header, value in body.items()]).encode(
                 'utf-8'
             ),
         ).hexdigest(),
@@ -128,7 +127,7 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
         _sign(
             _sign(
                 _sign(
-                    'AWS4{}'.format(secret).encode('utf-8'),
+                    f'AWS4{secret}'.encode(),
                     now.strftime('%Y%m%d'),
                 ),
                 region,
@@ -147,14 +146,9 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
     # Step #4: Add to request headers
     headers['Authorization'] = (
         'AWS4-HMAC-SHA256 '
-        'Credential={access_key}/{scope}, '
-        'SignedHeaders={signed_headers}, '
-        'Signature={signature}'
-    ).format(
-        access_key=key,
-        scope=scope,
-        signed_headers=signed_headers,
-        signature=signature,
+        f'Credential={key}/{scope}, '
+        f'SignedHeaders={signed_headers}, '
+        f'Signature={signature}'
     )
 
     # Step #5: Finally send the request

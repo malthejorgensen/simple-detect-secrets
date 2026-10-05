@@ -1,16 +1,16 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import codecs
 
 import pytest
 
-from simple_detect_secrets.plugins.high_entropy_strings import Base64HighEntropyString
-from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyString
+from simple_detect_secrets.plugins.high_entropy_strings import (
+    Base64HighEntropyString,
+    HexHighEntropyString,
+)
 from testing.mocks import mock_file_object
 
 
-class HighEntropyStringsTest(object):
+class HighEntropyStringsTest:
     """
     Some explaining should be done regarding the "enforced" format of the parametrized
     abstract pytests.
@@ -143,7 +143,7 @@ class HighEntropyStringsTest(object):
 
 class TestRegularBase64HighEntropyStrings(HighEntropyStringsTest):
     def setup(self):
-        super(TestRegularBase64HighEntropyStrings, self).setup(
+        super().setup(
             # Testing default limit, as suggested by truffleHog.
             logic=Base64HighEntropyString(
                 base64_limit=4.5,
@@ -239,14 +239,14 @@ class TestRegularBase64HighEntropyStrings(HighEntropyStringsTest):
 
 class TestUrlSafeBase64HighEntropyStrings(HighEntropyStringsTest):
     def setup(self):
-        super(TestUrlSafeBase64HighEntropyStrings, self).setup(
+        super().setup(
             # Testing default limit, as suggested by truffleHog.
             logic=Base64HighEntropyString(
                 base64_limit=4.5,
                 exclude_lines_regex='CanonicalUser',
             ),
             non_secret_string='Zrm-ySTAq7D2sHk=',  # too short for high entropy
-            secret_string='I6FwzQZFL9l-44nviI1F04OTmorMaVQf9GS4Oe07qxL_vNkW6CRas4Lo42vqJMT0M6riJfma_f-pTAuoX2U=',  # noqa: E501
+            secret_string='I6FwzQZFL9l-44nviI1F04OTmorMaVQf9GS4Oe07qxL_vNkW6CRas4Lo42vqJMT0M6riJfma_f-pTAuoX2U=',
         )
 
 
@@ -256,7 +256,7 @@ class HexHighEntropyStringsWithStandardEntropy(HexHighEntropyString):
     """
 
     def __init__(self, *args, **kwargs):
-        super(HexHighEntropyStringsWithStandardEntropy, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def calculate_shannon_entropy(self, data):
         return super(HexHighEntropyString, self).calculate_shannon_entropy(data)
@@ -264,7 +264,7 @@ class HexHighEntropyStringsWithStandardEntropy(HexHighEntropyString):
 
 class TestHexHighEntropyStrings(HighEntropyStringsTest):
     def setup(self):
-        super(TestHexHighEntropyStrings, self).setup(
+        super().setup(
             # Testing default limit, as suggested by truffleHog.
             logic=HexHighEntropyString(
                 hex_limit=3,

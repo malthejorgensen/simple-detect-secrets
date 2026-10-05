@@ -1,9 +1,7 @@
-from __future__ import absolute_import
 
 import re
 
 from .base import RegexBasedDetector
-
 
 # This list is derived from RFC 3986 Section 2.2.
 #
@@ -21,9 +19,6 @@ class BasicAuthDetector(RegexBasedDetector):
 
     denylist = [
         re.compile(
-            r'://[^{}\s]+:([^{}\s]+)@'.format(
-                re.escape(RESERVED_CHARACTERS + SUB_DELIMITER_CHARACTERS),
-                re.escape(RESERVED_CHARACTERS + SUB_DELIMITER_CHARACTERS),
-            ),
+            rf'://[^{re.escape(RESERVED_CHARACTERS + SUB_DELIMITER_CHARACTERS)}\s]+:([^{re.escape(RESERVED_CHARACTERS + SUB_DELIMITER_CHARACTERS)}\s]+)@',
         ),
     ]

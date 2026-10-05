@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 
 try:
     from backports import configparser
@@ -21,7 +20,7 @@ class EfficientParsingError(configparser.ParsingError):
 configparser.ParsingError = EfficientParsingError
 
 
-class IniFileParser(object):
+class IniFileParser:
     _comment_regex = re.compile(r'\s*[;#]')
 
     def __init__(self, file, add_header=False, exclude_lines_regex=None):
@@ -115,10 +114,7 @@ class IniFileParser(object):
 
             if current_value_list_index == 0:
                 first_line_regex = re.compile(
-                    r'^\s*{}[ :=]+{}'.format(
-                        re.escape(key),
-                        re.escape(values_list[current_value_list_index]),
-                    ),
+                    rf'^\s*{re.escape(key)}[ :=]+{re.escape(values_list[current_value_list_index])}',
                 )
                 if first_line_regex.match(line):
                     output.append(

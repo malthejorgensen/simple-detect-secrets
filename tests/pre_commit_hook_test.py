@@ -1,18 +1,15 @@
-from __future__ import absolute_import
 
 import json
 from contextlib import contextmanager
+from unittest import mock
 
-import mock
 import pytest
 
-from simple_detect_secrets import pre_commit_hook
-from simple_detect_secrets import VERSION
+from simple_detect_secrets import VERSION, pre_commit_hook
 from simple_detect_secrets.core.potential_secret import PotentialSecret
 from testing.factories import secrets_collection_factory
-from testing.mocks import mock_git_calls
+from testing.mocks import SubprocessMock, mock_git_calls
 from testing.mocks import mock_log as mock_log_base
-from testing.mocks import SubprocessMock
 from testing.util import get_regex_based_plugins
 
 
@@ -28,7 +25,7 @@ def assert_commit_succeeds(command):
     assert pre_commit_hook.main(command.split()) == 0
 
 
-class TestPreCommitHook(object):
+class TestPreCommitHook:
     def test_file_with_secrets(self, mock_log):
         assert_commit_blocked('test_data/files/file_with_secrets.py')
 

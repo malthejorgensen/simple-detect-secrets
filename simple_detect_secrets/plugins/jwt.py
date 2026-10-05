@@ -2,14 +2,12 @@
 This plugin finds JWT tokens
 """
 
-from __future__ import absolute_import
 
 import base64
 import json
 import re
 
-from .base import classproperty
-from .base import RegexBasedDetector
+from .base import RegexBasedDetector, classproperty
 
 try:
     # Python 2
@@ -34,7 +32,7 @@ class JwtTokenDetector(RegexBasedDetector):
     def secret_generator(self, string, *args, **kwargs):
         return filter(
             self.is_formally_valid,
-            super(JwtTokenDetector, self).secret_generator(string, *args, **kwargs),
+            super().secret_generator(string, *args, **kwargs),
         )
 
     @staticmethod
@@ -49,9 +47,9 @@ class JwtTokenDetector(RegexBasedDetector):
                 if m == 1:
                     raise TypeError('Incorrect padding')
                 elif m == 2:
-                    part += '=='.encode('utf-8')
+                    part += b'=='
                 elif m == 3:
-                    part += '==='.encode('utf-8')
+                    part += b'==='
                 b64_decoded = base64.urlsafe_b64decode(part)
                 if idx < 2:
                     _ = json.loads(b64_decoded.decode('utf-8'))

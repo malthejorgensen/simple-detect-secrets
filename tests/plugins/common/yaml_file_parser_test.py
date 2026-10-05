@@ -1,14 +1,13 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
-import mock
+from unittest import mock
+
 import pytest
 
 from simple_detect_secrets.plugins.common.yaml_file_parser import YamlFileParser
 from testing.mocks import mock_file_object
 
 
-class TestYamlFileParser(object):
+class TestYamlFileParser:
     def test_get_ignored_lines(self):
         content = """keyA: value
         keyB: \"another_value\"  # pragma: allowlist secret
@@ -35,7 +34,7 @@ class TestYamlFileParser(object):
         expected_value,
         expected_is_binary,
     ):
-        content = 'key: {yaml_value}'.format(yaml_value=yaml_value)
+        content = f'key: {yaml_value}'
         f = mock_file_object(content)
 
         result = YamlFileParser(f).json()

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
 
 import ahocorasick
 import pytest
@@ -8,7 +6,6 @@ from simple_detect_secrets.core.potential_secret import PotentialSecret
 from simple_detect_secrets.plugins.keyword import KeywordDetector
 from simple_detect_secrets.util import is_python_2
 from testing.mocks import mock_file_object
-
 
 FOLLOWED_BY_COLON_EQUAL_SIGNS_RE = {
     'negatives': {
@@ -176,7 +173,7 @@ STANDARD_POSITIVES.extend(
 )
 
 
-class TestKeywordDetector(object):
+class TestKeywordDetector:
     @pytest.mark.parametrize(
         'file_content',
         STANDARD_POSITIVES,
@@ -242,7 +239,7 @@ class TestKeywordDetector(object):
         logic = KeywordDetector()
 
         f = mock_file_object(file_content)
-        mock_filename = 'mock_filename{}'.format(file_extension)
+        mock_filename = f'mock_filename{file_extension}'
         output = logic.analyze(f, mock_filename)
         assert len(output) == 1
         for potential_secret in output:
@@ -361,7 +358,7 @@ class TestKeywordDetector(object):
         f = mock_file_object(file_content)
         output = logic.analyze(
             f,
-            'mock_filename{}'.format(file_extension),
+            f'mock_filename{file_extension}',
         )
         assert len(output) == 0
 
@@ -383,7 +380,7 @@ class TestKeywordDetector(object):
         f = mock_file_object(file_content.replace('m{', '{'))
         output = logic.analyze(
             f,
-            'mock_filename{}'.format(file_extension),
+            f'mock_filename{file_extension}',
         )
         assert len(output) == 0
 

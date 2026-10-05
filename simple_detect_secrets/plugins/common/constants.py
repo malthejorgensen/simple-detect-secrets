@@ -1,11 +1,10 @@
 import re
 
-
 ALLOWLIST_REGEXES = [
     re.compile(r)
     for r in [
         # Note: Always use allowlist, whitelist will be deprecated in the future
-        r'[ \t]+{} *pragma: ?(allow|white)list[ -]secret.*?{}[ \t]*$'.format(start, end)
+        rf'[ \t]+{start} *pragma: ?(allow|white)list[ -]secret.*?{end}[ \t]*$'
         for start, end in (
             ('#', ''),  # e.g. python or yaml
             ('//', ''),  # e.g. golang

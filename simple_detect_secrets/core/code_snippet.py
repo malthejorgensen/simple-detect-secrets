@@ -1,9 +1,7 @@
-from __future__ import unicode_literals
 
 import itertools
 
-from .color import AnsiColor
-from .color import colorize
+from .color import AnsiColor, colorize
 
 
 class CodeSnippetHighlighter:
@@ -44,7 +42,7 @@ class CodeSnippetHighlighter:
         )
 
 
-class CodeSnippet(object):
+class CodeSnippet:
     def __init__(self, snippet, start_line, target_index):
         """
         :type snippet: iterable and indexable of str
@@ -70,10 +68,7 @@ class CodeSnippet(object):
 
     def add_line_numbers(self):
         for index, line in enumerate(self.lines):
-            self.lines[index] = '{}:{}'.format(
-                self.get_line_number(self.start_line + index + 1),
-                line,
-            )
+            self.lines[index] = f'{self.get_line_number(self.start_line + index + 1)}:{line}'
 
         return self
 
@@ -85,11 +80,7 @@ class CodeSnippet(object):
         index_of_payload = self.target_line.lower().index(payload.lower())
         end_of_payload = index_of_payload + len(payload)
 
-        self.target_line = '{}{}{}'.format(
-            self.target_line[:index_of_payload],
-            self.apply_highlight(self.target_line[index_of_payload:end_of_payload]),
-            self.target_line[end_of_payload:],
-        )
+        self.target_line = f'{self.target_line[:index_of_payload]}{self.apply_highlight(self.target_line[index_of_payload:end_of_payload])}{self.target_line[end_of_payload:]}'
 
         return self
 

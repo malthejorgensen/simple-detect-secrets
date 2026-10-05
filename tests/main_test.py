@@ -1,17 +1,15 @@
-import json
 import shlex
 from contextlib import contextmanager
+from unittest import mock
 
-import mock
 import pytest
 
-from simple_detect_secrets import main as main_module
 from simple_detect_secrets import VERSION
+from simple_detect_secrets import main as main_module
 from simple_detect_secrets.main import main
 from simple_detect_secrets.plugins.common.util import import_plugins
 from testing.factories import secrets_collection_factory
-from testing.mocks import Any
-from testing.mocks import mock_printer
+from testing.mocks import Any, mock_printer
 from testing.util import uncolor
 
 
@@ -68,7 +66,7 @@ def get_plugin_report(extra=None):
     )
 
 
-class TestMain(object):
+class TestMain:
     """These are smoke tests for the console usage of detect_secrets.
     Most of the functional test cases should be within their own module tests.
     """
@@ -89,7 +87,7 @@ class TestMain(object):
 
     def test_scan_with_rootdir(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main('scan test_data'.split()) == 0
+            assert main(['scan', 'test_data']) == 0
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
@@ -105,7 +103,7 @@ class TestMain(object):
         with mock_stdin():
             assert (
                 main(
-                    'scan --exclude-files some_pattern_here --exclude-lines other_patt'.split(),
+                    ['scan', '--exclude-files', 'some_pattern_here', '--exclude-lines', 'other_patt'],
                 )
                 == 0
             )
@@ -150,7 +148,7 @@ class TestMain(object):
                 main_module,
             ) as printer_shim,
         ):
-            assert main('scan --string'.split()) == 0
+            assert main(['scan', '--string']) == 0
             assert uncolor(printer_shim.message) == get_plugin_report(
                 {
                     'Base64HighEntropyString': expected_base64_result,
@@ -169,7 +167,7 @@ class TestMain(object):
                 main_module,
             ) as printer_shim,
         ):
-            assert main('scan --string 012345'.split()) == 0
+            assert main(['scan', '--string', '012345']) == 0
             assert uncolor(printer_shim.message) == get_plugin_report(
                 {
                     'Base64HighEntropyString': 'False (2.585)',
@@ -179,7 +177,7 @@ class TestMain(object):
 
     def test_scan_with_all_files_flag(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main('scan --all-files'.split()) == 0
+            assert main(['scan', '--all-files']) == 0
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
@@ -228,9 +226,7 @@ class TestMain(object):
             assert (
                 main(
                     shlex.split(
-                        'scan --update old_baseline_file {}'.format(
-                            exclude_files_arg,
-                        ),
+                        f'scan --update old_baseline_file {exclude_files_arg}',
                     ),
                 )
                 == 0
@@ -424,9 +420,7 @@ class TestMain(object):
             assert (
                 main(
                     shlex.split(
-                        'scan --update old_baseline_file {}'.format(
-                            plugins_overwriten,
-                        ),
+                        f'scan --update old_baseline_file {plugins_overwriten}',
                     ),
                 )
                 == 0

@@ -1,11 +1,10 @@
-from __future__ import absolute_import
 
 import pytest
 
 from simple_detect_secrets.core import bidirectional_iterator
 
 
-class TestBidirectionalIterator(object):
+class TestBidirectionalIterator:
     def test_no_input(self):
         iterator = bidirectional_iterator.BidirectionalIterator([])
         with pytest.raises(StopIteration):

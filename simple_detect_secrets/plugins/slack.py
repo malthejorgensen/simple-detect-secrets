@@ -2,14 +2,14 @@
 This plugin searches for Slack tokens
 """
 
-from __future__ import absolute_import
 
 import re
 
 import requests
 
-from .base import RegexBasedDetector
 from simple_detect_secrets.core.constants import VerifiedResult
+
+from .base import RegexBasedDetector
 
 
 class SlackDetector(RegexBasedDetector):
