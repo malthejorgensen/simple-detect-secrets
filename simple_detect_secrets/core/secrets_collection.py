@@ -119,7 +119,6 @@ class SecretsCollection:
                     plugin_classname,
                     exclude_lines_regex=result.exclude_lines,
                     automaton=automaton,
-                    should_verify_secrets=False,
                     **plugin,
                 ),
             )
@@ -136,7 +135,6 @@ class SecretsCollection:
                     lineno=item['line_number'],
                     is_secret=item.get('is_secret'),
                 )
-                secret.is_verified = item.get('is_verified', False)
                 result.data[filename][secret] = secret
 
         result.version = data.get('version', '0.0.0')

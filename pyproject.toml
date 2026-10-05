@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable",
 ]
-dependencies = ["pyyaml", "requests"]
+dependencies = ["pyyaml"]
 
 [project.optional-dependencies]
 word_list = ["pyahocorasick"]
@@ -38,7 +38,6 @@ dev = [
     "pre-commit",
     "pyahocorasick",
     "pytest",
-    "responses",
     "ruff>=0.16.8",
     "tox",
     "unidiff",

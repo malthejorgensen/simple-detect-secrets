@@ -38,13 +38,6 @@ def secrets_collection_factory(
         word_list_hash=word_list_hash,
     )
 
-    if plugins:
-        for plugin in plugins:
-            # We don't want to incur network calls during test cases
-            plugin.should_verify = False
-
-        collection.plugins = plugins
-
     # Handle secrets
     if secrets is None:
         return collection

@@ -1,5 +1,3 @@
-from enum import Enum
-
 # We don't scan files with these extensions.
 # NOTE: We might be able to do this better with
 #       `subprocess.check_output(['file', filename])`
@@ -35,9 +33,3 @@ IGNORED_FILE_EXTENSIONS = {
     '.xlsx',
     '.zip',
 }
-
-
-class VerifiedResult(Enum):
-    UNVERIFIED = 1
-    VERIFIED_FALSE = 2
-    VERIFIED_TRUE = 3

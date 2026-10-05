@@ -38,15 +38,12 @@ class PotentialSecret:
         :type is_secret: bool|None
         :param is_secret: whether or not the secret is a true- or false- positive
 
-        :type is_verified: bool
-        :param is_verified: whether the secret has been externally verified
         """
         self.type = typ
         self.filename = filename
         self.lineno = lineno
         self.set_secret(secret)
         self.is_secret = is_secret
-        self.is_verified = False
 
         # If two PotentialSecrets have the same values for these fields,
         # they are considered equal. Note that line numbers aren't included
@@ -63,7 +60,6 @@ class PotentialSecret:
             'filename': self.filename,
             'line_number': self.lineno,
             'secret_value': self.secret_value,
-            'is_verified': self.is_verified,
         }
 
         if self.is_secret is not None:

@@ -42,7 +42,6 @@ def main(argv=None):
         args.plugins,
         exclude_lines_regex=args.exclude_lines,
         automaton=automaton,
-        should_verify_secrets=not args.no_verify,
     )
 
     # Merge plugins from baseline

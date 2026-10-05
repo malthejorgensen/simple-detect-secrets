@@ -21,13 +21,6 @@ def create_parser(*, pre_commit=False):
     parser.add_argument('--exclude-lines', help='Ignore lines matching this regular expression.')
     parser.add_argument('--word-list', dest='word_list_file', help='Ignore words from this file.')
     parser.add_argument('--use-all-plugins', action='store_true', help='Use all detectors.')
-    parser.add_argument(
-        '-n',
-        '--no-verify',
-        action='store_true',
-        default=True,
-        help='Retained for compatibility; scans always run without network verification.',
-    )
     if pre_commit:
         parser.add_argument('filenames', nargs='*', help='Files to check.')
         parser.add_argument('--baseline', default='', help='Baseline containing ignored secrets.')

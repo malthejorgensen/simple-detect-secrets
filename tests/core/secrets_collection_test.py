@@ -26,6 +26,17 @@ def mock_open(data):
     return mock_open_base(data, 'simple_detect_secrets.core.secrets_collection.codecs.open')
 
 
+def test_legacy_verification_metadata_is_ignored():
+    original = secrets_collection_factory([{'secret': 'example'}])
+    data = original.format_for_baseline_output()
+    data['results']['filename'][0]['is_verified'] = True
+    loaded = SecretsCollection.load_baseline_from_dict(data)
+    secret = loaded.get_secret('filename', 'example')
+    assert secret is not None
+    assert not hasattr(secret, 'is_verified')
+    assert 'is_verified' not in loaded.json()['filename'][0]
+
+
 @pytest.fixture
 def mock_gmtime():
     """One coherent time value for the duration of the test."""
@@ -388,13 +399,11 @@ class TestBaselineInputOutput:
                     # Line numbers should be sorted, for better readability
                     {
                         'type': 'B',
-                        'is_verified': False,
                         'line_number': 2,
                         'secret_value': secret_hash,
                     },
                     {
                         'type': 'A',
-                        'is_verified': False,
                         'line_number': 3,
                         'secret_value': secret_hash,
                     },
@@ -402,7 +411,6 @@ class TestBaselineInputOutput:
                 'fileB': [
                     {
                         'type': 'C',
-                        'is_verified': False,
                         'line_number': 1,
                         'secret_value': secret_hash,
                     },

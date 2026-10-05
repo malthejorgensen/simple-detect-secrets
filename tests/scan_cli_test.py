@@ -78,7 +78,7 @@ def test_no_findings_diagnostic(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr('sys.argv', ['simple-detect-secrets', 'scan'])
     (tmp_path / 'empty').touch()
-    assert main(['--no-verify', 'empty']) == 0
+    assert main(['empty']) == 0
     captured = capsys.readouterr()
     assert 'No secrets found.' in captured.err
     assert 'Scanning explicit files (1 file)' in captured.err

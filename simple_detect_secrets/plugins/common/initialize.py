@@ -8,7 +8,6 @@ def from_config(
     plugins_dict,
     exclude_lines_regex=None,
     automaton=None,
-    should_verify_secrets=False,
 ):
     """
     :param plugins_dict: detector configuration parsed from command-line arguments.
@@ -20,7 +19,6 @@ def from_config(
     :type automaton: ahocorasick.Automaton|None
     :param automaton: optional automaton for ignoring certain words.
 
-    :type should_verify_secrets: bool
 
     :returns: tuple of initialized plugins
     """
@@ -32,7 +30,6 @@ def from_config(
                 plugin_name,
                 exclude_lines_regex=exclude_lines_regex,
                 automaton=automaton,
-                should_verify_secrets=should_verify_secrets,
                 **plugins_dict[plugin_name],
             ),
         )
@@ -107,7 +104,6 @@ def merge_plugins_from_baseline(baseline_plugins, args, automaton):
             plugins_dict,
             exclude_lines_regex=args.exclude_lines,
             automaton=automaton,
-            should_verify_secrets=not args.no_verify,
         )
 
     # Use baseline plugin as starting point
@@ -145,7 +141,6 @@ def from_plugin_classname(
     plugin_classname,
     exclude_lines_regex=None,
     automaton=None,
-    should_verify_secrets=False,
     **kwargs,
 ):
     """Initializes a plugin class, given a classname and kwargs.
@@ -159,7 +154,6 @@ def from_plugin_classname(
     :type automaton: ahocorasick.Automaton|None
     :param automaton: optional automaton for ignoring English-words.
 
-    :type should_verify_secrets: bool
     """
     try:
         klass = import_plugins()[plugin_classname]
@@ -171,7 +165,6 @@ def from_plugin_classname(
         instance = klass(
             exclude_lines_regex=exclude_lines_regex,
             automaton=automaton,
-            should_verify=should_verify_secrets,
             **kwargs,
         )
     except TypeError:
@@ -208,9 +201,8 @@ def from_secret_type(secret_type, settings):
 
             return from_plugin_classname(
                 classname,
-                # Recreate the plugin without exclusion, filtering or verification.
+                # Recreate the plugin without exclusion or filtering.
                 exclude_lines_regex=None,
                 automaton=None,
-                should_verify_secrets=False,
                 **plugin_init_vars,
             )
