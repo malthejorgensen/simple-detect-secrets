@@ -55,11 +55,8 @@ def main(argv=None):
         else:
             if not baseline_dict['results']:
                 print('No secrets found.', file=sys.stderr)
-            print(
-                baseline.format_baseline_for_output(
-                    baseline_dict,
-                ),
-            )
+            else:
+                print(baseline.format_baseline_for_output(baseline_dict))
 
     return 0
 

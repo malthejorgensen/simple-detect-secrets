@@ -82,7 +82,7 @@ def test_no_findings_diagnostic(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert 'No secrets found.' in captured.err
     assert 'Scanning explicit files (1 file)' in captured.err
-    assert 'No secrets found.' not in captured.out
+    assert captured.out == ''
 
 
 def test_no_arguments_scans_current_directory(tmp_path, monkeypatch, capsys):
@@ -91,7 +91,7 @@ def test_no_arguments_scans_current_directory(tmp_path, monkeypatch, capsys):
     write_secret(tmp_path / 'credentials')
     assert main() == 0
     captured = capsys.readouterr()
-    assert KEY in captured.out
+    assert captured.out == f'credentials:1:{KEY}\n'
     assert 'No git repository detected' in captured.err
 
 
@@ -105,7 +105,7 @@ def test_repeatable_excludes_filter_scan_results(tmp_path, monkeypatch, capsys, 
         subprocess.run(['git', 'add', '.'], check=True)
     assert main(['--exclude', '*.log', '--exclude', 'vendor/*']) == 0
     output = capsys.readouterr().out
-    assert 'Filename: keep.py' in output
+    assert output == f'keep.py:1:{KEY}\n'
     assert 'debug.log' not in output
     assert 'private.py' not in output
 
@@ -125,7 +125,7 @@ def test_exclusions_can_be_interleaved_with_paths(tmp_path, monkeypatch, capsys)
     write_secret(tmp_path / 'debug.log')
     assert main(['keep.py', '--exclude', '*.log', 'debug.log', '--exclude', 'vendor/*']) == 0
     output = capsys.readouterr().out
-    assert 'Filename: keep.py' in output
+    assert output == f'keep.py:1:{KEY}\n'
     assert 'debug.log' not in output
 
 

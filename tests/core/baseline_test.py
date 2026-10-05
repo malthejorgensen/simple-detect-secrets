@@ -429,4 +429,18 @@ class TestFormatBaselineForOutput:
             }
         )
 
-        assert output_string == '\nFilename: filename\nLine 3: a\nLine 2: z\nLine 3: f\n'
+        assert output_string == 'filename:3:a\nfilename:2:z\nfilename:3:f'
+
+    def test_multiple_files_and_colons_in_secrets(self):
+        output = format_baseline_for_output(
+            {
+                'results': {
+                    'nested/credentials': [{'line_number': 2, 'secret_value': 'abc:def'}],
+                    'file with spaces': [{'line_number': 5, 'secret_value': 'xyz'}],
+                },
+            }
+        )
+        assert output == 'nested/credentials:2:abc:def\nfile with spaces:5:xyz'
+
+    def test_no_findings(self):
+        assert format_baseline_for_output({'results': {}}) == ''

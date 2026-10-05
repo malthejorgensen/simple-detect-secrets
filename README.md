@@ -20,6 +20,8 @@ Simply run
 
 in a directory to search for possible secrets.
 
+Findings go to stdout in `filename:lineno:secret` format, one per line.
+
 Exclude files or directories with repeatable, quoted glob patterns:
 
 ```bash

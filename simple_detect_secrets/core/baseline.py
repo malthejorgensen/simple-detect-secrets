@@ -207,14 +207,9 @@ def format_baseline_for_output(baseline):
     """
     lines = []
     for filename, secret_list in baseline['results'].items():
-        lines_secrets = '\n'.join(
-            'Line %d: %s' % (x['line_number'], x['secret_value']) for x in secret_list
+        lines.extend(
+            f'{filename}:{secret["line_number"]}:{secret["secret_value"]}' for secret in secret_list
         )
-        line = f"""
-Filename: {filename}
-{lines_secrets}
-"""
-        lines.append(line)
 
     return '\n'.join(lines)
 
