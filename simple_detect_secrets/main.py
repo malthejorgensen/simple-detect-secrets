@@ -119,45 +119,10 @@ def _perform_scan(args, plugins, automaton, word_list_hash):
     return new_baseline
 
 
-def _get_existing_baseline(import_filename):
-    # Favors --update argument over stdin.
-    if import_filename:
-        return _read_from_file(import_filename[0])
-    if not sys.stdin.isatty():
-        stdin = sys.stdin.read().strip()
-        if stdin:
-            return json.loads(stdin)
-
-
 def _read_from_file(filename):  # pragma: no cover
     """Used for mocking."""
     with open(filename) as f:
         return json.loads(f.read())
-
-
-def _get_exclude_files(old_baseline):
-    """
-    Older versions of detect-secrets always had an `exclude_regex` key,
-    this was replaced by the `files` key under an `exclude` key in v0.12.0
-
-    :rtype: str|None
-    """
-    if old_baseline.get('exclude'):
-        return old_baseline['exclude']['files']
-    if old_baseline.get('exclude_regex'):
-        return old_baseline['exclude_regex']
-
-
-def _add_baseline_to_exclude_files(args):
-    """
-    Modifies args.exclude_files in-place.
-    """
-    baseline_name_regex = rf'^{args.import_filename[0]}$'
-
-    if not args.exclude_files:
-        args.exclude_files = baseline_name_regex
-    elif baseline_name_regex not in args.exclude_files:
-        args.exclude_files += rf'|{baseline_name_regex}'
 
 
 if __name__ == '__main__':
