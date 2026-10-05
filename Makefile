@@ -13,6 +13,14 @@ install-hooks:
 test:
 	uv run --locked pytest tests
 
+.PHONY: format
+format:
+	uv run --locked ruff format .
+
+.PHONY: format-check
+format-check:
+	uv run --locked ruff format --check .
+
 .PHONY: clean
 clean:
 	find -name '*.pyc' -delete

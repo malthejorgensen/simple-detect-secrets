@@ -41,6 +41,17 @@ Install the pre-commit hooks with:
 make install-hooks
 ```
 
+## Formatting
+
+Run `make format` to format Python files with Ruff, or `make format-check` to
+check formatting without changing files. The pre-commit hook uses the same
+Ruff version from `uv.lock`.
+
+The configuration uses single quotes, four-space indentation, a 100-character
+line length, and trailing commas to preserve expanded multiline expressions.
+Files in `test_data` are excluded because their contents are scan fixtures.
+Ruff may still adjust line breaks and blank lines to its standard style.
+
 ## Writing a Plugin
 
 There are many examples of existing plugins to reference, under

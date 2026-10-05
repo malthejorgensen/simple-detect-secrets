@@ -33,13 +33,13 @@ Homepage = "https://github.com/malthejorgensen/simple-detect-secrets"
 [dependency-groups]
 dev = [
     "coverage",
-    "flake8",
     "mock",
     "monotonic",
     "pre-commit",
     "pyahocorasick",
     "pytest",
     "responses",
+    "ruff>=0.16.8",
     "tox",
     "unidiff",
 ]
@@ -61,5 +61,19 @@ pythonpath = ["."]
 [tool.uv]
 exclude-newer = "2 weeks"
 
+[tool.ruff]
+line-length = 100
+indent-width = 4
+target-version = "py313"
+include = ["*.py", "*.pyi"]
+# Sample files intentionally contain unusual syntax and formatting.
+extend-exclude = ["test_data"]
+force-exclude = true
+
 [tool.ruff.format]
 quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+# Keep existing multiline calls and collections with trailing commas expanded.
+skip-magic-trailing-comma = false
+docstring-code-format = false
