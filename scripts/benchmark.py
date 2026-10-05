@@ -10,7 +10,7 @@ import sys
 from monotonic import monotonic
 
 from simple_detect_secrets.core.color import AnsiColor, colorize
-from simple_detect_secrets.core.usage import PluginOptions
+from simple_detect_secrets.plugins.common.util import import_plugins
 from simple_detect_secrets.util import get_root_directory
 
 
@@ -31,16 +31,17 @@ def main():
     # First, convert chosen plugins into their disabled flags
     always_disabled_plugins = []
     flag_list = {}
-    for info in PluginOptions.all_plugins:
-        if info.classname in args.plugin:
-            flag_list[info.disable_flag_text] = info.classname
+    for name, plugin in import_plugins().items():
+        flag = '--' + plugin.disable_flag_text
+        if name in args.plugin:
+            flag_list[flag] = name
         else:
-            always_disabled_plugins.append(info.disable_flag_text)
+            always_disabled_plugins.append(flag)
 
     # Then, iterate through each disabled flag, toggling them off
     # individually.
     timings = {}
-    if len(args.plugin) == len(PluginOptions.all_plugins):
+    if len(args.plugin) == len(import_plugins()):
         # Only run benchmarks for all the cases, if already running all plugins
         timings['all-plugins'] = time_execution(
             filenames=args.filenames,
@@ -64,7 +65,7 @@ def main():
 
 
 def get_arguments():
-    plugins = [info.classname for info in PluginOptions.all_plugins]
+    plugins = list(import_plugins())
 
     parser = argparse.ArgumentParser(description='Run some benchmarks.')
     parser.add_argument(
@@ -163,7 +164,7 @@ def time_execution(filenames, timeout, num_iterations=1, flags=None):
         start_time = monotonic()
         try:
             subprocess.check_output(
-                ['detect-secrets', 'scan'] + filenames + flags,
+                [sys.executable, '-m', 'simple_detect_secrets.main'] + filenames + flags,
                 timeout=timeout,
             )
             scores.append(monotonic() - start_time)

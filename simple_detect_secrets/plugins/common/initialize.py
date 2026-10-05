@@ -1,18 +1,17 @@
 """Intelligent initialization of plugins."""
 
 from ...core.log import log
-from ...core.usage import PluginOptions
 from .util import get_mapping_from_secret_type_to_class_name, import_plugins
 
 
-def from_parser_builder(
+def from_config(
     plugins_dict,
     exclude_lines_regex=None,
     automaton=None,
     should_verify_secrets=False,
 ):
     """
-    :param plugins_dict: plugins dictionary received from ParserBuilder.
+    :param plugins_dict: detector configuration parsed from command-line arguments.
         See example in tests.core.usage_test.
 
     :type exclude_lines_regex: str|None
@@ -104,7 +103,7 @@ def merge_plugins_from_baseline(baseline_plugins, args, automaton):
                     plugin_name,
                 )
 
-        return from_parser_builder(
+        return from_config(
             plugins_dict,
             exclude_lines_regex=args.exclude_lines,
             automaton=automaton,
@@ -112,7 +111,7 @@ def merge_plugins_from_baseline(baseline_plugins, args, automaton):
         )
 
     # Use baseline plugin as starting point
-    disabled_plugins = PluginOptions.get_disabled_plugins(args)
+    disabled_plugins = set(import_plugins()) - args.plugins.keys()
     plugins_dict = {
         plugin_name: plugin_params
         for plugin_name, plugin_params in baseline_plugins_dict.items()
@@ -135,7 +134,7 @@ def merge_plugins_from_baseline(baseline_plugins, args, automaton):
                 plugin_name,
             )
 
-    return from_parser_builder(
+    return from_config(
         plugins_dict,
         exclude_lines_regex=args.exclude_lines,
         automaton=automaton,

@@ -25,7 +25,7 @@ def test_aws_scan_is_offline(prefix, scan_mode, tmp_path, monkeypatch, capsys):
     if scan_mode == 'tracked':
         subprocess.run(['git', 'add', filename.name], check=True)
 
-    arguments = ['scan']
+    arguments = []
     if scan_mode == 'file':
         arguments.append(filename.name)
     elif scan_mode == 'all-files':
@@ -43,7 +43,7 @@ def test_aws_scan_is_offline(prefix, scan_mode, tmp_path, monkeypatch, capsys):
 @pytest.mark.parametrize('prefix', ['AKIA', 'ASIA'])
 def test_aws_string_scan(prefix, monkeypatch, capsys):
     monkeypatch.setattr('sys.argv', ['simple-detect-secrets', 'scan'])
-    assert main(['scan', '--string', prefix + 'Z' * 16]) == 0
+    assert main(['--string', prefix + 'Z' * 16]) == 0
     output = capsys.readouterr().out
     aws_result = next(
         line for line in output.splitlines() if line.split(':', 1)[0].strip() == 'AWSKeyDetector'

@@ -7,66 +7,59 @@ from .core import baseline
 from .core.common import write_baseline_to_file
 from .core.log import log
 from .core.secrets_collection import SecretsCollection
-from .core.usage import ParserBuilder
+from .core.usage import parse_args
 from .plugins.common import initialize
 from .util import build_automaton
 
 
-def parse_args(argv):
-    return ParserBuilder().add_console_use_arguments().parse_args(argv)
-
-
 def main(argv=None):
-    if len(sys.argv) == 1:  # pragma: no cover
-        sys.argv.append('-h')
 
     args = parse_args(argv)
     if args.verbose:  # pragma: no cover
         log.set_debug_level(args.verbose)
 
-    if args.action == 'scan':
-        automaton = None
-        word_list_hash = None
-        if args.word_list_file:
-            automaton, word_list_hash = build_automaton(args.word_list_file)
+    automaton = None
+    word_list_hash = None
+    if args.word_list_file:
+        automaton, word_list_hash = build_automaton(args.word_list_file)
 
-        # Plugins are *always* rescanned with fresh settings, because
-        # we want to get the latest updates.
-        plugins = initialize.from_parser_builder(
-            args.plugins,
-            exclude_lines_regex=args.exclude_lines,
-            automaton=automaton,
-            should_verify_secrets=not args.no_verify,
+    # Plugins are *always* rescanned with fresh settings, because
+    # we want to get the latest updates.
+    plugins = initialize.from_config(
+        args.plugins,
+        exclude_lines_regex=args.exclude_lines,
+        automaton=automaton,
+        should_verify_secrets=not args.no_verify,
+    )
+    if args.string:
+        line = args.string
+
+        if isinstance(args.string, bool):
+            line = sys.stdin.read().splitlines()[0]
+
+        _scan_string(line, plugins)
+
+    else:
+        baseline_dict = _perform_scan(
+            args,
+            plugins,
+            automaton,
+            word_list_hash,
         )
-        if args.string:
-            line = args.string
 
-            if isinstance(args.string, bool):
-                line = sys.stdin.read().splitlines()[0]
-
-            _scan_string(line, plugins)
-
-        else:
-            baseline_dict = _perform_scan(
-                args,
-                plugins,
-                automaton,
-                word_list_hash,
+        if args.import_filename:
+            write_baseline_to_file(
+                filename=args.import_filename,
+                data=baseline_dict,
             )
-
-            if args.import_filename:
-                write_baseline_to_file(
-                    filename=args.import_filename[0],
-                    data=baseline_dict,
-                )
-            else:
-                if not baseline_dict['results']:
-                    print('No secrets found.', file=sys.stderr)
-                print(
-                    baseline.format_baseline_for_output(
-                        baseline_dict,
-                    ),
-                )
+        else:
+            if not baseline_dict['results']:
+                print('No secrets found.', file=sys.stderr)
+            print(
+                baseline.format_baseline_for_output(
+                    baseline_dict,
+                ),
+            )
 
     return 0
 

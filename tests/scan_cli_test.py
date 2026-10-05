@@ -71,8 +71,18 @@ def test_no_findings_diagnostic(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr('sys.argv', ['simple-detect-secrets', 'scan'])
     (tmp_path / 'empty').touch()
-    assert main(['scan', '--no-verify', 'empty']) == 0
+    assert main(['--no-verify', 'empty']) == 0
     captured = capsys.readouterr()
     assert 'No secrets found.' in captured.err
     assert 'Scanning 1 file(s).' in captured.err
     assert 'No secrets found.' not in captured.out
+
+
+def test_no_arguments_scans_current_directory(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr('sys.argv', ['simple-detect-secrets'])
+    write_secret(tmp_path / 'credentials')
+    assert main() == 0
+    captured = capsys.readouterr()
+    assert KEY in captured.out
+    assert 'No git repository detected' in captured.err

@@ -1,14 +1,13 @@
 import pytest
 
-from simple_detect_secrets.core.usage import ParserBuilder
+from simple_detect_secrets.core.usage import parse_args
 from simple_detect_secrets.plugins.common.util import import_plugins
 
 
 class TestPluginOptions:
     @staticmethod
     def parse_args(argument_string=''):
-        # PluginOptions are added in pre-commit hook
-        return ParserBuilder().add_pre_commit_arguments().parse_args(argument_string.split())
+        return parse_args(argument_string.split(), pre_commit=True)
 
     def test_added_by_default(self):
         # This is what happens with unrecognized arguments
@@ -35,6 +34,7 @@ class TestPluginOptions:
                 },
             }
         )
+        assert args.plugins == regex_based_plugins
         assert not hasattr(args, 'no_private_key_scan')
 
     def test_consolidates_removes_disabled_plugins(self):

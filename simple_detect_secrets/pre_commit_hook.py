@@ -10,7 +10,7 @@ from .core.baseline import (
 from .core.common import write_baseline_to_file
 from .core.log import get_logger
 from .core.secrets_collection import SecretsCollection
-from .core.usage import ParserBuilder
+from .core.usage import parse_args as parse_cli_args
 from .plugins.common import initialize
 from .util import build_automaton
 
@@ -18,7 +18,7 @@ log = get_logger(format_string='%(message)s')
 
 
 def parse_args(argv):
-    return ParserBuilder().add_pre_commit_arguments().parse_args(argv)
+    return parse_cli_args(argv, pre_commit=True)
 
 
 def main(argv=None):
@@ -29,7 +29,7 @@ def main(argv=None):
     try:
         # If baseline is provided, we first want to make sure
         # it's valid, before doing any further computation.
-        baseline_collection = get_baseline(args.baseline[0])
+        baseline_collection = get_baseline(args.baseline)
     except (OSError, ValueError):
         # Error logs handled within logic.
         return 1
@@ -38,7 +38,7 @@ def main(argv=None):
     if args.word_list_file:
         automaton, _word_list_hash = build_automaton(args.word_list_file)
 
-    plugins = initialize.from_parser_builder(
+    plugins = initialize.from_config(
         args.plugins,
         exclude_lines_regex=args.exclude_lines,
         automaton=automaton,
@@ -82,14 +82,14 @@ def main(argv=None):
 
     if baseline_modified:
         write_baseline_to_file(
-            filename=args.baseline[0],
+            filename=args.baseline,
             data=baseline_collection.format_for_baseline_output(),
         )
 
         log.error(
             'The baseline file was updated.\n'
             'Probably to keep line numbers of secrets up-to-date.\n'
-            f'Please `git add {args.baseline[0]}`, thank you.\n\n',
+            f'Please `git add {args.baseline}`, thank you.\n\n',
         )
         return 3
 
@@ -123,7 +123,7 @@ def _get_baseline_string_from_file(filename):  # pragma: no cover
         log.error(
             f'Unable to open baseline file: {filename}\n'
             'Please create it via\n'
-            f'   `detect-secrets scan > {filename}`\n',
+            f'   `simple-detect-secrets > {filename}`\n',
         )
         raise
 
@@ -160,7 +160,7 @@ def find_secrets_in_files(args, plugins):
 
     for filename in args.filenames:
         # Don't scan the baseline file
-        if filename == args.baseline[0]:
+        if filename == args.baseline:
             continue
 
         collection.scan_file(filename)

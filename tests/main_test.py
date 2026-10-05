@@ -72,13 +72,13 @@ class TestMain:
 
     def test_scan_basic(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main(['scan']) == 0
+            assert main([]) == 0
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
             exclude_files_regex=None,
             exclude_lines_regex=None,
-            path='.',
+            path=['.'],
             should_scan_all_files=False,
             word_list_file=None,
             word_list_hash=None,
@@ -86,7 +86,7 @@ class TestMain:
 
     def test_scan_with_rootdir(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main(['scan', 'test_data']) == 0
+            assert main(['test_data']) == 0
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
@@ -100,7 +100,7 @@ class TestMain:
 
     def test_update_writes_fresh_scan(self, mock_baseline_initialize):
         with mock.patch.object(main_module, 'write_baseline_to_file') as writer:
-            assert main(['scan', '--update', 'output.json', '--hex-limit', '5']) == 0
+            assert main(['--update', 'output.json', '--hex-limit', '5']) == 0
 
         writer.assert_called_once()
         assert writer.call_args.kwargs['filename'] == 'output.json'
@@ -121,7 +121,6 @@ class TestMain:
             assert (
                 main(
                     [
-                        'scan',
                         '--exclude-files',
                         'some_pattern_here',
                         '--exclude-lines',
@@ -135,7 +134,7 @@ class TestMain:
             plugins=Any(tuple),
             exclude_files_regex='some_pattern_here',
             exclude_lines_regex='other_patt',
-            path='.',
+            path=['.'],
             should_scan_all_files=False,
             word_list_file=None,
             word_list_hash=None,
@@ -171,7 +170,7 @@ class TestMain:
                 main_module,
             ) as printer_shim,
         ):
-            assert main(['scan', '--string']) == 0
+            assert main(['--string']) == 0
             assert uncolor(printer_shim.message) == get_plugin_report(
                 {
                     'Base64HighEntropyString': expected_base64_result,
@@ -190,7 +189,7 @@ class TestMain:
                 main_module,
             ) as printer_shim,
         ):
-            assert main(['scan', '--string', '012345']) == 0
+            assert main(['--string', '012345']) == 0
             assert uncolor(printer_shim.message) == get_plugin_report(
                 {
                     'Base64HighEntropyString': 'False (2.585)',
@@ -200,13 +199,13 @@ class TestMain:
 
     def test_scan_with_all_files_flag(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main(['scan', '--all-files']) == 0
+            assert main(['--all-files']) == 0
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
             exclude_files_regex=None,
             exclude_lines_regex=None,
-            path='.',
+            path=['.'],
             should_scan_all_files=True,
             word_list_file=None,
             word_list_hash=None,

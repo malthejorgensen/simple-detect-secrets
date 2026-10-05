@@ -24,7 +24,7 @@ Developing
 
 ```bash
 uv sync --locked
-uv run simple-detect-secrets scan
+uv run simple-detect-secrets
 uv run pytest tests
 ```
 
