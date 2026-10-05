@@ -1,4 +1,5 @@
 import subprocess
+from io import StringIO
 
 import pytest
 
@@ -20,7 +21,7 @@ def test_non_git_directory_scans_recursively(tmp_path, monkeypatch, capsys):
     write_secret(tmp_path / 'nested' / 'credentials')
     result = baseline.initialize(['.'], (AWSKeyDetector(),))
     assert set(result.data) == {'nested/credentials'}
-    assert 'No git repository detected: Scanning all files.' in capsys.readouterr().err
+    assert 'No git repository detected: Scanning all files (1 file)' in capsys.readouterr().err
 
 
 def test_git_directory_scans_only_tracked_files(tmp_path, monkeypatch, capsys):
@@ -31,7 +32,10 @@ def test_git_directory_scans_only_tracked_files(tmp_path, monkeypatch, capsys):
     subprocess.run(['git', 'add', 'tracked credentials'], check=True)
     result = baseline.initialize(['.'], (AWSKeyDetector(),))
     assert set(result.data) == {'tracked credentials'}
-    assert 'Detected git repository: Scanning only Git-tracked files.' in capsys.readouterr().err
+    assert (
+        'Detected git repository: Scanning only Git-tracked files (1 file)'
+        in capsys.readouterr().err
+    )
 
 
 def test_empty_git_repository_does_not_scan_untracked_files(tmp_path, monkeypatch, capsys):
@@ -40,7 +44,7 @@ def test_empty_git_repository_does_not_scan_untracked_files(tmp_path, monkeypatc
     write_secret(tmp_path / 'credentials')
     result = baseline.initialize(['.'], (AWSKeyDetector(),))
     assert not result.data
-    assert 'Scanning 0 file(s).' in capsys.readouterr().err
+    assert 'No files detected (0 files)' in capsys.readouterr().err
 
 
 def test_git_subdirectory_detected(tmp_path, monkeypatch):
@@ -77,7 +81,7 @@ def test_no_findings_diagnostic(tmp_path, monkeypatch, capsys):
     assert main(['--no-verify', 'empty']) == 0
     captured = capsys.readouterr()
     assert 'No secrets found.' in captured.err
-    assert 'Scanning 1 file(s).' in captured.err
+    assert 'Scanning explicit files (1 file)' in captured.err
     assert 'No secrets found.' not in captured.out
 
 
@@ -112,7 +116,7 @@ def test_excludes_apply_to_explicit_files(tmp_path, monkeypatch, capsys):
     assert main([str(tmp_path / 'credentials'), '--exclude', 'credentials']) == 0
     captured = capsys.readouterr()
     assert KEY not in captured.out
-    assert 'Scanning 0 file(s).' in captured.err
+    assert 'No files detected (0 files)' in captured.err
 
 
 def test_exclusions_can_be_interleaved_with_paths(tmp_path, monkeypatch, capsys):
@@ -150,3 +154,45 @@ def test_glob_exclusions_survive_baseline_roundtrip(tmp_path, monkeypatch):
     loaded = SecretsCollection.load_baseline_from_dict(result.format_for_baseline_output())
     assert loaded.exclude_files == ['*.log', 'vendor/*']
     assert loaded.get_secret('credentials', KEY, 'AWS Access Key') is not None
+
+
+@pytest.mark.parametrize('git_repository', [False, True])
+@pytest.mark.parametrize('count', [0, 1, 2])
+def test_scan_mode_and_count_share_one_line(tmp_path, monkeypatch, capsys, git_repository, count):
+    monkeypatch.chdir(tmp_path)
+    if git_repository:
+        subprocess.run(['git', 'init', '-q'], check=True)
+    for index in range(count):
+        (tmp_path / str(index)).touch()
+    if git_repository and count:
+        subprocess.run(['git', 'add', '.'], check=True)
+    baseline.initialize(['.'], ())
+    prefix = 'Detected git repository: ' if git_repository else 'No git repository detected: '
+    if not count:
+        expected = 'No files detected (0 files)'
+    else:
+        mode = 'Scanning only Git-tracked files' if git_repository else 'Scanning all files'
+        noun = 'file' if count == 1 else 'files'
+        expected = f'{mode} ({count} {noun})'
+    assert capsys.readouterr().err == prefix + expected + '\n'
+
+
+def test_scan_prefix_is_flushed_before_enumeration(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    class RecordingStream(StringIO):
+        def flush(self):
+            self.last_flushed = self.getvalue()
+            super().flush()
+
+    stream = RecordingStream()
+    monkeypatch.setattr(baseline.sys, 'stderr', stream)
+    monkeypatch.setattr(baseline, '_is_git_repository', lambda path: False)
+
+    def enumerate_files(*args):
+        assert stream.last_flushed == 'No git repository detected: '
+        return []
+
+    monkeypatch.setattr(baseline, '_get_files_recursively', enumerate_files)
+    baseline.initialize(['.'], ())
+    assert stream.last_flushed == 'No git repository detected: No files detected (0 files)\n'

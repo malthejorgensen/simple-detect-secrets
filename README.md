@@ -6,6 +6,11 @@ simple-detect-secrets
 In git repositories, `simple-detect-secrets` only scans checked-in files.
 Otherwise it scans all files.
 
+Diagnostics go to stderr, with the scan mode and file count on one line:
+`No git repository detected: Scanning all files (2 files)` or
+`Detected git repository: Scanning only Git-tracked files (2 files)`.
+Empty scans report `No files detected (0 files)`.
+
 Running
 -------
 

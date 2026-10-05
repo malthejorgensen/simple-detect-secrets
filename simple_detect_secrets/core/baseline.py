@@ -50,38 +50,55 @@ def initialize(
     if isinstance(path, (str, os.PathLike)):
         path = [path]
 
-    files_to_scan = []
+    files_to_scan = set()
+    explicit_files = []
     for element in path:
         if os.path.isdir(element):
             if should_scan_all_files:
-                print('Scanning all files (--all-files).', file=sys.stderr)
-                files_to_scan.extend(
-                    _get_files_recursively(element, exclude_patterns),
-                )
+                prefix = ''
+                message = 'Scanning all files (--all-files)'
+                git_tracked = False
             elif _is_git_repository(element):
-                print(
-                    'Detected git repository: Scanning only Git-tracked files.',
-                    file=sys.stderr,
-                )
-                files_to_scan.extend(_get_git_tracked_files(element))
+                prefix = 'Detected git repository: '
+                message = 'Scanning only Git-tracked files'
+                git_tracked = True
             else:
-                print('No git repository detected: Scanning all files.', file=sys.stderr)
-                files_to_scan.extend(
-                    _get_files_recursively(element, exclude_patterns),
-                )
+                prefix = 'No git repository detected: '
+                message = 'Scanning all files'
+                git_tracked = False
+
+            # Flush the mode before enumerating a potentially large directory.
+            print(prefix, end='', file=sys.stderr, flush=True)
+            candidates = (
+                _get_git_tracked_files(element)
+                if git_tracked
+                else _get_files_recursively(element, exclude_patterns)
+            )
+            selected = {file for file in candidates if not is_excluded(file, exclude_patterns)}
+            _report_file_count(message, len(selected))
+            files_to_scan.update(selected)
         elif os.path.isfile(element):
-            files_to_scan.append(element)
+            explicit_files.append(element)
         else:
             log.error('detect-secrets: %s: No such file or directory', element)
 
-    files_to_scan = [file for file in files_to_scan if not is_excluded(file, exclude_patterns)]
+    if explicit_files:
+        selected = {file for file in explicit_files if not is_excluded(file, exclude_patterns)}
+        _report_file_count('Scanning explicit files', len(selected))
+        files_to_scan.update(selected)
 
-    files_to_scan = sorted(set(files_to_scan))
-    print(f'Scanning {len(files_to_scan)} file(s).', file=sys.stderr)
+    files_to_scan = sorted(files_to_scan)
     for file in files_to_scan:
         output.scan_file(file)
 
     return output
+
+
+def _report_file_count(message, count):
+    if not count:
+        message = 'No files detected'
+    noun = 'file' if count == 1 else 'files'
+    print(f'{message} ({count} {noun})', file=sys.stderr, flush=True)
 
 
 def get_secrets_not_in_baseline(results, baseline):
