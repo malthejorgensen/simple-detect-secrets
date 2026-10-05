@@ -1,1 +1,3 @@
-VERSION = '0.13.0'
+from importlib.metadata import version
+
+VERSION = version('simple-detect-secrets')

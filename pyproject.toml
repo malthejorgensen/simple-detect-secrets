@@ -1,6 +1,6 @@
 [project]
 name = "simple-detect-secrets"
-dynamic = ["version"]
+version = "0.13.0"
 description = "Tool for detecting secrets in the codebase"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -45,14 +45,12 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.12.17,<0.13"]
+build-backend = "uv_build"
 
-[tool.setuptools.dynamic]
-version = { attr = "simple_detect_secrets.VERSION" }
-
-[tool.setuptools.packages.find]
-include = ["simple_detect_secrets*"]
+[tool.uv.build-backend]
+module-name = "simple_detect_secrets"
+module-root = ""
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
