@@ -25,6 +25,13 @@ format-check:
 build:
 	uv build
 
+.PHONY: publish
+publish:
+	uv lock
+	$(MAKE) clean
+	$(MAKE) build
+	uv publish
+
 .PHONY: clean
 clean:
 	/bin/rm -rf dist/
