@@ -21,12 +21,20 @@ format:
 format-check:
 	uv run --locked ruff format --check .
 
+.PHONY: build
+build:
+	uv build
+
 .PHONY: clean
 clean:
+	/bin/rm -rf dist/
+
+.PHONY: uncache
+uncache:
 	find -name '*.pyc' -delete
 	find -name '__pycache__' -delete
 
 .PHONY: super-clean
-super-clean: clean
+super-clean: uncache
 	rm -rf .tox
 	rm -rf venv
