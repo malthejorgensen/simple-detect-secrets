@@ -184,8 +184,6 @@ def from_plugin_classname(
 
 def from_secret_type(secret_type, settings):
     """
-    Note: Only called from audit.py
-
     :type secret_type: str
     :param secret_type: unique identifier for plugin type
 
@@ -212,8 +210,7 @@ def from_secret_type(secret_type, settings):
             return from_plugin_classname(
                 classname,
 
-                # `audit` does not need to
-                # perform exclusion, filtering or verification
+                # Recreate the plugin without exclusion, filtering or verification.
                 exclude_lines_regex=None,
                 automaton=None,
                 should_verify_secrets=False,

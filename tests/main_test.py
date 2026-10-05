@@ -1,6 +1,5 @@
 import json
 import shlex
-import textwrap
 from contextlib import contextmanager
 
 import mock
@@ -8,7 +7,6 @@ import pytest
 
 from simple_detect_secrets import main as main_module
 from simple_detect_secrets import VERSION
-from simple_detect_secrets.core import audit as audit_module
 from simple_detect_secrets.main import main
 from simple_detect_secrets.plugins.common.util import import_plugins
 from testing.factories import secrets_collection_factory
@@ -182,32 +180,6 @@ class TestMain(object):
             should_scan_all_files=True,
             word_list_file=None,
             word_list_hash=None,
-        )
-
-    def test_reads_from_stdin(self, mock_merge_baseline):
-        with mock_stdin(json.dumps({'key': 'value'})):
-            assert main(['scan']) == 0
-
-        mock_merge_baseline.assert_called_once_with(
-            {'key': 'value'},
-            Any(dict),
-        )
-
-    def test_reads_old_baseline_from_file(self, mock_merge_baseline):
-        with mock_stdin(), mock.patch(
-            'detect_secrets.main._read_from_file',
-            return_value={'key': 'value'},
-        ) as m_read, mock.patch(
-            'detect_secrets.main.write_baseline_to_file',
-        ) as m_write:
-            assert main('scan --update old_baseline_file'.split()) == 0
-            assert m_read.call_args[0][0] == 'old_baseline_file'
-            assert m_write.call_args[1]['filename'] == 'old_baseline_file'
-            assert m_write.call_args[1]['data'] == Any(dict)
-
-        mock_merge_baseline.assert_called_once_with(
-            {'key': 'value'},
-            Any(dict),
         )
 
     @pytest.mark.parametrize(
@@ -444,138 +416,6 @@ class TestMain(object):
                 plugins_wrote
             )
 
-    @pytest.mark.parametrize(
-        'filename, expected_output',
-        [
-            (
-                'test_data/short_files/first_line.php',
-                textwrap.dedent("""
-                    1:secret = 'notHighEnoughEntropy'
-                    2:skipped_sequential_false_positive = '0123456789a'
-                    3:print('second line')
-                    4:var = 'third line'
-                """)[1:-1],
-            ),
-            (
-                'test_data/short_files/middle_line.yml',
-                textwrap.dedent("""
-                    1:deploy:
-                    2:    user: aaronloo
-                    3:    password:
-                    4:        secure: thequickbrownfoxjumpsoverthelazydog
-                    5:    on:
-                    6:        repo: Yelp/detect-secrets
-                """)[1:-1],
-            ),
-            (
-                'test_data/short_files/last_line.ini',
-                textwrap.dedent("""
-                    1:[some section]
-                    2:secrets_for_no_one_to_find =
-                    3:    hunter2
-                    4:    password123
-                    5:    BEEF0123456789a
-                """)[1:-1],
-            ),
-        ],
-    )
-    def test_audit_short_file(self, filename, expected_output):
-        with mock_stdin(), mock_printer(
-            # To extract the baseline output
-            main_module,
-        ) as printer_shim:
-            main(['scan', filename])
-            baseline = printer_shim.message
-
-        baseline_dict = json.loads(baseline)
-        with mock_stdin(), mock.patch(
-            # To pipe in printer_shim
-            'detect_secrets.core.audit._get_baseline_from_file',
-            return_value=baseline_dict,
-        ), mock.patch(
-            # We don't want to clear the pytest testing screen
-            'detect_secrets.core.audit._clear_screen',
-        ), mock.patch(
-            # Gotta mock it, because tests aren't interactive
-            'detect_secrets.core.audit._get_user_decision',
-            return_value='s',
-        ), mock.patch(
-            # We don't want to write an actual file
-            'detect_secrets.core.audit.write_baseline_to_file',
-        ), mock_printer(
-            audit_module,
-        ) as printer_shim:
-            main('audit will_be_mocked'.split())
-
-            assert uncolor(printer_shim.message) == textwrap.dedent("""
-                Secret:      1 of 1
-                Filename:    {}
-                Secret Type: {}
-                ----------
-                {}
-                ----------
-                Saving progress...
-            """)[1:].format(
-                filename,
-                baseline_dict['results'][filename][0]['type'],
-                expected_output,
-            )
-
-    @pytest.mark.parametrize(
-        'filename, expected_output',
-        [
-            (
-                'test_data/short_files/first_line.php',
-                {
-                    'KeywordDetector': {
-                        'config': {
-                            'name': 'KeywordDetector',
-                            'keyword_exclude': None,
-                        },
-                        'results': {
-                            'false-positives': {},
-                            'true-positives': {},
-                            'unknowns': {
-                                'test_data/short_files/first_line.php': [{
-                                    'line': "secret = 'notHighEnoughEntropy'",
-                                    'plaintext': 'nothighenoughentropy',
-                                }],
-                            },
-                        },
-                    },
-                },
-            ),
-        ],
-    )
-    def test_audit_display_results(self, filename, expected_output):
-        with mock_stdin(), mock_printer(
-            main_module,
-        ) as printer_shim:
-            main(['scan', filename])
-            baseline = printer_shim.message
-
-        baseline_dict = json.loads(baseline)
-        with mock.patch(
-            'detect_secrets.core.audit._get_baseline_from_file',
-            return_value=baseline_dict,
-        ), mock_printer(
-            audit_module,
-        ) as printer_shim:
-            main(['audit', '--display-results', 'MOCKED'])
-
-            assert json.loads(uncolor(printer_shim.message))['plugins'] == expected_output
-
-    def test_audit_diff_not_enough_files(self):
-        assert main('audit --diff fileA'.split()) == 1
-
-    def test_audit_same_file(self):
-        with mock_printer(main_module) as printer_shim:
-            assert main('audit --diff .secrets.baseline .secrets.baseline'.split()) == 0
-            assert printer_shim.message.strip() == (
-                'No difference, because it\'s the same file!'
-            )
-
-
 @contextmanager
 def mock_stdin(response=None):
     if not response:
@@ -603,14 +443,3 @@ def mock_baseline_initialize():
         side_effect=mock_initialize_function,
     ) as mock_initialize:
         yield mock_initialize
-
-
-@pytest.fixture
-def mock_merge_baseline():
-    with mock.patch(
-        'detect_secrets.main.baseline.merge_baseline',
-    ) as m:
-        # This return value needs to have the `results` key, so that it can
-        # formatted appropriately for output.
-        m.return_value = {'results': {}}
-        yield m

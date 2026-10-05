@@ -176,8 +176,8 @@ given file, to minimize noise.
 
 **Important Note:** The line number does not play a part in the identification
 of a potential secret because code is expected to move around through continuous
-iteration. However, through the `audit` tool, these line numbers are leveraged
-to quickly identify the secret that was identified by a given plugin.
+iteration. The scan output includes line numbers to quickly locate the secret
+identified by a given plugin.
 
 ### SecretsCollection
 

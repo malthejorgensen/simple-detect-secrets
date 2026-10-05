@@ -72,8 +72,7 @@ class ParserBuilder(object):
             dest='action',
         )
 
-        for action_parser in (ScanOptions, AuditOptions):
-            action_parser(subparser).add_arguments()
+        ScanOptions(subparser).add_arguments()
 
         return self
 
@@ -209,47 +208,6 @@ class ScanOptions(object):
                 'plugins\' verdict.'
             ),
         )
-
-
-class AuditOptions(object):
-
-    def __init__(self, subparser):
-        self.parser = subparser.add_parser(
-            'audit',
-        )
-
-    def add_arguments(self):
-        self.parser.add_argument(
-            'filename',
-            nargs='+',
-            help=(
-                'Audit a given baseline file to distinguish the difference '
-                'between false and true positives.'
-            ),
-        )
-
-        action_parser = self.parser.add_mutually_exclusive_group()
-
-        action_parser.add_argument(
-            '--diff',
-            action='store_true',
-            help=(
-                'Allows the comparison of two baseline files, in order to '
-                'effectively distinguish the difference between various '
-                'plugin configurations.'
-            ),
-        )
-
-        action_parser.add_argument(
-            '--display-results',
-            action='store_true',
-            help=(
-                'Displays the results of an interactive auditing session '
-                'which have been saved to a baseline file.'
-            ),
-        )
-
-        return self
 
 
 class PluginDescriptor(

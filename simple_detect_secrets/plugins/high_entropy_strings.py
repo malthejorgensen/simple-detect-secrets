@@ -165,8 +165,6 @@ class HighEntropyStringsPlugin(BasePlugin):
         """For certain file formats, strings need not necessarily follow the
         normal convention of being denoted by single or double quotes. In these
         cases, we modify the regex accordingly.
-
-        Public, because detect_secrets.core.audit needs to reference it.
         """
         old_regex = self.regex
 

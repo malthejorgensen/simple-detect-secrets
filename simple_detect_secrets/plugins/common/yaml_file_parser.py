@@ -32,7 +32,7 @@ class YamlFileParser(object):
         }
     }
 
-    This way, we can quickly identify the line number for auditing at a later
+    This way, we can quickly identify the line number for review at a later
     stage.
 
     This parsing method is inspired by https://stackoverflow.com/a/13319530.
