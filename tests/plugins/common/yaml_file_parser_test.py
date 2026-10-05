@@ -9,7 +9,6 @@ from testing.mocks import mock_file_object
 
 
 class TestYamlFileParser(object):
-
     def test_get_ignored_lines(self):
         content = """keyA: value
         keyB: \"another_value\"  # pragma: allowlist secret

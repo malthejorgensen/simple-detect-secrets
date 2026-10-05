@@ -73,9 +73,7 @@ def initialize(
     if exclude_files_regex:
         exclude_files_regex = re.compile(exclude_files_regex, re.IGNORECASE)
         files_to_scan = filter(
-            lambda file: (
-                not exclude_files_regex.search(file)
-            ),
+            lambda file: not exclude_files_regex.search(file),
             files_to_scan,
         )
 
@@ -195,11 +193,13 @@ def format_baseline_for_output(baseline):
     """
     lines = []
     for filename, secret_list in baseline['results'].items():
-        lines_secrets = '\n'.join('Line %d: %s' % (x['line_number'], x['secret_value']) for x in secret_list)
-        line = f'''
+        lines_secrets = '\n'.join(
+            'Line %d: %s' % (x['line_number'], x['secret_value']) for x in secret_list
+        )
+        line = f"""
 Filename: {filename}
 {lines_secrets}
-'''
+"""
         lines.append(line)
 
     return '\n'.join(lines)
@@ -225,7 +225,8 @@ def _get_git_tracked_files(rootdir='.'):
             git_files = subprocess.check_output(
                 [
                     'git',
-                    '-C', rootdir,
+                    '-C',
+                    rootdir,
                     'ls-files',
                 ],
                 stderr=fnull,

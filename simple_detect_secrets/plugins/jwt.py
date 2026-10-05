@@ -1,6 +1,7 @@
 """
 This plugin finds JWT tokens
 """
+
 from __future__ import absolute_import
 
 import base64
@@ -20,6 +21,7 @@ except ImportError:  # pragma: no cover
 
 class JwtTokenDetector(RegexBasedDetector):
     """Scans for JWTs."""
+
     secret_type = 'JSON Web Token'
     denylist = [
         re.compile(r'eyJ[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*?'),

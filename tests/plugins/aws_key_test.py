@@ -16,7 +16,6 @@ EXAMPLE_SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 
 
 class TestAWSKeyDetector(object):
-
     def setup(self):
         self.example_key = 'AKIAZZZZZZZZZZZZZZZZ'
 
@@ -56,20 +55,26 @@ class TestAWSKeyDetector(object):
             'detect_secrets.plugins.aws.verify_aws_secret_access_key',
             return_value=True,
         ):
-            assert AWSKeyDetector().verify(
-                self.example_key,
-                '={}'.format(EXAMPLE_SECRET),
-            ) == VerifiedResult.VERIFIED_TRUE
+            assert (
+                AWSKeyDetector().verify(
+                    self.example_key,
+                    '={}'.format(EXAMPLE_SECRET),
+                )
+                == VerifiedResult.VERIFIED_TRUE
+            )
 
     def test_verify_invalid_secret(self):
         with mock.patch(
             'detect_secrets.plugins.aws.verify_aws_secret_access_key',
             return_value=False,
         ):
-            assert AWSKeyDetector().verify(
-                self.example_key,
-                '={}'.format(EXAMPLE_SECRET),
-            ) == VerifiedResult.VERIFIED_FALSE
+            assert (
+                AWSKeyDetector().verify(
+                    self.example_key,
+                    '={}'.format(EXAMPLE_SECRET),
+                )
+                == VerifiedResult.VERIFIED_FALSE
+            )
 
     def test_verify_keep_trying_until_found_something(self):
         data = {'count': 0}
@@ -84,16 +89,19 @@ class TestAWSKeyDetector(object):
             'detect_secrets.plugins.aws.verify_aws_secret_access_key',
             counter,
         ):
-            assert AWSKeyDetector().verify(
-                self.example_key,
-                textwrap.dedent("""
+            assert (
+                AWSKeyDetector().verify(
+                    self.example_key,
+                    textwrap.dedent("""
                     false_secret = {}
                     real_secret = {}
                 """)[1:-1].format(
-                    'TEST' * 10,
-                    EXAMPLE_SECRET,
-                ),
-            ) == VerifiedResult.VERIFIED_TRUE
+                        'TEST' * 10,
+                        EXAMPLE_SECRET,
+                    ),
+                )
+                == VerifiedResult.VERIFIED_TRUE
+            )
 
 
 @pytest.mark.parametrize(
@@ -108,7 +116,6 @@ class TestAWSKeyDetector(object):
             ),
             [EXAMPLE_SECRET],
         ),
-
         # With quotes
         (
             textwrap.dedent("""
@@ -118,7 +125,6 @@ class TestAWSKeyDetector(object):
             ),
             [EXAMPLE_SECRET],
         ),
-
         # Multiple candidates
         (
             textwrap.dedent("""
@@ -127,9 +133,7 @@ class TestAWSKeyDetector(object):
                 base64_keyB = '{}'
             """)[1:-1].format(
                 'TEST' * 10,
-
                 EXAMPLE_SECRET,
-
                 # This should not be a candidate, because it's not exactly
                 # 40 chars long.
                 'EXAMPLE' * 7,

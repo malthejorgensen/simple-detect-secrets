@@ -1,4 +1,5 @@
 """This is a collection of utility functions for easier, DRY testing."""
+
 import io
 from collections import defaultdict
 from collections import namedtuple
@@ -33,8 +34,7 @@ def mock_git_calls(subprocess_namespace, cases):
             case = cases[current_case['index']]
         except IndexError:  # pragma: no cover
             raise AssertionError(
-                '\nExpected: ""\n'
-                'Actual: "{}"'.format(
+                '\nExpected: ""\nActual: "{}"'.format(
                     command,
                 ),
             )
@@ -46,8 +46,7 @@ def mock_git_calls(subprocess_namespace, cases):
                 case.expected_input = 'git ' + case.expected_input
 
             raise AssertionError(
-                '\nExpected: "{}"\n'
-                'Actual: "{}"'.format(
+                '\nExpected: "{}"\nActual: "{}"'.format(
                     case.expected_input,
                     command,
                 ),
@@ -59,8 +58,8 @@ def mock_git_calls(subprocess_namespace, cases):
         return case.mocked_output
 
     with mock.patch(
-            subprocess_namespace,
-            side_effect=_mock_subprocess_git_call,
+        subprocess_namespace,
+        side_effect=_mock_subprocess_git_call,
     ):
         yield
 
@@ -87,6 +86,7 @@ class SubprocessMock(
     :param should_throw_exception: if True, will throw subprocess.CalledProcessError with
                                    mocked output as error message
     """
+
     def __new__(cls, expected_input, mocked_output, should_throw_exception=False):
         return super(SubprocessMock, cls).__new__(
             cls,
@@ -101,9 +101,11 @@ def Any(cls):
 
     Usage: Any(list) => allows any list to pass as input
     """
+
     class Any(cls):
         def __eq__(self, other):
             return isinstance(other, cls)
+
     return Any()
 
 
@@ -133,6 +135,7 @@ def mock_printer(obj):
     """
     :type obj: module
     """
+
     class PrinterShim(object):
         def __init__(self):
             self.clear()

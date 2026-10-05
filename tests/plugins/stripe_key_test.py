@@ -8,7 +8,6 @@ from testing.mocks import mock_file_object
 
 
 class TestStripeKeyDetector(object):
-
     @pytest.mark.parametrize(
         'file_content,should_flag',
         [

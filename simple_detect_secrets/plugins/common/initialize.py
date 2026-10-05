@@ -1,4 +1,5 @@
 """Intelligent initialization of plugins."""
+
 from .util import get_mapping_from_secret_type_to_class_name
 from .util import import_plugins
 from simple_detect_secrets.core.log import log
@@ -34,7 +35,7 @@ def from_parser_builder(
                 exclude_lines_regex=exclude_lines_regex,
                 automaton=automaton,
                 should_verify_secrets=should_verify_secrets,
-                **plugins_dict[plugin_name]
+                **plugins_dict[plugin_name],
             ),
         )
 
@@ -75,14 +76,14 @@ def merge_plugins_from_baseline(baseline_plugins, args, automaton):
 
     :returns: tuple of initialized plugins
     """
+
     def _remove_key(d, key):
         r = dict(d)
         r.pop(key)
         return r
 
     baseline_plugins_dict = {
-        vars(plugin)['name']: _remove_key(vars(plugin), 'name')
-        for plugin in baseline_plugins
+        vars(plugin)['name']: _remove_key(vars(plugin), 'name') for plugin in baseline_plugins
     }
 
     # Use input plugin as starting point
@@ -147,7 +148,7 @@ def from_plugin_classname(
     exclude_lines_regex=None,
     automaton=None,
     should_verify_secrets=False,
-    **kwargs
+    **kwargs,
 ):
     """Initializes a plugin class, given a classname and kwargs.
 
@@ -173,7 +174,7 @@ def from_plugin_classname(
             exclude_lines_regex=exclude_lines_regex,
             automaton=automaton,
             should_verify=should_verify_secrets,
-            **kwargs
+            **kwargs,
         )
     except TypeError:
         log.warning('Unable to initialize plugin!')
@@ -209,11 +210,9 @@ def from_secret_type(secret_type, settings):
 
             return from_plugin_classname(
                 classname,
-
                 # Recreate the plugin without exclusion, filtering or verification.
                 exclude_lines_regex=None,
                 automaton=None,
                 should_verify_secrets=False,
-
-                **plugin_init_vars
+                **plugin_init_vars,
             )

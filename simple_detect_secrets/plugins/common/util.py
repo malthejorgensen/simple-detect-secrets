@@ -14,10 +14,7 @@ from simple_detect_secrets.util import get_root_directory
 @lru_cache(maxsize=1)
 def get_mapping_from_secret_type_to_class_name():
     """Returns secret_type => plugin classname"""
-    return {
-        plugin.secret_type: name
-        for name, plugin in import_plugins().items()
-    }
+    return {plugin.secret_type: name for name, plugin in import_plugins().items()}
 
 
 @lru_cache(maxsize=1)

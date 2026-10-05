@@ -66,10 +66,7 @@ def main():
 
 
 def get_arguments():
-    plugins = [
-        info.classname
-        for info in PluginOptions.all_plugins
-    ]
+    plugins = [info.classname for info in PluginOptions.all_plugins]
 
     parser = argparse.ArgumentParser(description='Run some benchmarks.')
     parser.add_argument(
@@ -84,22 +81,16 @@ def get_arguments():
     )
     parser.add_argument(
         '--plugin',
-        default=None,       # needs to be None, otherwise append won't work as expected
+        default=None,  # needs to be None, otherwise append won't work as expected
         choices=plugins,
         action='append',
-        help=(
-            'Specifies a plugin to test. May provide multiple values. '
-            'Defaults to all.'
-        ),
+        help=('Specifies a plugin to test. May provide multiple values. Defaults to all.'),
     )
     parser.add_argument(
         '--harakiri',
         default=5,
         type=assert_positive(float),
-        help=(
-            'Specifies an upper bound for the number of seconds to wait '
-            'per execution.'
-        ),
+        help=('Specifies an upper bound for the number of seconds to wait per execution.'),
     )
     parser.add_argument(
         '-n',
@@ -198,10 +189,12 @@ def print_output(timings, args):
     """
     if not args.pretty and not args.baseline:
         print(
-            json.dumps({
-                'filenames': args.filenames,
-                'timings': timings,
-            }),
+            json.dumps(
+                {
+                    'filenames': args.filenames,
+                    'timings': timings,
+                }
+            ),
         )
         return
 

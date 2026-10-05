@@ -9,7 +9,6 @@ from simple_detect_secrets.plugins.high_entropy_strings import HexHighEntropyStr
 
 
 class TestFromPluginClassname(object):
-
     def test_success(self):
         plugin = initialize.from_plugin_classname(
             'HexHighEntropyString',
@@ -26,12 +25,15 @@ class TestFromPluginClassname(object):
             )
 
     def test_fails_on_bad_initialization(self):
-        with mock.patch.object(
-            HexHighEntropyString,
-            '__init__',
-            side_effect=TypeError,
-        ), pytest.raises(
-            TypeError,
+        with (
+            mock.patch.object(
+                HexHighEntropyString,
+                '__init__',
+                side_effect=TypeError,
+            ),
+            pytest.raises(
+                TypeError,
+            ),
         ):
             initialize.from_plugin_classname(
                 'HexHighEntropyString',
@@ -40,7 +42,6 @@ class TestFromPluginClassname(object):
 
 
 class TestFromSecretType(object):
-
     def setup(self):
         self.settings = [
             {

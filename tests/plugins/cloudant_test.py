@@ -18,42 +18,53 @@ CL_API_KEY = 'abcdefghijabcdefghijabcd'
 
 
 class TestCloudantDetector(object):
-
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
             (
                 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com"'.format(
-                    cl_account=CL_ACCOUNT, cl_pw=CL_PW,
-                ), True,
+                    cl_account=CL_ACCOUNT,
+                    cl_pw=CL_PW,
+                ),
+                True,
             ),
             (
                 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com/_api/v2/'.format(
-                    cl_account=CL_ACCOUNT, cl_pw=CL_PW,
-                ), True,
+                    cl_account=CL_ACCOUNT,
+                    cl_pw=CL_PW,
+                ),
+                True,
             ),
             (
                 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com/_api/v2/'.format(
-                    cl_account=CL_ACCOUNT, cl_pw=CL_PW,
-                ), True,
+                    cl_account=CL_ACCOUNT,
+                    cl_pw=CL_PW,
+                ),
+                True,
             ),
             (
                 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT, cl_pw=CL_PW,
-                ), True,
+                    cl_account=CL_ACCOUNT,
+                    cl_pw=CL_PW,
+                ),
+                True,
             ),
             (
                 'https://{cl_account}:{cl_api_key}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT, cl_api_key=CL_API_KEY,
-                ), True,
+                    cl_account=CL_ACCOUNT,
+                    cl_api_key=CL_API_KEY,
+                ),
+                True,
             ),
             (
                 'https://{cl_account}:{cl_pw}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT, cl_pw=CL_PW,
-                ), False,
+                    cl_account=CL_ACCOUNT,
+                    cl_pw=CL_PW,
+                ),
+                False,
             ),
-            ('cloudant_password=\'{cl_pw}\''.format(cl_pw=CL_PW), True),
-            ('cloudant_pw=\'{cl_pw}\''.format(cl_pw=CL_PW), True),
+            ("cloudant_password='{cl_pw}'".format(cl_pw=CL_PW), True),
+            ("cloudant_pw='{cl_pw}'".format(cl_pw=CL_PW), True),
             ('cloudant_pw="{cl_pw}"'.format(cl_pw=CL_PW), True),
             ('clou_pw = "{cl_pw}"'.format(cl_pw=CL_PW), True),
             ('cloudant_key = "{cl_api_key}"'.format(cl_api_key=CL_API_KEY), True),
@@ -70,44 +81,62 @@ class TestCloudantDetector(object):
     @responses.activate
     def test_verify_invalid_secret(self):
         cl_api_url = 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-            cl_account=CL_ACCOUNT, cl_pw=CL_PW,
+            cl_account=CL_ACCOUNT,
+            cl_pw=CL_PW,
         )
         responses.add(
-            responses.GET, cl_api_url,
-            json={'error': 'unauthorized'}, status=401,
+            responses.GET,
+            cl_api_url,
+            json={'error': 'unauthorized'},
+            status=401,
         )
 
-        assert CloudantDetector().verify(
-            CL_PW,
-            'cloudant_host={}'.format(CL_ACCOUNT),
-        ) == VerifiedResult.VERIFIED_FALSE
+        assert (
+            CloudantDetector().verify(
+                CL_PW,
+                'cloudant_host={}'.format(CL_ACCOUNT),
+            )
+            == VerifiedResult.VERIFIED_FALSE
+        )
 
     @responses.activate
     def test_verify_valid_secret(self):
         cl_api_url = 'https://{cl_account}:{cl_pw}@{cl_account}.cloudant.com'.format(
-            cl_account=CL_ACCOUNT, cl_pw=CL_PW,
+            cl_account=CL_ACCOUNT,
+            cl_pw=CL_PW,
         )
         responses.add(
-            responses.GET, cl_api_url,
-            json={'id': 1}, status=200,
+            responses.GET,
+            cl_api_url,
+            json={'id': 1},
+            status=200,
         )
-        assert CloudantDetector().verify(
-            CL_PW,
-            'cloudant_host={}'.format(CL_ACCOUNT),
-        ) == VerifiedResult.VERIFIED_TRUE
+        assert (
+            CloudantDetector().verify(
+                CL_PW,
+                'cloudant_host={}'.format(CL_ACCOUNT),
+            )
+            == VerifiedResult.VERIFIED_TRUE
+        )
 
     @responses.activate
     def test_verify_unverified_secret(self):
-        assert CloudantDetector().verify(
-            CL_PW,
-            'cloudant_host={}'.format(CL_ACCOUNT),
-        ) == VerifiedResult.UNVERIFIED
+        assert (
+            CloudantDetector().verify(
+                CL_PW,
+                'cloudant_host={}'.format(CL_ACCOUNT),
+            )
+            == VerifiedResult.UNVERIFIED
+        )
 
     def test_verify_no_secret(self):
-        assert CloudantDetector().verify(
-            CL_PW,
-            'no_un={}'.format(CL_ACCOUNT),
-        ) == VerifiedResult.UNVERIFIED
+        assert (
+            CloudantDetector().verify(
+                CL_PW,
+                'no_un={}'.format(CL_ACCOUNT),
+            )
+            == VerifiedResult.UNVERIFIED
+        )
 
     @pytest.mark.parametrize(
         'content, expected_output',
@@ -120,7 +149,6 @@ class TestCloudantDetector(object):
                 ),
                 [CL_ACCOUNT],
             ),
-
             # With quotes
             (
                 textwrap.dedent("""
@@ -130,7 +158,6 @@ class TestCloudantDetector(object):
                 ),
                 [CL_ACCOUNT],
             ),
-
             # multiple candidates
             (
                 textwrap.dedent("""
@@ -151,11 +178,11 @@ class TestCloudantDetector(object):
                     'notanemail',
                 ],
             ),
-
             # In URL
             (
                 'https://{cl_account}:{cl_api_key}@{cl_account}.cloudant.com'.format(
-                    cl_account=CL_ACCOUNT, cl_api_key=CL_API_KEY,
+                    cl_account=CL_ACCOUNT,
+                    cl_api_key=CL_API_KEY,
                 ),
                 [CL_ACCOUNT],
             ),

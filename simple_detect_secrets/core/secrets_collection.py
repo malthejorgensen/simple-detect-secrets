@@ -16,7 +16,6 @@ from simple_detect_secrets.util import build_automaton
 
 
 class SecretsCollection(object):
-
     def __init__(
         self,
         plugins=(),
@@ -78,7 +77,8 @@ class SecretsCollection(object):
         result = SecretsCollection()
 
         if not all(
-            key in data for key in (
+            key in data
+            for key in (
                 'plugins_used',
                 'results',
             )
@@ -87,7 +87,8 @@ class SecretsCollection(object):
 
         # In v0.12.0 `exclude_regex` got replaced by `exclude`
         if not any(
-            key in data for key in (
+            key in data
+            for key in (
                 'exclude',
                 'exclude_regex',
             )
@@ -120,7 +121,7 @@ class SecretsCollection(object):
                     exclude_lines_regex=result.exclude_lines,
                     automaton=automaton,
                     should_verify_secrets=False,
-                    **plugin
+                    **plugin,
                 ),
             )
         result.plugins = tuple(plugins)
@@ -139,11 +140,7 @@ class SecretsCollection(object):
                 secret.secret_hash = item['hashed_secret']
                 result.data[filename][secret] = secret
 
-        result.version = (
-            data['version']
-            if 'version' in data
-            else '0.0.0'
-        )
+        result.version = data['version'] if 'version' in data else '0.0.0'
 
         return result
 

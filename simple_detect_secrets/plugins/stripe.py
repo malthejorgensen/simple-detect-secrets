@@ -11,6 +11,7 @@ from simple_detect_secrets.core.constants import VerifiedResult
 
 class StripeDetector(RegexBasedDetector):
     """Scans for Stripe keys."""
+
     secret_type = 'Stripe Access Key'
 
     denylist = (
@@ -22,7 +23,8 @@ class StripeDetector(RegexBasedDetector):
         response = requests.get(
             'https://api.stripe.com/v1/charges',
             headers={
-                'Authorization': b'Basic ' + b64encode(
+                'Authorization': b'Basic '
+                + b64encode(
                     '{}:'.format(token).encode('utf-8'),
                 ),
             },

@@ -6,14 +6,13 @@ from simple_detect_secrets.plugins.basic_auth import BasicAuthDetector
 
 
 class TestBasicAuthDetector(object):
-
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
             ('https://username:password@yelp.com', True),
             ('http://localhost:5000/<%= @variable %>', False),
             ('"https://url:8000";@something else', False),
-            ('\'https://url:8000\';@something else', False),
+            ("'https://url:8000';@something else", False),
             ('https://url:8000 @something else', False),
             ('https://url:8000/ @something else', False),
         ],

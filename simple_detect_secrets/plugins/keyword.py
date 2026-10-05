@@ -24,6 +24,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
+
 from __future__ import absolute_import
 
 import re
@@ -60,7 +61,7 @@ FALSE_POSITIVES = {
     '#pass',
     '#password',
     '$(shell',
-    "'\"",
+    '\'"',
     "''",
     "''):",
     "')",
@@ -257,6 +258,7 @@ class KeywordDetector(BasePlugin):
 
     This checks if denylisted keywords are present in the analyzed string.
     """
+
     secret_type = 'Secret Keyword'
 
     @classproperty
@@ -283,7 +285,7 @@ class KeywordDetector(BasePlugin):
         super(KeywordDetector, self).__init__(
             exclude_lines_regex=exclude_lines_regex,
             false_positive_heuristics=false_positive_heuristics,
-            **kwargs
+            **kwargs,
         )
 
         self.keyword_exclude = None
@@ -297,10 +299,7 @@ class KeywordDetector(BasePlugin):
 
     def analyze_string_content(self, string, line_num, filename):
         output = {}
-        if (
-            self.keyword_exclude
-            and self.keyword_exclude.search(string)
-        ):
+        if self.keyword_exclude and self.keyword_exclude.search(string):
             return output
         for identifier in self.secret_generator(
             string,
@@ -352,47 +351,34 @@ def probably_false_positive(lowered_secret, filetype):
                 'fake',
                 'forgot',
             )
-        ) or lowered_secret in FALSE_POSITIVES
+        )
+        or lowered_secret in FALSE_POSITIVES
         # For e.g. private_key "some/dir/that/is/not/a/secret";
         or lowered_secret.count('/') >= 3
         # For e.g. "secret": "{secret}"
-        or (
-            lowered_secret[0] == '{'
-            and lowered_secret[-1] == '}'
-        ) or (
-            filetype not in QUOTES_REQUIRED_FILETYPES
-            and lowered_secret[0] == '$'
-        ) or (
-            filetype == FileType.EXAMPLE
-            and lowered_secret[0] == '<'
-            and lowered_secret[-1] == '>'
-        )
+        or (lowered_secret[0] == '{' and lowered_secret[-1] == '}')
+        or (filetype not in QUOTES_REQUIRED_FILETYPES and lowered_secret[0] == '$')
+        or (filetype == FileType.EXAMPLE and lowered_secret[0] == '<' and lowered_secret[-1] == '>')
     ):
         return True
 
     # Heuristic for no function calls
     try:
-        if (
-            lowered_secret.index('(') < lowered_secret.index(')')
-        ):
+        if lowered_secret.index('(') < lowered_secret.index(')'):
             return True
     except ValueError:
         pass
 
     # Heuristic for e.g. request.json_body['hey']
     try:
-        if (
-            lowered_secret.index('[') < lowered_secret.index(']')
-        ):
+        if lowered_secret.index('[') < lowered_secret.index(']'):
             return True
     except ValueError:
         pass
 
     # Heuristic for e.g. ${link}
     try:
-        if (
-            lowered_secret.index('${') < lowered_secret.index('}')
-        ):
+        if lowered_secret.index('${') < lowered_secret.index('}'):
             return True
     except ValueError:
         pass

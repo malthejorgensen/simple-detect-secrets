@@ -75,10 +75,7 @@ class YamlFileParser(object):
         """
         new_values = []
         for key, value in map_node.value:
-            if not (
-                value.tag.endswith(':str') or
-                value.tag.endswith(':binary')
-            ):
+            if not (value.tag.endswith(':str') or value.tag.endswith(':binary')):
                 new_values.append((key, value))
                 continue
 
@@ -146,13 +143,8 @@ class YamlFileParser(object):
         ignored_lines = set()
 
         for line_number, line in enumerate(self.content.split('\n'), 1):
-            if (
-                ALLOWLIST_REGEX['yaml'].search(line)
-
-                or (
-                    self.exclude_lines_regex and
-                    self.exclude_lines_regex.search(line)
-                )
+            if ALLOWLIST_REGEX['yaml'].search(line) or (
+                self.exclude_lines_regex and self.exclude_lines_regex.search(line)
             ):
                 ignored_lines.add(line_number)
 

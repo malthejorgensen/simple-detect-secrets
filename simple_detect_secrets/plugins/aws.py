@@ -1,6 +1,7 @@
 """
 This plugin searches for AWS key IDs
 """
+
 from __future__ import absolute_import
 
 import hashlib
@@ -19,11 +20,10 @@ from simple_detect_secrets.core.constants import VerifiedResult
 
 class AWSKeyDetector(RegexBasedDetector):
     """Scans for AWS keys."""
+
     secret_type = 'AWS Access Key'
 
-    denylist = (
-        re.compile(r'AKIA[0-9A-Z]{16}'),
-    )
+    denylist = (re.compile(r'AKIA[0-9A-Z]{16}'),)
 
     @classproperty
     def disable_flag_text(cls):
@@ -44,16 +44,10 @@ class AWSKeyDetector(RegexBasedDetector):
 def get_secret_access_keys(content):
     # AWS secret access keys are 40 characters long.
     regex = re.compile(
-        r'= *([\'"]?)([%s]{40})(\1)$' % (
-            string.ascii_letters + string.digits + '+/='
-        ),
+        r'= *([\'"]?)([%s]{40})(\1)$' % (string.ascii_letters + string.digits + '+/='),
     )
 
-    return [
-        match[1]
-        for line in content.splitlines()
-        for match in regex.findall(line)
-    ]
+    return [match[1] for line in content.splitlines() for match in regex.findall(line)]
 
 
 def verify_aws_secret_access_key(key, secret):  # pragma: no cover
@@ -96,19 +90,15 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
         {signed_headers}
         {hashed_payload}
     """)[1:-1].format(
-
-        headers='\n'.join([
-            '{}:{}'.format(header.lower(), value)
-            for header, value in headers.items()
-        ]),
+        headers='\n'.join(
+            ['{}:{}'.format(header.lower(), value) for header, value in headers.items()]
+        ),
         signed_headers=signed_headers,
-
         # Poor man's method, but works for this use case.
         hashed_payload=hashlib.sha256(
-            '&'.join([
-                '{}={}'.format(header, value)
-                for header, value in body.items()
-            ]).encode('utf-8'),
+            '&'.join(['{}={}'.format(header, value) for header, value in body.items()]).encode(
+                'utf-8'
+            ),
         ).hexdigest(),
     )
 
@@ -116,7 +106,6 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
     region = 'us-east-1'
     scope = '{request_date}/{region}/sts/aws4_request'.format(
         request_date=now.strftime('%Y%m%d'),
-
         # STS is a global service; this is just for latency control.
         region=region,
     )

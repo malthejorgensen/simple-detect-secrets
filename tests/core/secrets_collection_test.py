@@ -35,8 +35,8 @@ def mock_gmtime():
     """One coherent time value for the duration of the test."""
     current_time = gmtime()
     with mock.patch(
-            'detect_secrets.core.secrets_collection.gmtime',
-            return_value=current_time,
+        'detect_secrets.core.secrets_collection.gmtime',
+        return_value=current_time,
     ):
         yield current_time
 
@@ -142,7 +142,6 @@ class TestScanFile(object):
 
 
 class TestScanDiff(object):
-
     def test_success(self):
         secrets = self.load_from_diff().format_for_baseline_output()['results']
 
@@ -153,8 +152,7 @@ class TestScanDiff(object):
         }
 
         for filename in filename_to_number_of_secrets_detected_in_it:
-            assert len(secrets[filename]) == \
-                filename_to_number_of_secrets_detected_in_it[filename]
+            assert len(secrets[filename]) == filename_to_number_of_secrets_detected_in_it[filename]
 
     def test_ignores_baseline_file(self):
         secrets = self.load_from_diff(
@@ -188,9 +186,7 @@ class TestScanDiff(object):
     def load_from_diff(self, existing_secrets=None, baseline_filename='', exclude_files_regex=''):
         collection = secrets_collection_factory(
             secrets=existing_secrets,
-            plugins=(
-                HexHighEntropyString(hex_limit=3),
-            ),
+            plugins=(HexHighEntropyString(hex_limit=3),),
             exclude_files_regex=exclude_files_regex,
         )
 
@@ -213,12 +209,14 @@ class TestGetSecret(object):
     )
     def test_optional_type(self, filename, secret_hash, expected_value):
         with self._mock_secret_hash():
-            logic = secrets_collection_factory([
-                {
-                    'filename': 'filename',
-                    'lineno': 1,
-                },
-            ])
+            logic = secrets_collection_factory(
+                [
+                    {
+                        'filename': 'filename',
+                        'lineno': 1,
+                    },
+                ]
+            )
 
         result = logic.get_secret(filename, secret_hash)
         if expected_value:
@@ -355,10 +353,8 @@ class TestBaselineInputOutput(object):
         # Original hash is thrown out and replaced with new word list hash
         assert (
             secrets['word_list']['hash']
-            ==
-            hashlib.sha1('roller'.encode('utf-8')).hexdigest()
-            !=
-            original['word_list']['hash']
+            == hashlib.sha1('roller'.encode('utf-8')).hexdigest()
+            != original['word_list']['hash']
         )
 
         # Regular assertions
@@ -369,19 +365,23 @@ class TestBaselineInputOutput(object):
     def test_load_baseline_without_any_valid_fields(self, mock_log):
         with pytest.raises(IOError):
             SecretsCollection.load_baseline_from_string(
-                json.dumps({
-                    'junk': 'dictionary',
-                }),
+                json.dumps(
+                    {
+                        'junk': 'dictionary',
+                    }
+                ),
             )
         assert mock_log.error_messages == 'Incorrectly formatted baseline!\n'
 
     def test_load_baseline_without_exclude(self, mock_log):
         with pytest.raises(IOError):
             SecretsCollection.load_baseline_from_string(
-                json.dumps({
-                    'plugins_used': (),
-                    'results': {},
-                }),
+                json.dumps(
+                    {
+                        'plugins_used': (),
+                        'results': {},
+                    }
+                ),
             )
         assert mock_log.error_messages == 'Incorrectly formatted baseline!\n'
 
@@ -462,7 +462,6 @@ class MockBasePlugin(BasePlugin):  # pragma: no cover
 
 
 class MockPluginFixedValue(MockBasePlugin):
-
     secret_type = 'mock_plugin_fixed_value'
 
     def analyze(self, f, filename):
@@ -473,7 +472,6 @@ class MockPluginFixedValue(MockBasePlugin):
 
 
 class MockPluginFileValue(MockBasePlugin):
-
     secret_type = 'mock_plugin_file_value'
 
     def analyze(self, f, filename):
@@ -484,7 +482,6 @@ class MockPluginFileValue(MockBasePlugin):
 
 
 class MockPasswordPluginValue(MockBasePlugin):
-
     secret_type = 'mock_plugin_file_value'
 
     def analyze(self, f, filename):

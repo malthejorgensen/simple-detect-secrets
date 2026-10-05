@@ -142,7 +142,6 @@ class HighEntropyStringsTest(object):
 
 
 class TestRegularBase64HighEntropyStrings(HighEntropyStringsTest):
-
     def setup(self):
         super(TestRegularBase64HighEntropyStrings, self).setup(
             # Testing default limit, as suggested by truffleHog.
@@ -235,9 +234,7 @@ class TestRegularBase64HighEntropyStrings(HighEntropyStringsTest):
         assert len(secrets.values()) == 1
         for secret in secrets.values():
             location = str(secret).splitlines()[1]
-            assert location in (
-                'Location:    test_data/config.env:1',
-            )
+            assert location in ('Location:    test_data/config.env:1',)
 
 
 class TestUrlSafeBase64HighEntropyStrings(HighEntropyStringsTest):
@@ -259,17 +256,13 @@ class HexHighEntropyStringsWithStandardEntropy(HexHighEntropyString):
     """
 
     def __init__(self, *args, **kwargs):
-        super(HexHighEntropyStringsWithStandardEntropy, self).__init__(
-            *args,
-            **kwargs
-        )
+        super(HexHighEntropyStringsWithStandardEntropy, self).__init__(*args, **kwargs)
 
     def calculate_shannon_entropy(self, data):
         return super(HexHighEntropyString, self).calculate_shannon_entropy(data)
 
 
 class TestHexHighEntropyStrings(HighEntropyStringsTest):
-
     def setup(self):
         super(TestHexHighEntropyStrings, self).setup(
             # Testing default limit, as suggested by truffleHog.
@@ -289,9 +282,7 @@ class TestHexHighEntropyStrings(HighEntropyStringsTest):
         assert len(secrets.values()) == 1
         for secret in secrets.values():
             location = str(secret).splitlines()[1]
-            assert location in (
-                'Location:    test_data/config2.yaml:2',
-            )
+            assert location in ('Location:    test_data/config2.yaml:2',)
 
     def test_discounts_when_all_numbers(self):
         original_scanner = HexHighEntropyStringsWithStandardEntropy(
@@ -300,18 +291,22 @@ class TestHexHighEntropyStrings(HighEntropyStringsTest):
         )
 
         # This makes sure discounting works.
-        assert self.logic.calculate_shannon_entropy('0123456789') < \
-            original_scanner.calculate_shannon_entropy('0123456789')
+        assert self.logic.calculate_shannon_entropy(
+            '0123456789'
+        ) < original_scanner.calculate_shannon_entropy('0123456789')
 
         # This is the goal.
         assert self.logic.calculate_shannon_entropy('0123456789') < 3
 
         # This makes sure it is length dependent.
-        assert self.logic.calculate_shannon_entropy('0123456789') < \
-            self.logic.calculate_shannon_entropy('01234567890123456789')
+        assert self.logic.calculate_shannon_entropy(
+            '0123456789'
+        ) < self.logic.calculate_shannon_entropy('01234567890123456789')
 
         # This makes sure it only occurs with numbers.
-        assert self.logic.calculate_shannon_entropy('12345a') == \
-            original_scanner.calculate_shannon_entropy('12345a')
-        assert self.logic.calculate_shannon_entropy('0') == \
-            original_scanner.calculate_shannon_entropy('0')
+        assert self.logic.calculate_shannon_entropy(
+            '12345a'
+        ) == original_scanner.calculate_shannon_entropy('12345a')
+        assert self.logic.calculate_shannon_entropy(
+            '0'
+        ) == original_scanner.calculate_shannon_entropy('0')

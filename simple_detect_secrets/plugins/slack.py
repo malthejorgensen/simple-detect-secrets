@@ -1,6 +1,7 @@
 """
 This plugin searches for Slack tokens
 """
+
 from __future__ import absolute_import
 
 import re
@@ -13,6 +14,7 @@ from simple_detect_secrets.core.constants import VerifiedResult
 
 class SlackDetector(RegexBasedDetector):
     """Scans for Slack tokens."""
+
     secret_type = 'Slack Token'
 
     denylist = (
@@ -45,8 +47,4 @@ class SlackDetector(RegexBasedDetector):
             ).json()
             valid = response['ok']
 
-        return (
-            VerifiedResult.VERIFIED_TRUE
-            if valid
-            else VerifiedResult.VERIFIED_FALSE
-        )
+        return VerifiedResult.VERIFIED_TRUE if valid else VerifiedResult.VERIFIED_FALSE

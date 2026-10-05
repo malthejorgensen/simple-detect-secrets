@@ -75,8 +75,10 @@ class CloudantDetector(RegexBasedDetector):
 
 
 def find_account(content):
-    opt_hostname_keyword = r'(?:hostname|host|username|id|user|userid|user-id|user-name|' \
+    opt_hostname_keyword = (
+        r'(?:hostname|host|username|id|user|userid|user-id|user-name|'
         'name|user_id|user_name|uname|account)'
+    )
     account = r'(\w[\w\-]*)'
     opt_basic_auth = r'(?:[\w\-:%]*\@)?'
 
@@ -100,22 +102,16 @@ def find_account(content):
     )
 
     return [
-        match
-        for line in content.splitlines()
-        for regex in regexes
-        for match in regex.findall(line)
+        match for line in content.splitlines() for regex in regexes for match in regex.findall(line)
     ]
 
 
 def verify_cloudant_key(hostname, token):
     headers = {'Content-type': 'application/json'}
-    request_url = 'https://{hostname}:' \
-        '{token}' \
-        '@{hostname}.' \
-        'cloudant.com'.format(
-            hostname=hostname,
-            token=token,
-        )
+    request_url = 'https://{hostname}:{token}@{hostname}.cloudant.com'.format(
+        hostname=hostname,
+        token=token,
+    )
 
     try:
         response = requests.get(

@@ -12,8 +12,10 @@ class IbmCloudIamDetector(RegexBasedDetector):
     secret_type = 'IBM Cloud IAM Key'
 
     # opt means optional
-    opt_ibm_cloud_iam = r'(?:ibm(?:_|-|)cloud(?:_|-|)iam|cloud(?:_|-|)iam|' + \
-        r'ibm(?:_|-|)cloud|ibm(?:_|-|)iam|ibm|iam|cloud|)'
+    opt_ibm_cloud_iam = (
+        r'(?:ibm(?:_|-|)cloud(?:_|-|)iam|cloud(?:_|-|)iam|'
+        + r'ibm(?:_|-|)cloud|ibm(?:_|-|)iam|ibm|iam|cloud|)'
+    )
     opt_dash_undrscr = r'(?:_|-|)'
     opt_api = r'(?:api|)'
     key_or_pass = r'(?:key|pwd|password|pass|token)'
@@ -29,8 +31,11 @@ class IbmCloudIamDetector(RegexBasedDetector):
     def verify(self, token, **kwargs):
         response = verify_cloud_iam_api_key(token)
 
-        return VerifiedResult.VERIFIED_TRUE if response.status_code == 200 \
+        return (
+            VerifiedResult.VERIFIED_TRUE
+            if response.status_code == 200
             else VerifiedResult.VERIFIED_FALSE
+        )
 
 
 def verify_cloud_iam_api_key(apikey):  # pragma: no cover

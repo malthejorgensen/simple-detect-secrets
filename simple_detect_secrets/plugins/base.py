@@ -47,6 +47,7 @@ class BasePlugin(object):
     :type default_options: Dict[str, Any]
     :param default_options: configurable options to modify plugin behavior
     """
+
     __metaclass__ = ABCMeta
 
     @abstractproperty
@@ -58,7 +59,7 @@ class BasePlugin(object):
         exclude_lines_regex=None,
         should_verify=False,
         false_positive_heuristics=None,
-        **kwargs
+        **kwargs,
     ):
         """
         :type exclude_lines_regex: str|None
@@ -77,16 +78,14 @@ class BasePlugin(object):
         self.should_verify = should_verify
 
         self.false_positive_heuristics = (
-            false_positive_heuristics
-            if false_positive_heuristics
-            else []
+            false_positive_heuristics if false_positive_heuristics else []
         )
 
     @classproperty
     def disable_flag_text(cls):
         name = cls.__name__
         if name.endswith('Detector'):
-            name = name[:-len('Detector')]
+            name = name[: -len('Detector')]
 
         # turn camel case into hyphenated strings
         name_hyphen = ''
@@ -146,15 +145,8 @@ class BasePlugin(object):
 
         NOTE: line_num and filename are used for PotentialSecret creation only.
         """
-        if (
-            any(
-                allowlist_regex.search(string) for allowlist_regex in ALLOWLIST_REGEXES
-            )
-
-            or (
-                self.exclude_lines_regex and
-                self.exclude_lines_regex.search(string)
-            )
+        if any(allowlist_regex.search(string) for allowlist_regex in ALLOWLIST_REGEXES) or (
+            self.exclude_lines_regex and self.exclude_lines_regex.search(string)
         ):
             return {}
 
@@ -256,10 +248,11 @@ class BasePlugin(object):
         :type token: str
         :param token: secret found by current plugin
         """
-        return any(
-            func(token)
-            for func in self.false_positive_heuristics
-        ) if self.false_positive_heuristics else False
+        return (
+            any(func(token) for func in self.false_positive_heuristics)
+            if self.false_positive_heuristics
+            else False
+        )
 
     @property
     def __dict__(self):
@@ -283,6 +276,7 @@ class RegexBasedDetector(BasePlugin):
             re.compile(r'foo'),
         )
     """
+
     __metaclass__ = ABCMeta
 
     @abstractproperty
@@ -319,7 +313,8 @@ class RegexBasedDetector(BasePlugin):
                 opt_space=opt_space,
                 assignment=assignment,
                 secret_regex=secret_regex,
-            ), flags=re.IGNORECASE,
+            ),
+            flags=re.IGNORECASE,
         )
 
     def analyze_string_content(self, string, line_num, filename):

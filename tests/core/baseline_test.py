@@ -19,7 +19,6 @@ from testing.mocks import SubprocessMock
 
 
 class TestInitializeBaseline(object):
-
     def setup(self):
         self.plugins = (
             Base64HighEntropyString(4.5),
@@ -44,7 +43,6 @@ class TestInitializeBaseline(object):
         [
             [
                 './test_data/files',
-
                 # Test relative paths
                 'test_data/../test_data/files/tmp/..',
             ],
@@ -152,12 +150,15 @@ class TestInitializeBaseline(object):
         assert not results
 
     def test_single_non_tracked_git_file_should_work(self):
-        with mock.patch(
-            'detect_secrets.core.baseline.os.path.isfile',
-            return_value=True,
-        ), mock_open(
-            'Super hidden value "BEEF0123456789a"',
-            'detect_secrets.core.secrets_collection.codecs.open',
+        with (
+            mock.patch(
+                'detect_secrets.core.baseline.os.path.isfile',
+                return_value=True,
+            ),
+            mock_open(
+                'Super hidden value "BEEF0123456789a"',
+                'detect_secrets.core.secrets_collection.codecs.open',
+            ),
         ):
             results = self.get_results(path=['will_be_mocked'])
 
@@ -184,7 +185,6 @@ class TestInitializeBaseline(object):
 
 
 class TestGetSecretsNotInBaseline(object):
-
     def test_nothing_new(self):
         # We want a secret, but just a default secret (no overriding parameters)
         new_findings = secrets_collection_factory([{}])
@@ -200,16 +200,20 @@ class TestGetSecretsNotInBaseline(object):
         assert next(iter(baseline.data['filename'])).lineno == 1
 
     def test_new_file(self):
-        new_findings = secrets_collection_factory([
-            {
-                'filename': 'filename1',
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'filename': 'filename2',
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'filename': 'filename1',
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'filename': 'filename2',
+                },
+            ]
+        )
 
         backup_baseline = baseline.data.copy()
         results = get_secrets_not_in_baseline(new_findings, baseline)
@@ -219,19 +223,23 @@ class TestGetSecretsNotInBaseline(object):
         assert baseline.data == backup_baseline
 
     def test_new_file_excluded(self):
-        new_findings = secrets_collection_factory([
-            {
-                'filename': 'filename1',
-            },
-            {
-                'filename': 'filename2',
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'filename': 'filename3',
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'filename': 'filename1',
+                },
+                {
+                    'filename': 'filename2',
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'filename': 'filename3',
+                },
+            ]
+        )
 
         backup_baseline = baseline.data.copy()
         baseline.exclude_files = 'filename1'
@@ -243,40 +251,49 @@ class TestGetSecretsNotInBaseline(object):
 
     def test_new_secret_line_old_file(self):
         """Same file, new line with potential secret"""
-        new_findings = secrets_collection_factory([
-            {
-                'secret': 'secret1',
-                'lineno': 1,
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'secret': 'secret2',
-                'lineno': 2,
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'secret': 'secret1',
+                    'lineno': 1,
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'secret': 'secret2',
+                    'lineno': 2,
+                },
+            ]
+        )
 
         backup_baseline = baseline.data.copy()
         results = get_secrets_not_in_baseline(new_findings, baseline)
 
         assert len(results.data['filename']) == 1
         secretA = PotentialSecret('type', 'filename', 'secret1', 1)
-        assert results.data['filename'][secretA].secret_hash == \
-            PotentialSecret.hash_secret('secret1')
+        assert results.data['filename'][secretA].secret_hash == PotentialSecret.hash_secret(
+            'secret1'
+        )
         assert baseline.data == backup_baseline
 
     def test_rolled_creds(self):
         """Same line, different secret"""
-        new_findings = secrets_collection_factory([
-            {
-                'secret': 'secret_new',
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'secret': 'secret',
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'secret': 'secret_new',
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'secret': 'secret',
+                },
+            ]
+        )
 
         backup_baseline = baseline.data.copy()
         results = get_secrets_not_in_baseline(new_findings, baseline)
@@ -284,30 +301,34 @@ class TestGetSecretsNotInBaseline(object):
         assert len(results.data['filename']) == 1
 
         secretA = PotentialSecret('type', 'filename', 'secret_new', 1)
-        assert results.data['filename'][secretA].secret_hash == \
-            PotentialSecret.hash_secret('secret_new')
+        assert results.data['filename'][secretA].secret_hash == PotentialSecret.hash_secret(
+            'secret_new'
+        )
         assert baseline.data == backup_baseline
 
 
 class TestUpdateBaselineWithRemovedSecrets(object):
-
     def test_deleted_secret(self):
-        new_findings = secrets_collection_factory([
-            {
-                'secret': 'secret',
-                'lineno': 2,
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'secret': 'deleted_secret',
-                'lineno': 1,
-            },
-            {
-                'secret': 'secret',
-                'lineno': 2,
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'secret': 'secret',
+                    'lineno': 2,
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'secret': 'deleted_secret',
+                    'lineno': 1,
+                },
+                {
+                    'secret': 'secret',
+                    'lineno': 2,
+                },
+            ]
+        )
 
         is_successful = trim_baseline_of_removed_secrets(
             new_findings,
@@ -321,11 +342,13 @@ class TestUpdateBaselineWithRemovedSecrets(object):
 
     def test_deleted_secret_file(self):
         new_findings = secrets_collection_factory()
-        baseline = secrets_collection_factory([
-            {
-                'filename': 'filename',
-            },
-        ])
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'filename': 'filename',
+                },
+            ]
+        )
 
         is_successful = trim_baseline_of_removed_secrets(
             new_findings,
@@ -341,16 +364,20 @@ class TestUpdateBaselineWithRemovedSecrets(object):
         assert len(baseline.data) == 0
 
     def test_same_secret_new_location(self):
-        new_findings = secrets_collection_factory([
-            {
-                'lineno': 1,
-            },
-        ])
-        baseline = secrets_collection_factory([
-            {
-                'lineno': 2,
-            },
-        ])
+        new_findings = secrets_collection_factory(
+            [
+                {
+                    'lineno': 1,
+                },
+            ]
+        )
+        baseline = secrets_collection_factory(
+            [
+                {
+                    'lineno': 2,
+                },
+            ]
+        )
 
         is_successful = trim_baseline_of_removed_secrets(
             new_findings,
@@ -371,7 +398,6 @@ class TestUpdateBaselineWithRemovedSecrets(object):
                     'filename': 'baseline_only_file',
                 },
             ),
-
             # Exact same secret, so no modifications necessary.
             (
                 {},
@@ -391,26 +417,27 @@ class TestUpdateBaselineWithRemovedSecrets(object):
 
 
 class TestFormatBaselineForOutput(object):
-
     def test_sorts_by_line_number_then_hash(self):
-        output_string = format_baseline_for_output({
-            'results': {
-                'filename': [
-                    {
-                        'hashed_secret': 'a',
-                        'line_number': 3,
-                    },
-                    {
-                        'hashed_secret': 'z',
-                        'line_number': 2,
-                    },
-                    {
-                        'hashed_secret': 'f',
-                        'line_number': 3,
-                    },
-                ],
-            },
-        })
+        output_string = format_baseline_for_output(
+            {
+                'results': {
+                    'filename': [
+                        {
+                            'hashed_secret': 'a',
+                            'line_number': 3,
+                        },
+                        {
+                            'hashed_secret': 'z',
+                            'line_number': 2,
+                        },
+                        {
+                            'hashed_secret': 'f',
+                            'line_number': 3,
+                        },
+                    ],
+                },
+            }
+        )
 
         ordered_hashes = list(
             map(

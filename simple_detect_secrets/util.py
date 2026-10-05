@@ -61,7 +61,7 @@ def get_relative_path_if_in_cwd(root, filepath):
     """
     filepath = os.path.realpath(
         os.path.join(root, filepath),
-    )[len(os.getcwd() + '/'):]
+    )[len(os.getcwd() + '/') :]
     if os.path.isfile(filepath):
         return filepath
     return None
@@ -78,11 +78,15 @@ def get_git_sha(path):
     """
     try:
         with open(os.devnull, 'w') as fnull:
-            return subprocess.check_output(
-                ['git', 'rev-parse', '--verify', 'HEAD'],
-                stderr=fnull,
-                cwd=path,
-            ).decode('utf-8').split()[0]
+            return (
+                subprocess.check_output(
+                    ['git', 'rev-parse', '--verify', 'HEAD'],
+                    stderr=fnull,
+                    cwd=path,
+                )
+                .decode('utf-8')
+                .split()[0]
+            )
     except (subprocess.CalledProcessError, OSError, IndexError):  # pragma: no cover
         return None
 
@@ -99,16 +103,21 @@ def get_git_remotes(path):
     """
     try:
         with open(os.devnull, 'w') as fnull:
-            git_remotes = subprocess.check_output(
-                ['git', 'remote', '-v'],
-                stderr=fnull,
-                cwd=path,
-            ).decode('utf-8').split('\n')
-            return list({
-                git_remote.split()[1]
-                for git_remote
-                in git_remotes
-                if len(git_remote) > 2  # split('\n') produces an empty list
-            })
+            git_remotes = (
+                subprocess.check_output(
+                    ['git', 'remote', '-v'],
+                    stderr=fnull,
+                    cwd=path,
+                )
+                .decode('utf-8')
+                .split('\n')
+            )
+            return list(
+                {
+                    git_remote.split()[1]
+                    for git_remote in git_remotes
+                    if len(git_remote) > 2  # split('\n') produces an empty list
+                }
+            )
     except (subprocess.CalledProcessError, OSError):  # pragma: no cover
         return None

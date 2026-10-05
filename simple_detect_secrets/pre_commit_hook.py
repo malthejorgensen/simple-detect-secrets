@@ -20,9 +20,7 @@ log = get_logger(format_string='%(message)s')
 
 
 def parse_args(argv):
-    return ParserBuilder()\
-        .add_pre_commit_arguments()\
-        .parse_args(argv)
+    return ParserBuilder().add_pre_commit_arguments().parse_args(argv)
 
 
 def main(argv=None):
@@ -128,8 +126,7 @@ def _get_baseline_string_from_file(filename):  # pragma: no cover
         log.error(
             'Unable to open baseline file: {}\n'
             'Please create it via\n'
-            '   `detect-secrets scan > {}`\n'
-            .format(filename, filename),
+            '   `detect-secrets scan > {}`\n'.format(filename, filename),
         )
         raise
 
@@ -154,13 +151,12 @@ def raise_exception_if_baseline_file_is_unstaged(filename):
         raise ValueError
 
     if filename.encode() in files_changed_but_not_staged:
-        log.error((
-            'Your baseline file ({}) is unstaged.\n'
-            '`git add {}` to fix this.'
-        ).format(
-            filename,
-            filename,
-        ))
+        log.error(
+            ('Your baseline file ({}) is unstaged.\n`git add {}` to fix this.').format(
+                filename,
+                filename,
+            )
+        )
 
         raise ValueError
 

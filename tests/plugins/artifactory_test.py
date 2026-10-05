@@ -6,7 +6,6 @@ from simple_detect_secrets.plugins.artifactory import ArtifactoryDetector
 
 
 class TestArtifactoryDetector(object):
-
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
@@ -21,8 +20,8 @@ class TestArtifactoryDetector(object):
             (' AKCxxxxxxxxxx', True),
             ('=AP6xxxxxxxxxx', True),
             ('=AKCxxxxxxxxxx', True),
-            ('\"AP6xxxxxxxxxx\"', True),
-            ('\"AKCxxxxxxxxxx\"', True),
+            ('"AP6xxxxxxxxxx"', True),
+            ('"AKCxxxxxxxxxx"', True),
             ('artif-key:AP6xxxxxxxxxx', True),
             ('artif-key:AKCxxxxxxxxxx', True),
             ('X-JFrog-Art-Api: AKCxxxxxxxxxx', True),

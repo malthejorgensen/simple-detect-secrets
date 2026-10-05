@@ -23,17 +23,11 @@ def get_list_of_plugins(include=None, exclude=None):
     """
     included_plugins = []
     if include:
-        included_plugins = [
-            config['name']
-            for config in include
-        ]
+        included_plugins = [config['name'] for config in include]
 
     output = []
     for name, plugin in import_plugins().items():
-        if (
-            name in included_plugins or
-            exclude and name in exclude
-        ):
+        if name in included_plugins or exclude and name in exclude:
             continue
 
         payload = {
@@ -53,23 +47,25 @@ def get_plugin_report(extra=None):
     """
     :type extra: Dict[str, str]
     """
-    if not extra:       # pragma: no cover
+    if not extra:  # pragma: no cover
         extra = {}
 
-    longest_name_length = max([
-        len(name)
-        for name in import_plugins()
-    ])
+    longest_name_length = max([len(name) for name in import_plugins()])
 
-    return '\n'.join(
-        sorted([
-            '{name}: {result}'.format(
-                name=name + ' ' * (longest_name_length - len(name)),
-                result='False' if name not in extra else extra[name],
-            )
-            for name in import_plugins()
-        ]),
-    ) + '\n'
+    return (
+        '\n'.join(
+            sorted(
+                [
+                    '{name}: {result}'.format(
+                        name=name + ' ' * (longest_name_length - len(name)),
+                        result='False' if name not in extra else extra[name],
+                    )
+                    for name in import_plugins()
+                ]
+            ),
+        )
+        + '\n'
+    )
 
 
 class TestMain(object):
@@ -107,9 +103,12 @@ class TestMain(object):
 
     def test_scan_with_exclude_args(self, mock_baseline_initialize):
         with mock_stdin():
-            assert main(
-                'scan --exclude-files some_pattern_here --exclude-lines other_patt'.split(),
-            ) == 0
+            assert (
+                main(
+                    'scan --exclude-files some_pattern_here --exclude-lines other_patt'.split(),
+                )
+                == 0
+            )
 
         mock_baseline_initialize.assert_called_once_with(
             plugins=Any(tuple),
@@ -143,30 +142,40 @@ class TestMain(object):
         expected_base64_result,
         expected_hex_result,
     ):
-        with mock_stdin(
-            string,
-        ), mock_printer(
-            main_module,
-        ) as printer_shim:
+        with (
+            mock_stdin(
+                string,
+            ),
+            mock_printer(
+                main_module,
+            ) as printer_shim,
+        ):
             assert main('scan --string'.split()) == 0
-            assert uncolor(printer_shim.message) == get_plugin_report({
-                'Base64HighEntropyString': expected_base64_result,
-                'HexHighEntropyString': expected_hex_result,
-            })
+            assert uncolor(printer_shim.message) == get_plugin_report(
+                {
+                    'Base64HighEntropyString': expected_base64_result,
+                    'HexHighEntropyString': expected_hex_result,
+                }
+            )
 
         mock_baseline_initialize.assert_not_called()
 
     def test_scan_string_cli_overrides_stdin(self):
-        with mock_stdin(
-            '012345678ab',
-        ), mock_printer(
-            main_module,
-        ) as printer_shim:
+        with (
+            mock_stdin(
+                '012345678ab',
+            ),
+            mock_printer(
+                main_module,
+            ) as printer_shim,
+        ):
             assert main('scan --string 012345'.split()) == 0
-            assert uncolor(printer_shim.message) == get_plugin_report({
-                'Base64HighEntropyString': 'False (2.585)',
-                'HexHighEntropyString': 'False (2.121)',
-            })
+            assert uncolor(printer_shim.message) == get_plugin_report(
+                {
+                    'Base64HighEntropyString': 'False (2.585)',
+                    'HexHighEntropyString': 'False (2.121)',
+                }
+            )
 
     def test_scan_with_all_files_flag(self, mock_baseline_initialize):
         with mock_stdin():
@@ -205,25 +214,29 @@ class TestMain(object):
         exclude_files_arg,
         expected_regex,
     ):
-        with mock_stdin(), mock.patch(
-            'detect_secrets.main._read_from_file',
-            return_value={},
-        ), mock.patch(
-            # We don't want to be creating a file during test
-            'detect_secrets.main.write_baseline_to_file',
-        ) as file_writer:
-            assert main(
-                shlex.split(
-                    'scan --update old_baseline_file {}'.format(
-                        exclude_files_arg,
-                    ),
-                ),
-            ) == 0
-
+        with (
+            mock_stdin(),
+            mock.patch(
+                'detect_secrets.main._read_from_file',
+                return_value={},
+            ),
+            mock.patch(
+                # We don't want to be creating a file during test
+                'detect_secrets.main.write_baseline_to_file',
+            ) as file_writer,
+        ):
             assert (
-                file_writer.call_args[1]['data']['exclude']['files']
-                == expected_regex
+                main(
+                    shlex.split(
+                        'scan --update old_baseline_file {}'.format(
+                            exclude_files_arg,
+                        ),
+                    ),
+                )
+                == 0
             )
+
+            assert file_writer.call_args[1]['data']['exclude']['files'] == expected_regex
 
     @pytest.mark.parametrize(
         'plugins_used, plugins_overwriten, plugins_wrote',
@@ -269,7 +282,6 @@ class TestMain(object):
                         'name': 'Base64HighEntropyString',
                     },
                 ],
-
                 '--use-all-plugins --no-base64-string-scan --no-private-key-scan',
                 get_list_of_plugins(
                     exclude=(
@@ -304,7 +316,8 @@ class TestMain(object):
                     {
                         'base64_limit': 3.5,
                         'name': 'Base64HighEntropyString',
-                    }, {
+                    },
+                    {
                         'name': 'PrivateKeyDetector',
                     },
                 ],
@@ -385,36 +398,42 @@ class TestMain(object):
     def test_plugin_from_old_baseline_respected_with_update_flag(
         self,
         mock_baseline_initialize,
-        plugins_used, plugins_overwriten, plugins_wrote,
+        plugins_used,
+        plugins_overwriten,
+        plugins_wrote,
     ):
-        with mock_stdin(), mock.patch(
-            'detect_secrets.main._read_from_file',
-            return_value={
-                'plugins_used': plugins_used,
-                'results': {},
-                'version': VERSION,
-                'exclude': {
-                    'files': '',
-                    'lines': '',
+        with (
+            mock_stdin(),
+            mock.patch(
+                'detect_secrets.main._read_from_file',
+                return_value={
+                    'plugins_used': plugins_used,
+                    'results': {},
+                    'version': VERSION,
+                    'exclude': {
+                        'files': '',
+                        'lines': '',
+                    },
                 },
-            },
-        ), mock.patch(
-            # We don't want to be creating a file during test
-            'detect_secrets.main.write_baseline_to_file',
-        ) as file_writer:
-            assert main(
-                shlex.split(
-                    'scan --update old_baseline_file {}'.format(
-                        plugins_overwriten,
-                    ),
-                ),
-            ) == 0
-
+            ),
+            mock.patch(
+                # We don't want to be creating a file during test
+                'detect_secrets.main.write_baseline_to_file',
+            ) as file_writer,
+        ):
             assert (
-                file_writer.call_args[1]['data']['plugins_used']
-                ==
-                plugins_wrote
+                main(
+                    shlex.split(
+                        'scan --update old_baseline_file {}'.format(
+                            plugins_overwriten,
+                        ),
+                    ),
+                )
+                == 0
             )
+
+            assert file_writer.call_args[1]['data']['plugins_used'] == plugins_wrote
+
 
 @contextmanager
 def mock_stdin(response=None):

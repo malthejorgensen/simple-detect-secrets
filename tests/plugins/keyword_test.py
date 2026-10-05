@@ -107,7 +107,7 @@ FOLLOWED_BY_EQUAL_SIGNS_RE = {
         'quotes_required': [
             'some_dict["secret"] = "m{{h}o)p${e]nob(ody[finds>-_$#thisone}}"',
             'the_password= "m{{h}o)p${e]nob(ody[finds>-_$#thisone}}"\n',
-            'the_password=\'m{{h}o)p${e]nob(ody[finds>-_$#thisone}}\'\n',
+            "the_password='m{{h}o)p${e]nob(ody[finds>-_$#thisone}}'\n",
         ],
         'quotes_not_required': [
             "some_dict['secret'] = m{{h}o)p${e]nob(ody[finds>-_$#thisone}}",
@@ -124,7 +124,7 @@ FOLLOWED_BY_QUOTES_AND_SEMICOLON_RE = {
     'negatives': {
         'quotes_required': [
             'private_key "";',  # Nothing in the quotes
-            'private_key \'"no spaces\';',  # Has whitespace in the secret
+            "private_key '\"no spaces';",  # Has whitespace in the secret
             'private_key "fake";',  # 'fake' in the secret
             'private_key "some/dir/aint/a/secret";',  # 3 or more /
             'private_key "${FOO}";',  # Starts with ${ and ends with }
@@ -137,9 +137,9 @@ FOLLOWED_BY_QUOTES_AND_SEMICOLON_RE = {
             'apikey "m{{h}o)p${e]nob(ody[finds>-_$#thisone}}";',  # Double-quotes
             'fooapikeyfoo "m{{h}o)p${e]nob(ody[finds>-_$#thisone}}";',  # Double-quotes
             'fooapikeyfoo"m{{h}o)p${e]nob(ody[finds>-_$#thisone}}";',  # Double-quotes
-            'private_key \'m{{h}o)p${e]nob(ody[finds>-_$#thisone}}\';',  # Single-quotes
-            'fooprivate_keyfoo\'m{{h}o)p${e]nob(ody[finds>-_$#thisone}}\';',  # Single-quotes
-            'fooprivate_key\'m{{h}o)p${e]nob(ody[finds>-_$#thisone}}\';',  # Single-quotes
+            "private_key 'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}';",  # Single-quotes
+            "fooprivate_keyfoo'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}';",  # Single-quotes
+            "fooprivate_key'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}';",  # Single-quotes
         ],
     },
 }
@@ -177,7 +177,6 @@ STANDARD_POSITIVES.extend(
 
 
 class TestKeywordDetector(object):
-
     @pytest.mark.parametrize(
         'file_content',
         STANDARD_POSITIVES,
@@ -190,9 +189,8 @@ class TestKeywordDetector(object):
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename' == potential_secret.filename
-            assert (
-                potential_secret.secret_hash
-                == PotentialSecret.hash_secret('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
+            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
+                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
             )
 
     @pytest.mark.parametrize(
@@ -236,7 +234,8 @@ class TestKeywordDetector(object):
                 FOLLOWED_BY_COLON_RE.get('positives').get('quotes_required')
                 + FOLLOWED_BY_EQUAL_SIGNS_RE.get('positives').get('quotes_required')
                 + FOLLOWED_BY_QUOTES_AND_SEMICOLON_RE.get('positives').get('quotes_required')
-            ) for file_extension in QUOTES_REQUIRED_FILE_EXTENSIONS
+            )
+            for file_extension in QUOTES_REQUIRED_FILE_EXTENSIONS
         ),
     )
     def test_analyze_quotes_required_positives(self, file_content, file_extension):
@@ -248,9 +247,8 @@ class TestKeywordDetector(object):
         assert len(output) == 1
         for potential_secret in output:
             assert mock_filename == potential_secret.filename
-            assert (
-                potential_secret.secret_hash
-                == PotentialSecret.hash_secret('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
+            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
+                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
             )
 
     @pytest.mark.parametrize(
@@ -269,9 +267,8 @@ class TestKeywordDetector(object):
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename.go' == potential_secret.filename
-            assert (
-                potential_secret.secret_hash ==
-                PotentialSecret.hash_secret('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
+            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
+                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
             )
 
     @pytest.mark.parametrize(
@@ -288,9 +285,8 @@ class TestKeywordDetector(object):
         assert len(output) == 1
         for potential_secret in output:
             assert 'mock_filename.m' == potential_secret.filename
-            assert (
-                potential_secret.secret_hash ==
-                PotentialSecret.hash_secret('m{{h}o)p${e]nob(ody[finds>-_$#thisone}}')
+            assert potential_secret.secret_hash == PotentialSecret.hash_secret(
+                'm{{h}o)p${e]nob(ody[finds>-_$#thisone}}'
             )
 
     @pytest.mark.parametrize(
@@ -306,7 +302,8 @@ class TestKeywordDetector(object):
 
     @pytest.mark.parametrize(
         'file_content',
-        STANDARD_NEGATIVES + [
+        STANDARD_NEGATIVES
+        + [
             # FOLLOWED_BY_COLON_RE
             'apiKey: this.apiKey,',
             "apiKey: fs.readFileSync('foo',",
@@ -321,7 +318,8 @@ class TestKeywordDetector(object):
 
     @pytest.mark.parametrize(
         'file_content',
-        STANDARD_NEGATIVES + [
+        STANDARD_NEGATIVES
+        + [
             # FOLLOWED_BY_EQUAL_SIGNS_RE
             '$password = $input;',
         ],
@@ -338,7 +336,8 @@ class TestKeywordDetector(object):
         (
             (negative, file_extension)
             for negative in (
-                STANDARD_NEGATIVES + [
+                STANDARD_NEGATIVES
+                + [
                     # FOLLOWED_BY_COLON_QUOTES_REQUIRED_RE
                     'apikey: hope]nobody[finds>-_$#thisone',
                     'apikey:hope]nobody[finds>-_$#thisone',
@@ -352,7 +351,8 @@ class TestKeywordDetector(object):
                     'my_password =hope]nobody[finds>-_$#thisone',
                     'the_password=hope]nobody[finds>-_$#thisone\n',
                 ]
-            ) for file_extension in QUOTES_REQUIRED_FILE_EXTENSIONS
+            )
+            for file_extension in QUOTES_REQUIRED_FILE_EXTENSIONS
         ),
     )
     def test_analyze_quotes_required_negatives(self, file_content, file_extension):

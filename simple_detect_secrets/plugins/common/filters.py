@@ -3,6 +3,7 @@ False positive heuristic filters that are shared across all plugin types.
 This abstraction allows for development of later ML work, or further
 heuristical determinations (e.g. word filter, entropy comparator).
 """
+
 import re
 import string
 
@@ -41,6 +42,7 @@ def get_aho_corasick_helper(automaton):
 
     :type automaton: ahocorasick.Automaton
     """
+
     def fn(secret):
         return is_found_with_aho_corasick(secret, automaton)
 
@@ -56,31 +58,16 @@ def is_sequential_string(secret, *args):
     """
     sequences = (
         # Base64 letters first
-        (
-            string.ascii_uppercase +
-            string.ascii_uppercase +
-            string.digits +
-            '+/'
-        ),
-
+        (string.ascii_uppercase + string.ascii_uppercase + string.digits + '+/'),
         # Base64 numbers first
-        (
-            string.digits +
-            string.ascii_uppercase +
-            string.ascii_uppercase +
-            '+/'
-        ),
-
+        (string.digits + string.ascii_uppercase + string.ascii_uppercase + '+/'),
         # We don't have a specific sequence for alphabetical
         # sequences, since those will happen to be caught by the
         # base64 checks.
-
         # Alphanumeric sequences
         (string.digits + string.ascii_uppercase) * 2,
-
         # Capturing any number sequences
         string.digits * 2,
-
         string.hexdigits.upper() + string.hexdigits.upper(),
         string.ascii_uppercase + '=/',
     )
@@ -161,7 +148,4 @@ def is_false_positive_with_line_context(
     Returns True if any false-positive heuristic which considers the whole file line
     returns true.
     """
-    return any(
-        func(secret, line)
-        for func in functions
-    )
+    return any(func(secret, line) for func in functions)

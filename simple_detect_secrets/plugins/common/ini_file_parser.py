@@ -8,7 +8,6 @@ import re
 
 
 class EfficientParsingError(configparser.ParsingError):
-
     def append(self, lineno, line):
         """
         Rather than inefficiently add all the lines in the file
@@ -23,7 +22,6 @@ configparser.ParsingError = EfficientParsingError
 
 
 class IniFileParser(object):
-
     _comment_regex = re.compile(r'\s*[;#]')
 
     def __init__(self, file, add_header=False, exclude_lines_regex=None):
@@ -112,10 +110,7 @@ class IniFileParser(object):
             if not line.strip() or self._comment_regex.match(line):
                 continue
 
-            if (
-                self.exclude_lines_regex and
-                self.exclude_lines_regex.search(line)
-            ):
+            if self.exclude_lines_regex and self.exclude_lines_regex.search(line):
                 continue
 
             if current_value_list_index == 0:
@@ -126,10 +121,12 @@ class IniFileParser(object):
                     ),
                 )
                 if first_line_regex.match(line):
-                    output.append((
-                        values_list[current_value_list_index],
-                        self.line_offset + index + 1,
-                    ))
+                    output.append(
+                        (
+                            values_list[current_value_list_index],
+                            self.line_offset + index + 1,
+                        )
+                    )
                     current_value_list_index += 1
                 continue
 
@@ -141,10 +138,12 @@ class IniFileParser(object):
                 lines_modified = True
                 break
             else:
-                output.append((
-                    values_list[current_value_list_index],
-                    self.line_offset + index + 1,
-                ))
+                output.append(
+                    (
+                        values_list[current_value_list_index],
+                        self.line_offset + index + 1,
+                    )
+                )
 
                 current_value_list_index += 1
 

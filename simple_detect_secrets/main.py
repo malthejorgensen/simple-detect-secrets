@@ -16,9 +16,7 @@ from simple_detect_secrets.util import build_automaton
 
 
 def parse_args(argv):
-    return ParserBuilder()\
-        .add_console_use_arguments()\
-        .parse_args(argv)
+    return ParserBuilder().add_console_use_arguments().parse_args(argv)
 
 
 def main(argv=None):

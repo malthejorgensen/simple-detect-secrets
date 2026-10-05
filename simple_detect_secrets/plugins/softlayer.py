@@ -23,7 +23,6 @@ class SoftlayerDetector(RegexBasedDetector):
             secret_keyword_regex=key_or_pass,
             secret_regex=secret,
         ),
-
         re.compile(
             r'(?:http|https)://api.softlayer.com/soap/(?:v3|v3.1)/([a-z0-9]{64})',
             flags=re.IGNORECASE,
@@ -58,11 +57,7 @@ def find_username(content):
         ),
     )
 
-    return [
-        match
-        for line in content.splitlines()
-        for match in regex.findall(line)
-    ]
+    return [match for line in content.splitlines() for match in regex.findall(line)]
 
 
 def verify_softlayer_key(username, token):
@@ -70,7 +65,8 @@ def verify_softlayer_key(username, token):
     try:
         response = requests.get(
             'https://api.softlayer.com/rest/v3/SoftLayer_Account.json',
-            auth=(username, token), headers=headers,
+            auth=(username, token),
+            headers=headers,
         )
     except requests.exceptions.RequestException:
         return VerifiedResult.UNVERIFIED

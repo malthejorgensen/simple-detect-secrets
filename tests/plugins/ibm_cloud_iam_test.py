@@ -12,7 +12,6 @@ CLOUD_IAM_KEY_BYTES = b'abcd1234abcd1234abcd1234ABCD1234ABCD1234--__'
 
 
 class TestIBMCloudIamDetector(object):
-
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
@@ -28,7 +27,8 @@ class TestIBMCloudIamDetector(object):
             (
                 '"ibm_cloud_iam_api_key":"{cloud_iam_key}"'.format(
                     cloud_iam_key=CLOUD_IAM_KEY,
-                ), True,
+                ),
+                True,
             ),
             ('ibm_cloud_iamapikey= {cloud_iam_key}'.format(cloud_iam_key=CLOUD_IAM_KEY), True),
             ('ibm_cloud_api_key= "{cloud_iam_key}"'.format(cloud_iam_key=CLOUD_IAM_KEY), True),
@@ -39,7 +39,8 @@ class TestIBMCloudIamDetector(object):
             (
                 '"ibm_cloud_iam_api_key":= "{cloud_iam_key}"'.format(
                     cloud_iam_key=CLOUD_IAM_KEY,
-                ), True,
+                ),
+                True,
             ),
             ('ibm-cloud_api_key:={cloud_iam_key}'.format(cloud_iam_key=CLOUD_IAM_KEY), True),
             ('"cloud_iam_api_key":="{cloud_iam_key}"'.format(cloud_iam_key=CLOUD_IAM_KEY), True),
@@ -63,7 +64,9 @@ class TestIBMCloudIamDetector(object):
     @responses.activate
     def test_verify_invalid_secret(self):
         responses.add(
-            responses.POST, 'https://iam.cloud.ibm.com/identity/token', status=400,
+            responses.POST,
+            'https://iam.cloud.ibm.com/identity/token',
+            status=400,
         )
 
         assert IbmCloudIamDetector().verify(CLOUD_IAM_KEY) == VerifiedResult.VERIFIED_FALSE
@@ -71,7 +74,9 @@ class TestIBMCloudIamDetector(object):
     @responses.activate
     def test_verify_valid_secret(self):
         responses.add(
-            responses.POST, 'https://iam.cloud.ibm.com/identity/token', status=200,
+            responses.POST,
+            'https://iam.cloud.ibm.com/identity/token',
+            status=200,
         )
 
         IbmCloudIamDetector().verify(CLOUD_IAM_KEY) == VerifiedResult.VERIFIED_TRUE
@@ -79,7 +84,9 @@ class TestIBMCloudIamDetector(object):
     @responses.activate
     def test_verify_invalid_secret_bytes(self):
         responses.add(
-            responses.POST, 'https://iam.cloud.ibm.com/identity/token', status=400,
+            responses.POST,
+            'https://iam.cloud.ibm.com/identity/token',
+            status=400,
         )
 
         assert IbmCloudIamDetector().verify(CLOUD_IAM_KEY_BYTES) == VerifiedResult.VERIFIED_FALSE
@@ -87,7 +94,9 @@ class TestIBMCloudIamDetector(object):
     @responses.activate
     def test_verify_valid_secret_byes(self):
         responses.add(
-            responses.POST, 'https://iam.cloud.ibm.com/identity/token', status=200,
+            responses.POST,
+            'https://iam.cloud.ibm.com/identity/token',
+            status=200,
         )
 
         IbmCloudIamDetector().verify(CLOUD_IAM_KEY_BYTES) == VerifiedResult.VERIFIED_TRUE

@@ -20,8 +20,7 @@ def add_word_list_argument(parser):
         '--word-list',
         type=str,
         help=(
-            'Text file with a list of words, '
-            'if a secret contains a word in the list we ignore it.'
+            'Text file with a list of words, if a secret contains a word in the list we ignore it.'
         ),
         dest='word_list_file',
     )
@@ -45,23 +44,16 @@ def add_no_verify_flag(parser):
 
 
 class ParserBuilder(object):
-
     def __init__(self):
         self.parser = argparse.ArgumentParser()
 
         self.add_default_arguments()
 
     def add_default_arguments(self):
-        self._add_verbosity_argument()\
-            ._add_version_argument()
+        self._add_verbosity_argument()._add_version_argument()
 
     def add_pre_commit_arguments(self):
-        self._add_filenames_argument()\
-            ._add_set_baseline_argument()\
-            ._add_exclude_lines_argument()\
-            ._add_word_list_argument()\
-            ._add_use_all_plugins_argument()\
-            ._add_no_verify_flag()
+        self._add_filenames_argument()._add_set_baseline_argument()._add_exclude_lines_argument()._add_word_list_argument()._add_use_all_plugins_argument()._add_no_verify_flag()
 
         PluginOptions(self.parser).add_arguments()
 
@@ -135,15 +127,13 @@ class ParserBuilder(object):
 
 
 class ScanOptions(object):
-
     def __init__(self, subparser):
         self.parser = subparser.add_parser(
             'scan',
         )
 
     def add_arguments(self):
-        self._add_initialize_baseline_argument()\
-            ._add_adhoc_scanning_argument()
+        self._add_initialize_baseline_argument()._add_adhoc_scanning_argument()
 
         PluginOptions(self.parser).add_arguments()
 
@@ -155,8 +145,7 @@ class ScanOptions(object):
             nargs='*',
             default='.',
             help=(
-                'Scans the entire codebase and outputs a snapshot of '
-                'currently identified secrets.'
+                'Scans the entire codebase and outputs a snapshot of currently identified secrets.'
             ),
         )
 
@@ -203,10 +192,7 @@ class ScanOptions(object):
             '--string',
             nargs='?',
             const=True,
-            help=(
-                'Scans an individual string, and displays configured '
-                'plugins\' verdict.'
-            ),
+            help=("Scans an individual string, and displays configured plugins' verdict."),
         )
 
 
@@ -216,13 +202,10 @@ class PluginDescriptor(
         [
             # Classname of plugin; used for initialization
             'classname',
-
             # Flag to disable plugin. e.g. `--no-hex-string-scan`
             'disable_flag_text',
-
             # Description for disable flag.
             'disable_help_text',
-
             # type: list
             # Allows the bundling of all related command line provided
             # arguments together, under one plugin name.
@@ -242,11 +225,7 @@ class PluginDescriptor(
         if not related_args:
             related_args = []
 
-        return super(PluginDescriptor, cls).__new__(
-            cls,
-            related_args=related_args,
-            **kwargs
-        )
+        return super(PluginDescriptor, cls).__new__(cls, related_args=related_args, **kwargs)
 
     @classmethod
     def from_plugin_class(cls, plugin, name):
@@ -258,10 +237,12 @@ class PluginDescriptor(
         if plugin.default_options:
             related_args = []
             for arg_name, value in plugin.default_options.items():
-                related_args.append((
-                    '--{}'.format(arg_name.replace('_', '-')),
-                    value,
-                ))
+                related_args.append(
+                    (
+                        '--{}'.format(arg_name.replace('_', '-')),
+                        value,
+                    )
+                )
 
         return cls(
             classname=name,
@@ -284,7 +265,6 @@ class PluginDescriptor(
 
 
 class PluginOptions(object):
-
     all_plugins = [
         PluginDescriptor.from_plugin_class(plugin, name)
         for name, plugin in import_plugins().items()
@@ -362,17 +342,18 @@ class PluginOptions(object):
                     related_args[arg_name] = default_value
                     is_using_default_value[arg_name] = True
 
-            active_plugins.update({
-                plugin.classname: related_args,
-            })
+            active_plugins.update(
+                {
+                    plugin.classname: related_args,
+                }
+            )
 
         args.plugins = active_plugins
         args.is_using_default_value = is_using_default_value
 
     def _add_custom_limits(self):
         high_entropy_help_text = (
-            'Sets the entropy limit for high entropy strings. '
-            'Value must be between 0.0 and 8.0, '
+            'Sets the entropy limit for high entropy strings. Value must be between 0.0 and 8.0, '
         )
 
         self.parser.add_argument(

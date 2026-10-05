@@ -29,7 +29,6 @@ def assert_commit_succeeds(command):
 
 
 class TestPreCommitHook(object):
-
     def test_file_with_secrets(self, mock_log):
         assert_commit_blocked('test_data/files/file_with_secrets.py')
 
@@ -43,10 +42,8 @@ class TestPreCommitHook(object):
         assert message_by_lines[0].startswith(
             'Potential secrets about to be committed to git repo!',
         )
-        assert message_by_lines[2] == \
-            'Secret Type: Base64 High Entropy String'
-        assert message_by_lines[3] == \
-            'Location:    test_data/files/file_with_secrets.py:3'
+        assert message_by_lines[2] == 'Secret Type: Base64 High Entropy String'
+        assert message_by_lines[3] == 'Location:    test_data/files/file_with_secrets.py:3'
 
     def test_file_with_secrets_with_word_list(self):
         assert_commit_succeeds(
@@ -67,18 +64,26 @@ class TestPreCommitHook(object):
             (False, True, '--baseline will_be_mocked test_data/files/file_with_secrets.py', False),
             # test_overwrite_pass_with_baseline
             (
-                False, True, '--baseline will_be_mocked '
-                + '--no-base64-string-scan test_data/files/file_with_secrets.py', True,
+                False,
+                True,
+                '--baseline will_be_mocked '
+                + '--no-base64-string-scan test_data/files/file_with_secrets.py',
+                True,
             ),
             # test_all_plugin_overwrite_pass_with_baseline
             (
-                False, True, '--baseline will_be_mocked --use-all-plugins '
-                + '--no-base64-string-scan test_data/files/file_with_secrets.py', True,
+                False,
+                True,
+                '--baseline will_be_mocked --use-all-plugins '
+                + '--no-base64-string-scan test_data/files/file_with_secrets.py',
+                True,
             ),
             # test_overwrite_fail_with_baseline
             (
-                True, False, '--baseline will_be_mocked '
-                + '--use-all-plugins test_data/files/private_key', False,
+                True,
+                False,
+                '--baseline will_be_mocked ' + '--use-all-plugins test_data/files/private_key',
+                False,
             ),
         ],
     )
@@ -160,15 +165,18 @@ class TestPreCommitHook(object):
             baseline_string = _create_old_baseline()
             modified_baseline = json.loads(baseline_string)
 
-            with mock.patch(
-                'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
-                return_value=json.dumps(modified_baseline),
-            ), mock.patch(
-                'detect_secrets.pre_commit_hook.write_baseline_to_file',
-            ) as m:
+            with (
+                mock.patch(
+                    'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+                    return_value=json.dumps(modified_baseline),
+                ),
+                mock.patch(
+                    'detect_secrets.pre_commit_hook.write_baseline_to_file',
+                ) as m,
+            ):
                 assert_commit_blocked_with_diff_exit_code(
-                    '--baseline will_be_mocked --use-all-plugins' +
-                    ' test_data/files/file_with_secrets.py',
+                    '--baseline will_be_mocked --use-all-plugins'
+                    + ' test_data/files/file_with_secrets.py',
                 )
 
                 baseline_written = m.call_args[1]['data']
@@ -190,20 +198,22 @@ class TestPreCommitHook(object):
                 }
                 for name in get_regex_based_plugins()
             ]
-            regex_based_plugins.extend([
-                {
-                    'base64_limit': 4.5,
-                    'name': 'Base64HighEntropyString',
-                },
-                {
-                    'hex_limit': 3,
-                    'name': 'HexHighEntropyString',
-                },
-                {
-                    'name': 'KeywordDetector',
-                    'keyword_exclude': None,
-                },
-            ])
+            regex_based_plugins.extend(
+                [
+                    {
+                        'base64_limit': 4.5,
+                        'name': 'Base64HighEntropyString',
+                    },
+                    {
+                        'hex_limit': 3,
+                        'name': 'HexHighEntropyString',
+                    },
+                    {
+                        'name': 'KeywordDetector',
+                        'keyword_exclude': None,
+                    },
+                ]
+            )
 
             expected = sorted(regex_based_plugins, key=lambda x: x['name'])
             assert baseline_written['plugins_used'] == expected
@@ -213,12 +223,15 @@ class TestPreCommitHook(object):
         modified_baseline = json.loads(baseline_string)
         modified_baseline['results']['test_data/files/file_with_secrets.py'][0]['line_number'] = 0
 
-        with mock.patch(
-            'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
-            return_value=json.dumps(modified_baseline),
-        ), mock.patch(
-            'detect_secrets.pre_commit_hook.write_baseline_to_file',
-        ) as m:
+        with (
+            mock.patch(
+                'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+                return_value=json.dumps(modified_baseline),
+            ),
+            mock.patch(
+                'detect_secrets.pre_commit_hook.write_baseline_to_file',
+            ) as m,
+        ):
             assert_commit_blocked_with_diff_exit_code(
                 '--baseline will_be_mocked test_data/files/file_with_secrets.py',
             )
@@ -249,13 +262,16 @@ def _mock_versions(baseline_version, current_version):
     baseline = json.loads(_create_baseline())
     baseline['version'] = baseline_version
 
-    with mock.patch(
-        'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
-        return_value=json.dumps(baseline),
-    ), mock.patch.object(
-        pre_commit_hook,
-        'VERSION',
-        current_version,
+    with (
+        mock.patch(
+            'detect_secrets.pre_commit_hook._get_baseline_string_from_file',
+            return_value=json.dumps(baseline),
+        ),
+        mock.patch.object(
+            pre_commit_hook,
+            'VERSION',
+            current_version,
+        ),
     ):
         yield
 

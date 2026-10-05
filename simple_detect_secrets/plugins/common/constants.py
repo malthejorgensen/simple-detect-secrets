@@ -7,11 +7,11 @@ ALLOWLIST_REGEXES = [
         # Note: Always use allowlist, whitelist will be deprecated in the future
         r'[ \t]+{} *pragma: ?(allow|white)list[ -]secret.*?{}[ \t]*$'.format(start, end)
         for start, end in (
-            ('#', ''),                    # e.g. python or yaml
-            ('//', ''),                   # e.g. golang
-            (r'/\*', r' *\*/'),           # e.g. c
-            ('\'', ''),                   # e.g. visual basic .net
-            ('--', ''),                   # e.g. sql
+            ('#', ''),  # e.g. python or yaml
+            ('//', ''),  # e.g. golang
+            (r'/\*', r' *\*/'),  # e.g. c
+            ("'", ''),  # e.g. visual basic .net
+            ('--', ''),  # e.g. sql
             (r'<!--[# \t]*?', ' *?-->'),  # e.g. xml
             # many other inline comment syntaxes are not included,
             # because we want to be performant for

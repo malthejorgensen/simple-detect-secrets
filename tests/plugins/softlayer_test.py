@@ -14,7 +14,6 @@ SL_TOKEN = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'
 
 
 class TestSoftlayerDetector(object):
-
     @pytest.mark.parametrize(
         'payload, should_flag',
         [
@@ -86,38 +85,54 @@ class TestSoftlayerDetector(object):
     @responses.activate
     def test_verify_invalid_secret(self):
         responses.add(
-            responses.GET, 'https://api.softlayer.com/rest/v3/SoftLayer_Account.json',
-            json={'error': 'Access denied. '}, status=401,
+            responses.GET,
+            'https://api.softlayer.com/rest/v3/SoftLayer_Account.json',
+            json={'error': 'Access denied. '},
+            status=401,
         )
 
-        assert SoftlayerDetector().verify(
-            SL_TOKEN,
-            'softlayer_username={}'.format(SL_USERNAME),
-        ) == VerifiedResult.VERIFIED_FALSE
+        assert (
+            SoftlayerDetector().verify(
+                SL_TOKEN,
+                'softlayer_username={}'.format(SL_USERNAME),
+            )
+            == VerifiedResult.VERIFIED_FALSE
+        )
 
     @responses.activate
     def test_verify_valid_secret(self):
         responses.add(
-            responses.GET, 'https://api.softlayer.com/rest/v3/SoftLayer_Account.json',
-            json={'id': 1}, status=200,
+            responses.GET,
+            'https://api.softlayer.com/rest/v3/SoftLayer_Account.json',
+            json={'id': 1},
+            status=200,
         )
-        assert SoftlayerDetector().verify(
-            SL_TOKEN,
-            'softlayer_username={}'.format(SL_USERNAME),
-        ) == VerifiedResult.VERIFIED_TRUE
+        assert (
+            SoftlayerDetector().verify(
+                SL_TOKEN,
+                'softlayer_username={}'.format(SL_USERNAME),
+            )
+            == VerifiedResult.VERIFIED_TRUE
+        )
 
     @responses.activate
     def test_verify_unverified_secret(self):
-        assert SoftlayerDetector().verify(
-            SL_TOKEN,
-            'softlayer_username={}'.format(SL_USERNAME),
-        ) == VerifiedResult.UNVERIFIED
+        assert (
+            SoftlayerDetector().verify(
+                SL_TOKEN,
+                'softlayer_username={}'.format(SL_USERNAME),
+            )
+            == VerifiedResult.UNVERIFIED
+        )
 
     def test_verify_no_secret(self):
-        assert SoftlayerDetector().verify(
-            SL_TOKEN,
-            'no_un={}'.format(SL_USERNAME),
-        ) == VerifiedResult.UNVERIFIED
+        assert (
+            SoftlayerDetector().verify(
+                SL_TOKEN,
+                'no_un={}'.format(SL_USERNAME),
+            )
+            == VerifiedResult.UNVERIFIED
+        )
 
     @pytest.mark.parametrize(
         'content, expected_output',
@@ -130,7 +145,6 @@ class TestSoftlayerDetector(object):
                 ),
                 [SL_USERNAME],
             ),
-
             # With quotes
             (
                 textwrap.dedent("""
@@ -140,7 +154,6 @@ class TestSoftlayerDetector(object):
                 ),
                 [SL_USERNAME],
             ),
-
             # multiple candidates
             (
                 textwrap.dedent("""

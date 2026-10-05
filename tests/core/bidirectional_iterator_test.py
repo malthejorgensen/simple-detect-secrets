@@ -6,7 +6,6 @@ from simple_detect_secrets.core import bidirectional_iterator
 
 
 class TestBidirectionalIterator(object):
-
     def test_no_input(self):
         iterator = bidirectional_iterator.BidirectionalIterator([])
         with pytest.raises(StopIteration):

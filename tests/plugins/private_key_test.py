@@ -8,7 +8,6 @@ from testing.mocks import mock_file_object
 
 
 class TestPrivateKeyDetector(object):
-
     @pytest.mark.parametrize(
         'file_content',
         [
@@ -17,11 +16,7 @@ class TestPrivateKeyDetector(object):
                 'super secret private key here\n'
                 '-----END RSA PRIVATE KEY-----'
             ),
-            (
-                'some text here\n'
-                '-----BEGIN PRIVATE KEY-----\n'
-                'yabba dabba doo'
-            ),
+            ('some text here\n-----BEGIN PRIVATE KEY-----\nyabba dabba doo'),
         ],
     )
     def test_analyze(self, file_content):

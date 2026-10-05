@@ -8,7 +8,6 @@ from testing.mocks import mock_file_object
 
 
 class TestMailchimpKeyDetector(object):
-
     @pytest.mark.parametrize(
         'file_content,should_flag',
         [

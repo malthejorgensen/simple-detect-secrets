@@ -88,14 +88,15 @@ class HighEntropyStringsPlugin(BasePlugin):
         for x in self.charset:
             p_x = float(data.count(x)) / len(data)
             if p_x > 0:
-                entropy += - p_x * math.log(p_x, 2)
+                entropy += -p_x * math.log(p_x, 2)
 
         return entropy
 
     @staticmethod
     def _filter_false_positives_with_line_ctx(potential_secrets, line):
         return {
-            key: value for key, value in potential_secrets.items()
+            key: value
+            for key, value in potential_secrets.items()
             if not is_false_positive_with_line_context(
                 key.secret_value,
                 line,
@@ -180,6 +181,7 @@ class HighEntropyStringsPlugin(BasePlugin):
         """
         :returns: same format as super().analyze()
         """
+
         def wrapped(file, filename):
             output = {}
 
@@ -194,7 +196,7 @@ class HighEntropyStringsPlugin(BasePlugin):
                         lineno,
                         filename,
                     )
-                    line = u'{key}={value}'.format(key=key, value=value)
+                    line = '{key}={value}'.format(key=key, value=value)
                     potential_secrets = self._filter_false_positives_with_line_ctx(
                         potential_secrets,
                         line,
@@ -259,9 +261,11 @@ class HighEntropyStringsPlugin(BasePlugin):
                 if item['__is_binary__']:
                     secrets = self._encode_yaml_binary_secrets(secrets)
 
-                dumped_key_value = yaml.dump({
-                    item['__original_key__']: item['__value__'],
-                }).replace('\n', '')
+                dumped_key_value = yaml.dump(
+                    {
+                        item['__original_key__']: item['__value__'],
+                    }
+                ).replace('\n', '')
 
                 secrets = self._filter_false_positives_with_line_ctx(
                     secrets,
@@ -332,9 +336,11 @@ class HexHighEntropyString(HighEntropyStringsPlugin):
     @property
     def __dict__(self):
         output = super(HighEntropyStringsPlugin, self).__dict__
-        output.update({
-            'hex_limit': self.entropy_limit,
-        })
+        output.update(
+            {
+                'hex_limit': self.entropy_limit,
+            }
+        )
 
         return output
 
@@ -408,9 +414,11 @@ class Base64HighEntropyString(HighEntropyStringsPlugin):
     @property
     def __dict__(self):
         output = super(HighEntropyStringsPlugin, self).__dict__
-        output.update({
-            'base64_limit': self.entropy_limit,
-        })
+        output.update(
+            {
+                'base64_limit': self.entropy_limit,
+            }
+        )
 
         return output
 

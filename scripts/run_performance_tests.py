@@ -62,10 +62,7 @@ def parse_args():
         '--harakiri',
         default=30,
         type=assert_positive(float),
-        help=(
-            'Specifies an upper bound for number of seconds to wait for '
-            'each test.'
-        ),
+        help=('Specifies an upper bound for number of seconds to wait for each test.'),
     )
     parser.add_argument(
         '--baseline',
@@ -78,10 +75,7 @@ def parse_args():
     parser.add_argument(
         '-m',
         '--mode',
-        choices=[
-            value.name
-            for value in TestCase
-        ],
+        choices=[value.name for value in TestCase],
         required=True,
         help='Specifies the type of content to generate.',
     )
@@ -149,7 +143,8 @@ def scan_content(content, timeout, baseline=None):
             get_root_directory(),
             'scripts/benchmark.py',
         ),
-        '--harakiri', str(timeout),
+        '--harakiri',
+        str(timeout),
     ]
 
     with tempfile.NamedTemporaryFile('w') as f:
@@ -165,10 +160,12 @@ def scan_content(content, timeout, baseline=None):
 
         with tempfile.NamedTemporaryFile('w') as b:
             b.write(
-                json.dumps({
-                    'filenames': [f.name],
-                    'timings': baseline['timings'],
-                }),
+                json.dumps(
+                    {
+                        'filenames': [f.name],
+                        'timings': baseline['timings'],
+                    }
+                ),
             )
             b.seek(0)
 

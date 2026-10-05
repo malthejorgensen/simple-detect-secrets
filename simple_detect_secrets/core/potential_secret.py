@@ -76,8 +76,7 @@ class PotentialSecret(object):
 
     def __eq__(self, other):
         return all(
-            getattr(self, field) == getattr(other, field)
-            for field in self.fields_to_compare
+            getattr(self, field) == getattr(other, field) for field in self.fields_to_compare
         )
 
     def __ne__(self, other):
@@ -85,17 +84,12 @@ class PotentialSecret(object):
 
     def __hash__(self):
         return hash(
-            tuple(
-                getattr(self, x)
-                for x in self.fields_to_compare
-            ),
+            tuple(getattr(self, x) for x in self.fields_to_compare),
         )
 
     def __str__(self):  # pragma: no cover
-        return (
-            'Secret Type: %s\n'
-            'Location:    %s:%d\n'
-        ) % (
+        return ('Secret Type: %s\nLocation:    %s:%d\n') % (
             self.type,
-            self.filename, self.lineno,
+            self.filename,
+            self.lineno,
         )

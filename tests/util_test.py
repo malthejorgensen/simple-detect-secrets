@@ -10,8 +10,7 @@ from testing.mocks import mock_open
 
 GIT_REPO_SHA = b'cbb33d8c545ccf5c55fdcc7d5b0218078598e677'
 GIT_REMOTES_VERBOSE_ONE_URL = (
-    b'origin\tgit://a.com/a/a.git\t(fetch)\n'
-    b'origin\tgit://a.com/a/a.git\t(push)\n'
+    b'origin\tgit://a.com/a/a.git\t(fetch)\norigin\tgit://a.com/a/a.git\t(push)\n'
 )
 GIT_REMOTES_VERBOSE_TWO_URLS = (
     b'origin\tgit://a.com/a/a.git\t(fetch)\n'
@@ -60,7 +59,8 @@ def test_get_relative_path_if_in_cwd():
             util.get_relative_path_if_in_cwd(
                 'test_data',
                 'config.env',
-            ) is None
+            )
+            is None
         )
 
 

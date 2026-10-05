@@ -11,11 +11,12 @@ from .base import RegexBasedDetector
 # the username/password component of the URL, seeing that this would probably
 # result in an unexpected URL parsing (and probably won't even work).
 RESERVED_CHARACTERS = ':/?#[]@'
-SUB_DELIMITER_CHARACTERS = '!$&\'()*+,;='
+SUB_DELIMITER_CHARACTERS = "!$&'()*+,;="
 
 
 class BasicAuthDetector(RegexBasedDetector):
     """Scans for Basic Auth formatted URIs."""
+
     secret_type = 'Basic Auth Credentials'
 
     denylist = [
