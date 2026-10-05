@@ -20,9 +20,6 @@ Simply run
 
 in a directory to search for possible secrets.
 
-Findings go to stdout in `filename:lineno:full source line` format, like grep.
-Each matching line appears once, preserving its indentation and spacing.
-
 Exclude files or directories with repeatable, quoted glob patterns:
 
 ```bash
