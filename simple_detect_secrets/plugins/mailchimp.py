@@ -2,7 +2,6 @@
 This plugin searches for Mailchimp keys
 """
 
-
 import re
 from base64 import b64encode
 

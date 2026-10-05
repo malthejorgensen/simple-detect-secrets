@@ -1,4 +1,3 @@
-
 import json
 from unittest import mock
 
@@ -442,6 +441,8 @@ class TestFormatBaselineForOutput:
             }
         )
 
-        ordered_hashes = [x['hashed_secret'] for x in json.loads(output_string)['results']['filename']]
+        ordered_hashes = [
+            x['hashed_secret'] for x in json.loads(output_string)['results']['filename']
+        ]
 
         assert ordered_hashes == ['z', 'a', 'f']

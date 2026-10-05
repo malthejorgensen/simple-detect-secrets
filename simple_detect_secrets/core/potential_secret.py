@@ -1,5 +1,3 @@
-
-
 class PotentialSecret:
     """This custom data type represents a string found, matching the
     plugin rules defined in SecretsCollection, that has the potential

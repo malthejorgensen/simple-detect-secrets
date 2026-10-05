@@ -1,4 +1,3 @@
-
 import pytest
 
 from simple_detect_secrets.core.usage import ParserBuilder

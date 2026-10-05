@@ -2,7 +2,6 @@
 This plugin searches for AWS key IDs
 """
 
-
 import hashlib
 import hmac
 import re
@@ -86,15 +85,11 @@ def verify_aws_secret_access_key(key, secret):  # pragma: no cover
         {signed_headers}
         {hashed_payload}
     """)[1:-1].format(
-        headers='\n'.join(
-            [f'{header.lower()}:{value}' for header, value in headers.items()]
-        ),
+        headers='\n'.join([f'{header.lower()}:{value}' for header, value in headers.items()]),
         signed_headers=signed_headers,
         # Poor man's method, but works for this use case.
         hashed_payload=hashlib.sha256(
-            '&'.join([f'{header}={value}' for header, value in body.items()]).encode(
-                'utf-8'
-            ),
+            '&'.join([f'{header}={value}' for header, value in body.items()]).encode('utf-8'),
         ).hexdigest(),
     )
 

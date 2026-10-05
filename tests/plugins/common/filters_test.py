@@ -1,4 +1,3 @@
-
 import pytest
 
 from simple_detect_secrets.plugins.common import filters

@@ -2,7 +2,6 @@
 This plugin searches for Slack tokens
 """
 
-
 import re
 
 import requests

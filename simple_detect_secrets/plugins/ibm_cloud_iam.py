@@ -1,4 +1,3 @@
-
 import requests
 
 from simple_detect_secrets.core.constants import VerifiedResult

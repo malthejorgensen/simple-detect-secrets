@@ -2,7 +2,6 @@
 This plugin finds JWT tokens
 """
 
-
 import base64
 import json
 import re

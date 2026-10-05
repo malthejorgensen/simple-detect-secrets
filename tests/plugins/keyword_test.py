@@ -1,4 +1,3 @@
-
 import ahocorasick
 import pytest
 

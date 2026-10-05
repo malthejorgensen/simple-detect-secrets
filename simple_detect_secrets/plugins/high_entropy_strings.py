@@ -1,4 +1,3 @@
-
 try:
     from backports import configparser
 except ImportError:  # pragma: no cover

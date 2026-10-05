@@ -1,4 +1,3 @@
-
 import itertools
 
 from .color import AnsiColor, colorize

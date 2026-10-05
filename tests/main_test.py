@@ -103,7 +103,13 @@ class TestMain:
         with mock_stdin():
             assert (
                 main(
-                    ['scan', '--exclude-files', 'some_pattern_here', '--exclude-lines', 'other_patt'],
+                    [
+                        'scan',
+                        '--exclude-files',
+                        'some_pattern_here',
+                        '--exclude-lines',
+                        'other_patt',
+                    ],
                 )
                 == 0
             )
