@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.13"
 
 [options]
-exclude-newer = "2026-09-21T12:14:08.93662Z"
+exclude-newer = "2026-09-21T12:19:34.956104Z"
 exclude-newer-span = "P2W"
 
 [[package]]
@@ -519,7 +519,7 @@ wheels = [
 
 [[package]]
 name = "simple-detect-secrets"
-version = "0.13.0"
+version = "0.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },
