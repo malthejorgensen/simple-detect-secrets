@@ -21,6 +21,17 @@ $ simple-detect-secrets scan
 $ pip install simple-detect-secrets
 ```
 
+For local development with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync --locked
+uv run simple-detect-secrets scan
+uv run pytest tests
+```
+
+Build the source distribution and wheel with `uv build`. Install the optional
+word-list support with `uv sync --extra word_list`.
+
 ## Caveats
 
 This is not meant to be a sure-fire solution to prevent secrets from entering

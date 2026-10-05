@@ -3,15 +3,15 @@ minimal: setup
 
 .PHONY: setup
 setup:
-	tox -e venv
+	uv sync --locked
 
 .PHONY: install-hooks
 install-hooks:
-	tox -e pre-commit -- install -f --install-hooks
+	uv run --locked pre-commit install -f --install-hooks
 
 .PHONY: test
 test:
-	tox
+	uv run --locked pytest tests
 
 .PHONY: clean
 clean:

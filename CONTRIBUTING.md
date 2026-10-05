@@ -22,34 +22,23 @@ that you can quickly hit the ground running.
 
 ## Building Your Development Environment
 
-There are several ways to spin up your virtual environment:
+Install [uv](https://docs.astral.sh/uv/) and sync the project and development
+dependencies into `.venv`:
 
 ```bash
-virtualenv --python=python3 venv
-source venv/bin/activate
-pip install -r requirements-dev.txt
+uv sync --locked
 ```
 
-or
+Check the installed command with:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements-dev.txt
+uv run simple-detect-secrets --version
 ```
 
-or
+Install the pre-commit hooks with:
 
 ```bash
-tox -e venv
-source venv/bin/activate
-```
-
-Whichever way you choose, you can check to see whether you're successful by
-executing:
-
-```bash
-PYTHONPATH=`pwd` python detect_secrets/main.py --version
+make install-hooks
 ```
 
 ## Writing a Plugin
@@ -95,17 +84,13 @@ There are many examples of existing plugins to reference, under
 
 ### Running the Entire Test Suite
 
-You can run the test suite in the interpreter of your choice (in this example,
-`py35`) by doing:
+Run the test suite using the project's Python interpreter:
 
 ```bash
-tox -e py35
+uv run --locked pytest tests
 ```
 
-For a list of supported interpreters, check out `envlist` in `tox.ini`.
-
-If you wanted to run **all** interpreters (might take a while), you can also
-just run:
+You can also run:
 
 ```bash
 make test
@@ -119,25 +104,25 @@ levels. Here are a couple of examples:
 - Running all tests related to `core/baseline.py`
 
   ```bash
-  pytest tests/core/baseline_test.py
+  uv run pytest tests/core/baseline_test.py
   ```
 
 - Running a single test class
 
   ```bash
-  pytest tests/core/baseline_test.py::TestInitializeBaseline
+  uv run pytest tests/core/baseline_test.py::TestInitializeBaseline
   ```
 
 - Running a single test function, inside test class
 
   ```bash
-  pytest tests/core/baseline_test.py::TestInitializeBaseline::test_basic_usage
+  uv run pytest tests/core/baseline_test.py::TestInitializeBaseline::test_basic_usage
   ```
 
 - Running a single root level test function
 
   ```bash
-  pytest tests/plugins/base_test.py::test_fails_if_no_secret_type_defined
+  uv run pytest tests/plugins/base_test.py::test_fails_if_no_secret_type_defined
   ```
 
 ## Technical Details
